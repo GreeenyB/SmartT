@@ -116,6 +116,32 @@ set this line near the top of `SmartT_Core_Demo.ino`:
 #define SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL 1
 ```
 
+The main demo now uses a demo-friendly detection algorithm:
+
+```text
+ADS1115 sample
+-> voltage / percent calibration
+-> 5-sample median filter
+-> EMA filter
+-> fuel rate calculation
+-> parked baseline + candidate confirmation state machine
+```
+
+Expected behavior:
+
+```text
+Ignition ON, fast fuel drop  -> event FAST_DROP_IGN_ON, alert NONE
+Ignition OFF, wait 2-3 sec   -> baseline is captured
+OFF + confirmed >6% drop     -> FUEL_THEFT_ANOMALY
+OFF + quick drop then recover -> candidate cancels, alert NONE
+Fuel rises >7% and holds     -> REFUEL_EVENT, baseline updates
+ADS missing / bad reading    -> sensor fault, alert NONE
+```
+
+The JSON/dashboard include debug fields such as `detector_state`,
+`fuel_rate_pct_per_sec`, `parked_baseline_pct`, `candidate_drop_pct`, and
+`anomaly_confidence`.
+
 ## Calibration
 
 In `SmartT_Core_Demo.ino`, update these values after measuring the sender:
