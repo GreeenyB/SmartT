@@ -1,0 +1,28 @@
+﻿# Archives / handoff packages
+*.zip
+*.rar
+*.7z
+
+# Arduino / build outputs
+build/
+*.bin
+*.elf
+*.hex
+*.map
+
+# PlatformIO, if used later
+.pio/
+
+# VS Code temp files
+.vscode/.browse.c_cpp.db*
+.vscode/ipch/
+
+# OS junk
+.DS_Store
+Thumbs.db
+__MACOSX/
+
+# Logs / temp
+*.log
+tmp/
+temp/
