@@ -1,190 +1,103 @@
-# SmartT Round 2 Arduino Code
+# SmartT
 
-This folder contains Arduino IDE sketches for the current SmartT MVP wiring.
+SmartT is a BKI Arduino project for fuel signal acquisition, local dashboard
+telemetry, and explainable anomaly detection.
 
-## Wiring used by these sketches
-
-```text
-ADS1115:
-VDD  -> 3V3
-GND  -> GND
-SDA  -> GPIO21
-SCL  -> GPIO22
-ADDR -> GND if the module has ADDR
-A0   -> FUEL_SIG from fuel sender
-A1   -> middle pin of 10K potentiometer backup
-
-Fuel sender:
-3V3 -> 330 ohm -> FUEL_SIG -> sender -> GND
-                  |
-                  -> ADS1115 A0
-
-10K potentiometer:
-outer pin 1 -> 3V3
-middle pin  -> ADS1115 A1
-outer pin 2 -> GND
-
-OLED SPI 7 pin:
-GND -> GND
-VDD -> 3V3
-SCK -> GPIO5
-SDA -> GPIO23
-RES -> GPIO17
-DC  -> GPIO16
-CS  -> GPIO18
-
-Ignition:
-GPIO19 <-> switch <-> GND
-INPUT_PULLUP, LOW = ON, HIGH = OFF
-
-Test/Theft button:
-GPIO4 <-> button <-> GND
-INPUT_PULLUP, LOW = pressed
-```
-
-GPIO2 is not used.
-
-## Install libraries
-
-In Arduino IDE Library Manager, install:
+Current hardware direction:
 
 ```text
-Adafruit ADS1X15
-Adafruit BusIO
-Adafruit SSD1306
-Adafruit GFX Library
+ESP32
+-> ADS1115
+-> analog fuel sender / potentiometer backup
+-> OLED SPI 7-pin
+-> Serial JSON and local Wi-Fi dashboard
 ```
 
-ESP32 board setting:
+The current main sketch focuses on reading a fuel-level signal reliably,
+filtering it, and detecting fuel-drop anomalies locally. Cloud telemetry,
+GPS/4G, CAN, and hosted fleet dashboards are future layers.
+
+## Repository layout
 
 ```text
-Board: ESP32 Dev Module
-Upload speed: 921600, or 115200 if upload fails
-Serial Monitor: 115200 baud
+SmartT_Core_Demo/
+  SmartT_Core_Demo.ino         Main demo sketch
+
+diagnostics/
+  SmartT_ESP32_Serial_Check/   Serial sanity check
+  SmartT_I2C_Scanner/          I2C device scan
+  SmartT_ADS1115_Bus_Doctor/   ADS1115 bus debug
+  SmartT_ADS1115_Read_Test/    ADS1115 A0/A1 read test
+  SmartT_OLED_SPI_Test/        SSD1306 SPI OLED test
+  SmartT_OLED_SH1106_SPI_Test/ SH1106 SPI OLED test
+  SmartT_WiFi_AP_Test/         ESP32 access-point test
+
+docs/
+  BOM.md
+  WIRING_AND_SETUP.md
+  SmartT_Algorithm_Recommendation_for_Codex.md
+
+ui-prototype/
+  README.md                     Approved editable dashboard source
+  dashboard/                    Standalone HTML/CSS/JS dashboard
+  assets/                       Local SmartT logo assets
 ```
-
-If upload gets stuck at `Connecting...`, hold BOOT when upload starts, then release.
-Do not hold the GPIO4 test button while the ESP32 is resetting or uploading.
-
-## Recommended test order
-
-0. If Serial Monitor only shows the ESP32 boot log, open
-   `SmartT_ESP32_Serial_Check/SmartT_ESP32_Serial_Check.ino`.
-   Expected: `ESP32 sketch alive` prints once per second.
-
-1. Open `SmartT_I2C_Scanner/SmartT_I2C_Scanner.ino`.
-   Expected: Serial Monitor finds ADS1115 at `0x48`.
-
-2. Open `SmartT_OLED_SPI_Test/SmartT_OLED_SPI_Test.ino`.
-   Expected: OLED shows the SmartT SPI test screen.
-
-   If the OLED lights up but the text looks distorted, try
-   `SmartT_OLED_SH1106_SPI_Test/SmartT_OLED_SH1106_SPI_Test.ino`.
-   This version needs the `U8g2` library and is for common SH1106 OLED modules.
-
-3. Open `SmartT_Core_Demo/SmartT_Core_Demo.ino`.
-   Expected: Serial JSON, OLED status, and optional local dashboard all update.
-
-Extra ADS1115 debug:
-
-`SmartT_ADS1115_Bus_Doctor/SmartT_ADS1115_Bus_Doctor.ino` checks whether SDA/SCL
-are idle-high, then scans normal GPIO21/GPIO22 and swapped GPIO22/GPIO21 at two
-I2C speeds. Expected ADS1115 address with `ADDR -> GND` is `0x48`.
-
-After the scanner finds `0x48`, open
-`SmartT_ADS1115_Read_Test/SmartT_ADS1115_Read_Test.ino` to read A0/A1 voltages
-over Serial without OLED or dashboard code.
 
 ## Main demo sketch
 
-`SmartT_Core_Demo` reads:
+`SmartT_Core_Demo/SmartT_Core_Demo.ino` is the main runnable demo sketch. It
+contains the ESP32 pin mapping, ADS1115 fuel acquisition, OLED UI, Serial JSON,
+local Wi-Fi AP, embedded dashboard HTML, and the fuel anomaly detection logic.
+
+Open this sketch directly in Arduino IDE when running the integrated prototype.
+
+## Dashboard UI
+
+`ui-prototype/` contains the approved editable dashboard source. Open
+`ui-prototype/dashboard/index.html` directly in a browser to view the standalone
+dashboard.
+
+Temporary exported UI package folders should not be committed. The tracked
+source of truth is `ui-prototype/`.
+
+## Diagnostics
+
+`diagnostics/` contains independent hardware test sketches. Each diagnostic is a
+normal Arduino sketch folder, so open the `.ino` inside the matching folder.
+
+Use these when bringing up individual hardware blocks before loading the full
+demo sketch.
+
+Suggested order:
 
 ```text
-ADS1115 A0 -> real fuel sender
-ADS1115 A1 -> 10K potentiometer backup
-GPIO19     -> ignition switch
-GPIO4      -> theft/test button
-OLED SPI   -> local screen
-Serial     -> JSON telemetry
-Wi-Fi AP   -> local dashboard
+1. diagnostics/SmartT_ESP32_Serial_Check/
+2. diagnostics/SmartT_I2C_Scanner/
+3. diagnostics/SmartT_OLED_SPI_Test/
+4. diagnostics/SmartT_ADS1115_Read_Test/
+5. SmartT_Core_Demo/
 ```
 
-By default, the fuel percent uses A0. If the real sender is noisy or not ready,
-set this line near the top of `SmartT_Core_Demo.ino`:
+If the OLED lights but text is distorted, try
+`diagnostics/SmartT_OLED_SH1106_SPI_Test/`.
 
-```cpp
-#define SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL 1
-```
+If a phone or laptop cannot connect to the main demo access point, try
+`diagnostics/SmartT_WiFi_AP_Test/`.
 
-The main demo now uses a demo-friendly detection algorithm:
+## Documentation
 
-```text
-ADS1115 sample
--> voltage / percent calibration
--> 5-sample median filter
--> EMA filter
--> fuel rate calculation
--> parked baseline + candidate confirmation state machine
-```
+`docs/` contains wiring, BOM, setup, and planning notes:
 
-Expected behavior:
+- `docs/WIRING_AND_SETUP.md` covers wiring, libraries, calibration, and demo use.
+- `docs/BOM.md` lists the current prototype hardware and Arduino libraries.
+- `docs/SmartT_Algorithm_Recommendation_for_Codex.md` preserves the fuel
+  detection planning note.
 
-```text
-Ignition ON, fast fuel drop  -> event FAST_DROP_IGN_ON, alert NONE
-Ignition OFF, wait 2-3 sec   -> baseline is captured
-OFF + confirmed >6% drop     -> FUEL_THEFT_ANOMALY
-OFF + quick drop then recover -> candidate cancels, alert NONE
-Fuel rises >7% and holds     -> REFUEL_EVENT, baseline updates
-ADS missing / bad reading    -> sensor fault, alert NONE
-```
+## Notes
 
-The JSON/dashboard include debug fields such as `detector_state`,
-`fuel_rate_pct_per_sec`, `parked_baseline_pct`, `candidate_drop_pct`, and
-`anomaly_confidence`.
+This cleanup intentionally does not change:
 
-## Calibration
-
-In `SmartT_Core_Demo.ino`, update these values after measuring the sender:
-
-```cpp
-const float FUEL_A0_EMPTY_V = 0.20f;
-const float FUEL_A0_FULL_V  = 3.10f;
-```
-
-If your sender is reversed, just swap the values. The code supports either
-direction.
-
-## Local dashboard
-
-The main sketch starts a Wi-Fi access point:
-
-```text
-SSID: SmartT-BKUIT-OPEN
-Password: none
-URL: http://192.168.4.1
-JSON: http://192.168.4.1/api/telemetry
-```
-
-The dashboard is embedded inside `SmartT_Core_Demo.ino`; no extra web file is
-needed. Connect a phone or laptop to `SmartT-BKUIT-OPEN`, stay connected even if the
-device says "No internet", then open `http://192.168.4.1`.
-
-Use the small theme button in the top right of the dashboard to switch between
-light mode and dark mode. The browser saves the last selected theme.
-
-If the phone cannot connect to `SmartT-BKUIT-OPEN`, upload
-`SmartT_WiFi_AP_Test/SmartT_WiFi_AP_Test.ino` first. It creates an open Wi-Fi
-network named `SmartT-Test` and serves a minimal page at `http://192.168.4.1`.
-
-For the first reliable demo, Serial + OLED is enough. The dashboard can be
-shown after the core readings are stable.
-
-## Cloud next step
-
-Once the local JSON is stable, the easiest cloud path is:
-
-```text
-ESP32 JSON -> Node-RED / small backend -> dashboard chart + alert log
-```
-
-Do not add GPS/4G/CAN yet unless the core fuel pipeline is already reliable.
+- hardware pin mapping
+- fuel detection behavior
+- OLED UI
+- sensor behavior

@@ -1,17 +1,37 @@
-﻿# Archives / handoff packages
+# Archives / handoff packages
 *.zip
 *.rar
 *.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# Temporary exported UI packages
+SmartT_UI_ProductGrade_*/
+SmartT_UI_*Patch*/
+ui-prototype/dist/
 
 # Arduino / build outputs
 build/
+.build/
 *.bin
 *.elf
 *.hex
 *.map
+*.eep
+*.lst
+*.sym
+*.d
+*.o
+*.a
+
+# Arduino-generated intermediates
+*.ino.cpp
 
 # PlatformIO, if used later
 .pio/
+.pioenvs/
+.piolibdeps/
 
 # VS Code temp files
 .vscode/.browse.c_cpp.db*
@@ -20,9 +40,14 @@ build/
 # OS junk
 .DS_Store
 Thumbs.db
+Desktop.ini
 __MACOSX/
 
 # Logs / temp
 *.log
+logs/
 tmp/
 temp/
+*.tmp
+*.bak
+*~
