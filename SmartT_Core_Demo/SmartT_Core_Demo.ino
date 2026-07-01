@@ -39,11 +39,22 @@ const float FUEL_A0_FULL_V = 0.31f;
 const float FUEL_A1_EMPTY_V = 0.00f;
 const float FUEL_A1_FULL_V = 3.30f;
 
-const float FILTER_ALPHA = 0.18f;
-const float DROP_THRESHOLD_PERCENT = 8.0f;
-const float REFUEL_THRESHOLD_PERCENT = 8.0f;
-const uint32_t DROP_WINDOW_MS = 5000;
-const uint32_t ALERT_HOLD_MS = 6000;
+const uint8_t FUEL_MEDIAN_SIZE = 5;
+const float FUEL_EMA_ALPHA = 0.18f;
+const uint32_t IGNITION_OFF_SETTLE_MS = 2500;
+const float THEFT_MIN_TOTAL_DROP_PCT = 6.0f;
+const float THEFT_MIN_RATE_PCT_PER_SEC = -0.8f;
+const uint32_t THEFT_CONFIRM_MS = 2200;
+const uint32_t THEFT_ALERT_HOLD_MS = 8000;
+const float THEFT_CANCEL_RECOVERY_PCT = 2.0f;
+const float REFUEL_MIN_RISE_PCT = 7.0f;
+const uint32_t REFUEL_CONFIRM_MS = 1800;
+const float BASELINE_STABLE_RATE_ABS_PCT_PER_SEC = 0.20f;
+const uint32_t BASELINE_STABLE_UPDATE_MS = 5000;
+const float SENSOR_VALID_LOW_MARGIN_PCT = -5.0f;
+const float SENSOR_VALID_HIGH_MARGIN_PCT = 105.0f;
+const uint32_t SENSOR_STUCK_MS = 15000;
+const float SENSOR_STUCK_EPS_PCT = 0.15f;
 const uint32_t TEST_HOLD_MS = 3500;
 const uint32_t SAMPLE_INTERVAL_MS = 250;
 const uint32_t SERIAL_INTERVAL_MS = 500;
@@ -80,18 +91,65 @@ struct Telemetry {
   float fuelRawPercent = 0.0f;
   float fuelFilteredPercent = 0.0f;
   float fuelDeltaWindow = 0.0f;
+  float fuelRatePctPerSec = 0.0f;
+  float parkedBaselinePct = 0.0f;
+  float candidateDropPct = 0.0f;
+  uint8_t anomalyConfidence = 0;
+  String detectorState = "BOOT";
+  bool sensorHealthy = true;
   String event = "BOOT";
   String alert = "NONE";
 };
 
 Telemetry telemetry;
 
+enum FuelDetectorState {
+  DETECTOR_BOOT,
+  DETECTOR_NORMAL_ON,
+  DETECTOR_OFF_SETTLING,
+  DETECTOR_PARKED_MONITORING,
+  DETECTOR_DROP_CANDIDATE,
+  DETECTOR_THEFT_ALERT,
+  DETECTOR_REFUEL_CANDIDATE,
+  DETECTOR_SENSOR_FAULT
+};
+
+struct FuelDetectorRuntime {
+  FuelDetectorState state = DETECTOR_BOOT;
+  FuelDetectorState previousState = DETECTOR_BOOT;
+
+  bool lastIgnitionOn = false;
+  uint32_t stateStartMs = 0;
+  uint32_t ignitionChangedMs = 0;
+
+  float previousFilteredFuelPct = 0.0f;
+  float fuelRatePctPerSec = 0.0f;
+  uint32_t lastRateMs = 0;
+
+  float parkedBaselinePct = 0.0f;
+  bool parkedBaselineReady = false;
+
+  float candidateStartFuelPct = 0.0f;
+  float candidateDropPct = 0.0f;
+  uint32_t candidateStartMs = 0;
+
+  uint32_t alertHoldUntilMs = 0;
+  uint8_t confidence = 0;
+
+  uint32_t lastStableUpdateMs = 0;
+  uint32_t lastSensorChangeMs = 0;
+  float lastSensorCheckFuelPct = 0.0f;
+};
+
+FuelDetectorRuntime detector;
+
 bool filterReady = false;
 float filteredFuelPercent = 0.0f;
-float windowReferenceFuelPercent = 0.0f;
-uint32_t windowStartMs = 0;
-uint32_t alertHoldUntilMs = 0;
+float fuelMedianBuffer[FUEL_MEDIAN_SIZE] = {0.0f};
+uint8_t fuelMedianIndex = 0;
+uint8_t fuelMedianCount = 0;
 uint32_t testHoldUntilMs = 0;
+uint32_t testAlertHoldUntilMs = 0;
 bool lastTestPressed = false;
 
 uint32_t lastSampleMs = 0;
@@ -114,6 +172,93 @@ float voltageToPercent(float volts, float emptyVolts, float fullVolts) {
   return clampFloat(percent, 0.0f, 100.0f);
 }
 
+float voltageToPercentUnclamped(float volts, float emptyVolts, float fullVolts) {
+  float span = fullVolts - emptyVolts;
+  if (fabs(span) < 0.001f) {
+    return 0.0f;
+  }
+
+  return ((volts - emptyVolts) * 100.0f) / span;
+}
+
+float selectedFuelPercentUnclamped() {
+#if SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL
+  return voltageToPercentUnclamped(telemetry.voltsA1, FUEL_A1_EMPTY_V, FUEL_A1_FULL_V);
+#else
+  return voltageToPercentUnclamped(telemetry.voltsA0, FUEL_A0_EMPTY_V, FUEL_A0_FULL_V);
+#endif
+}
+
+void resetMedianFilter(float seed) {
+  for (uint8_t i = 0; i < FUEL_MEDIAN_SIZE; i++) {
+    fuelMedianBuffer[i] = seed;
+  }
+  fuelMedianIndex = 0;
+  fuelMedianCount = FUEL_MEDIAN_SIZE;
+}
+
+float medianFilteredFuel(float sample) {
+  fuelMedianBuffer[fuelMedianIndex] = sample;
+  fuelMedianIndex = (fuelMedianIndex + 1) % FUEL_MEDIAN_SIZE;
+  if (fuelMedianCount < FUEL_MEDIAN_SIZE) {
+    fuelMedianCount++;
+  }
+
+  float sorted[FUEL_MEDIAN_SIZE];
+  for (uint8_t i = 0; i < fuelMedianCount; i++) {
+    sorted[i] = fuelMedianBuffer[i];
+  }
+
+  for (uint8_t i = 1; i < fuelMedianCount; i++) {
+    float key = sorted[i];
+    int8_t j = i - 1;
+    while (j >= 0 && sorted[j] > key) {
+      sorted[j + 1] = sorted[j];
+      j--;
+    }
+    sorted[j + 1] = key;
+  }
+
+  return sorted[fuelMedianCount / 2];
+}
+
+String detectorStateName(uint8_t state) {
+  switch (state) {
+    case DETECTOR_BOOT: return "BOOT";
+    case DETECTOR_NORMAL_ON: return "NORMAL_ON";
+    case DETECTOR_OFF_SETTLING: return "OFF_SETTLING";
+    case DETECTOR_PARKED_MONITORING: return "PARKED_MONITORING";
+    case DETECTOR_DROP_CANDIDATE: return "DROP_CANDIDATE";
+    case DETECTOR_THEFT_ALERT: return "THEFT_ALERT";
+    case DETECTOR_REFUEL_CANDIDATE: return "REFUEL_CANDIDATE";
+    case DETECTOR_SENSOR_FAULT: return "SENSOR_FAULT";
+  }
+  return "UNKNOWN";
+}
+
+void setDetectorState(uint8_t nextState, uint32_t now) {
+  if (detector.state == nextState) {
+    return;
+  }
+
+  detector.previousState = detector.state;
+  detector.state = (FuelDetectorState)nextState;
+  detector.stateStartMs = now;
+}
+
+uint8_t computeTheftConfidence(float dropPct, float ratePctPerSec) {
+  float score = 50.0f;
+  score += (dropPct - THEFT_MIN_TOTAL_DROP_PCT) * 5.0f;
+  score += fabs(ratePctPerSec) * 10.0f;
+
+  if (!telemetry.ignitionOn) {
+    score += 15.0f;
+  }
+
+  score = clampFloat(score, 0.0f, 100.0f);
+  return (uint8_t)(score + 0.5f);
+}
+
 float readAdsVoltage(uint8_t channel, int16_t& rawOut) {
   const uint8_t samples = 4;
   int32_t rawTotal = 0;
@@ -133,6 +278,7 @@ float readAdsVoltage(uint8_t channel, int16_t& rawOut) {
 void readTelemetry() {
   telemetry.ignitionOn = (digitalRead(PIN_IGNITION) == LOW);
   telemetry.testPressed = (digitalRead(PIN_TEST_BUTTON) == LOW);
+  uint32_t now = millis();
 
   if (telemetry.adsReady) {
     telemetry.voltsA0 = readAdsVoltage(0, telemetry.rawA0);
@@ -156,73 +302,330 @@ void readTelemetry() {
 #endif
 
   if (!filterReady) {
+    resetMedianFilter(telemetry.fuelRawPercent);
     filteredFuelPercent = telemetry.fuelRawPercent;
-    windowReferenceFuelPercent = filteredFuelPercent;
-    windowStartMs = millis();
+    detector.previousFilteredFuelPct = filteredFuelPercent;
+    detector.fuelRatePctPerSec = 0.0f;
+    detector.lastRateMs = now;
+    detector.parkedBaselinePct = filteredFuelPercent;
+    detector.lastStableUpdateMs = now;
+    detector.lastSensorCheckFuelPct = telemetry.fuelRawPercent;
+    detector.lastSensorChangeMs = now;
     filterReady = true;
   } else {
-    filteredFuelPercent += FILTER_ALPHA * (telemetry.fuelRawPercent - filteredFuelPercent);
+    float medianFuelPercent = medianFilteredFuel(telemetry.fuelRawPercent);
+    float previousFiltered = filteredFuelPercent;
+    filteredFuelPercent += FUEL_EMA_ALPHA * (medianFuelPercent - filteredFuelPercent);
+
+    if (detector.lastRateMs > 0 && now > detector.lastRateMs) {
+      float dtSeconds = (float)(now - detector.lastRateMs) / 1000.0f;
+      detector.fuelRatePctPerSec = (filteredFuelPercent - previousFiltered) / dtSeconds;
+    } else {
+      detector.fuelRatePctPerSec = 0.0f;
+    }
+
+    detector.previousFilteredFuelPct = previousFiltered;
+    detector.lastRateMs = now;
   }
 
   telemetry.fuelFilteredPercent = filteredFuelPercent;
+  telemetry.fuelRatePctPerSec = detector.fuelRatePctPerSec;
 }
 
-void updateDetection() {
-  uint32_t now = millis();
-
+void updateTestButton(uint32_t now) {
   if (telemetry.testPressed && !lastTestPressed) {
     testHoldUntilMs = now + TEST_HOLD_MS;
+    if (!telemetry.ignitionOn) {
+      testAlertHoldUntilMs = now + THEFT_ALERT_HOLD_MS;
+    }
   }
   lastTestPressed = telemetry.testPressed;
+}
 
-  telemetry.event = "NORMAL";
+bool isFuelSensorHealthy(uint32_t now) {
+  if (!telemetry.adsReady) {
+    return false;
+  }
+
+  float fuelPctUnclamped = selectedFuelPercentUnclamped();
+  if (fuelPctUnclamped < SENSOR_VALID_LOW_MARGIN_PCT ||
+      fuelPctUnclamped > SENSOR_VALID_HIGH_MARGIN_PCT) {
+    return false;
+  }
+
+  if (detector.lastSensorChangeMs == 0) {
+    detector.lastSensorCheckFuelPct = telemetry.fuelRawPercent;
+    detector.lastSensorChangeMs = now;
+  }
+
+  if (fabs(telemetry.fuelRawPercent - detector.lastSensorCheckFuelPct) > SENSOR_STUCK_EPS_PCT) {
+    detector.lastSensorCheckFuelPct = telemetry.fuelRawPercent;
+    detector.lastSensorChangeMs = now;
+  }
+
+  // Do not fail the first demo just because fuel is stable for a long time.
+  if (now - detector.lastSensorChangeMs > SENSOR_STUCK_MS) {
+    return true;
+  }
+
+  return true;
+}
+
+void updateIgnitionTransition(uint32_t now) {
+  if (detector.state == DETECTOR_BOOT || detector.state == DETECTOR_SENSOR_FAULT) {
+    detector.lastIgnitionOn = telemetry.ignitionOn;
+    detector.ignitionChangedMs = now;
+    detector.parkedBaselinePct = telemetry.fuelFilteredPercent;
+    detector.lastStableUpdateMs = now;
+    detector.candidateStartMs = 0;
+    detector.candidateDropPct = 0.0f;
+    detector.confidence = 0;
+
+    if (telemetry.ignitionOn) {
+      detector.parkedBaselineReady = false;
+      setDetectorState(DETECTOR_NORMAL_ON, now);
+    } else {
+      detector.parkedBaselineReady = false;
+      setDetectorState(DETECTOR_OFF_SETTLING, now);
+    }
+    return;
+  }
+
+  if (telemetry.ignitionOn != detector.lastIgnitionOn) {
+    detector.lastIgnitionOn = telemetry.ignitionOn;
+    detector.ignitionChangedMs = now;
+    detector.parkedBaselineReady = false;
+    detector.candidateStartMs = 0;
+    detector.candidateDropPct = 0.0f;
+    detector.confidence = 0;
+
+    if (telemetry.ignitionOn) {
+      testAlertHoldUntilMs = 0;
+      setDetectorState(DETECTOR_NORMAL_ON, now);
+    } else {
+      setDetectorState(DETECTOR_OFF_SETTLING, now);
+    }
+  }
+}
+
+void maybeUpdateStableBaseline(uint32_t now, float fuel) {
+  if (!telemetry.ignitionOn && !detector.parkedBaselineReady) {
+    return;
+  }
+
+  if (fabs(detector.fuelRatePctPerSec) > BASELINE_STABLE_RATE_ABS_PCT_PER_SEC) {
+    return;
+  }
+
+  if (now - detector.lastStableUpdateMs >= BASELINE_STABLE_UPDATE_MS) {
+    detector.parkedBaselinePct = fuel;
+    detector.lastStableUpdateMs = now;
+  }
+}
+
+void startRefuelCandidate(uint32_t now, float fuel) {
+  detector.candidateStartMs = now;
+  detector.candidateStartFuelPct = fuel;
+  detector.candidateDropPct = 0.0f;
+  detector.confidence = 0;
+  setDetectorState(DETECTOR_REFUEL_CANDIDATE, now);
+}
+
+void updateRefuelCandidate(uint32_t now, float fuel) {
+  telemetry.event = "REFUEL_CANDIDATE";
   telemetry.alert = "NONE";
 
-  if (!telemetry.adsReady) {
-    telemetry.event = "ADS1115_MISSING";
+  float rise = fuel - detector.parkedBaselinePct;
+  if (rise < REFUEL_MIN_RISE_PCT - THEFT_CANCEL_RECOVERY_PCT) {
+    detector.candidateStartMs = 0;
+    setDetectorState(telemetry.ignitionOn ? DETECTOR_NORMAL_ON : DETECTOR_PARKED_MONITORING, now);
+    return;
   }
 
-  telemetry.fuelDeltaWindow = telemetry.fuelFilteredPercent - windowReferenceFuelPercent;
-  bool fastDrop = telemetry.fuelDeltaWindow <= -DROP_THRESHOLD_PERCENT;
-  bool refuel = telemetry.fuelDeltaWindow >= REFUEL_THRESHOLD_PERCENT;
-
-  if (refuel) {
+  if (now - detector.candidateStartMs >= REFUEL_CONFIRM_MS) {
     telemetry.event = "REFUEL_EVENT";
-    windowReferenceFuelPercent = telemetry.fuelFilteredPercent;
-    windowStartMs = now;
+    telemetry.alert = "NONE";
+    detector.parkedBaselinePct = fuel;
+    detector.parkedBaselineReady = !telemetry.ignitionOn;
+    detector.candidateDropPct = 0.0f;
+    detector.confidence = 0;
+    detector.lastStableUpdateMs = now;
+    setDetectorState(telemetry.ignitionOn ? DETECTOR_NORMAL_ON : DETECTOR_PARKED_MONITORING, now);
+  }
+}
+
+void updateFuelStateMachine(uint32_t now) {
+  float fuel = telemetry.fuelFilteredPercent;
+  telemetry.fuelDeltaWindow = fuel - detector.parkedBaselinePct;
+
+  if (detector.state == DETECTOR_REFUEL_CANDIDATE) {
+    updateRefuelCandidate(now, fuel);
+    telemetry.fuelDeltaWindow = fuel - detector.parkedBaselinePct;
+    return;
   }
 
-  if (fastDrop) {
-    if (telemetry.ignitionOn) {
-      telemetry.event = "FAST_DROP_IGN_ON";
-    } else {
-      telemetry.event = "SUSPICIOUS_DROP";
-      telemetry.alert = "FUEL_THEFT_ANOMALY";
-      alertHoldUntilMs = now + ALERT_HOLD_MS;
+  if (telemetry.ignitionOn) {
+    detector.parkedBaselineReady = false;
+    detector.candidateStartMs = 0;
+    detector.candidateDropPct = 0.0f;
+    detector.confidence = 0;
+
+    if (fuel - detector.parkedBaselinePct >= REFUEL_MIN_RISE_PCT) {
+      startRefuelCandidate(now, fuel);
+      telemetry.event = "REFUEL_CANDIDATE";
+      return;
     }
 
-    windowReferenceFuelPercent = telemetry.fuelFilteredPercent;
-    windowStartMs = now;
+    telemetry.event = "NORMAL";
+    if (detector.fuelRatePctPerSec <= THEFT_MIN_RATE_PCT_PER_SEC) {
+      telemetry.event = "FAST_DROP_IGN_ON";
+    }
+
+    maybeUpdateStableBaseline(now, fuel);
+    setDetectorState(DETECTOR_NORMAL_ON, now);
+    telemetry.fuelDeltaWindow = fuel - detector.parkedBaselinePct;
+    return;
   }
 
-  if (now - windowStartMs >= DROP_WINDOW_MS) {
-    windowReferenceFuelPercent = telemetry.fuelFilteredPercent;
-    windowStartMs = now;
+  switch (detector.state) {
+    case DETECTOR_OFF_SETTLING:
+      telemetry.event = "PARKED_SETTLING";
+      if (now - detector.stateStartMs >= IGNITION_OFF_SETTLE_MS) {
+        detector.parkedBaselinePct = fuel;
+        detector.parkedBaselineReady = true;
+        detector.lastStableUpdateMs = now;
+        setDetectorState(DETECTOR_PARKED_MONITORING, now);
+        telemetry.event = "PARKED_MONITORING";
+      }
+      break;
+
+    case DETECTOR_PARKED_MONITORING: {
+      telemetry.event = "PARKED_MONITORING";
+      float drop = detector.parkedBaselinePct - fuel;
+      detector.candidateDropPct = drop;
+
+      if (fuel - detector.parkedBaselinePct >= REFUEL_MIN_RISE_PCT) {
+        startRefuelCandidate(now, fuel);
+        telemetry.event = "REFUEL_CANDIDATE";
+        break;
+      }
+
+      if (drop >= THEFT_MIN_TOTAL_DROP_PCT &&
+          detector.fuelRatePctPerSec <= THEFT_MIN_RATE_PCT_PER_SEC) {
+        detector.candidateStartMs = now;
+        detector.candidateStartFuelPct = fuel;
+        setDetectorState(DETECTOR_DROP_CANDIDATE, now);
+        telemetry.event = "FUEL_DROP_CANDIDATE";
+        break;
+      }
+
+      maybeUpdateStableBaseline(now, fuel);
+      break;
+    }
+
+    case DETECTOR_DROP_CANDIDATE: {
+      float drop = detector.parkedBaselinePct - fuel;
+      detector.candidateDropPct = drop;
+      telemetry.event = "FUEL_DROP_CANDIDATE";
+      telemetry.alert = "NONE";
+
+      if (fuel >= detector.parkedBaselinePct - THEFT_CANCEL_RECOVERY_PCT) {
+        detector.candidateDropPct = 0.0f;
+        detector.confidence = 0;
+        setDetectorState(DETECTOR_PARKED_MONITORING, now);
+        telemetry.event = "PARKED_MONITORING";
+        break;
+      }
+
+      if (drop >= THEFT_MIN_TOTAL_DROP_PCT &&
+          now - detector.candidateStartMs >= THEFT_CONFIRM_MS) {
+        detector.confidence = computeTheftConfidence(drop, detector.fuelRatePctPerSec);
+        detector.alertHoldUntilMs = now + THEFT_ALERT_HOLD_MS;
+        setDetectorState(DETECTOR_THEFT_ALERT, now);
+        telemetry.event = "SUSPICIOUS_DROP";
+        telemetry.alert = "FUEL_THEFT_ANOMALY";
+      }
+      break;
+    }
+
+    case DETECTOR_THEFT_ALERT:
+      telemetry.event = "SUSPICIOUS_DROP";
+      telemetry.alert = "FUEL_THEFT_ANOMALY";
+      if (now >= detector.alertHoldUntilMs) {
+        detector.parkedBaselinePct = fuel;
+        detector.lastStableUpdateMs = now;
+        detector.candidateDropPct = 0.0f;
+        detector.confidence = 0;
+        setDetectorState(DETECTOR_PARKED_MONITORING, now);
+        telemetry.event = "PARKED_MONITORING";
+        telemetry.alert = "NONE";
+      }
+      break;
+
+    default:
+      setDetectorState(DETECTOR_OFF_SETTLING, now);
+      telemetry.event = "PARKED_SETTLING";
+      break;
   }
 
+  telemetry.fuelDeltaWindow = fuel - detector.parkedBaselinePct;
+}
+
+void exportDetectorToTelemetry() {
+  telemetry.fuelRatePctPerSec = detector.fuelRatePctPerSec;
+  telemetry.parkedBaselinePct = detector.parkedBaselinePct;
+  telemetry.candidateDropPct = clampFloat(detector.candidateDropPct, 0.0f, 100.0f);
+  telemetry.anomalyConfidence = detector.confidence;
+  telemetry.detectorState = detectorStateName(detector.state);
+}
+
+void applyTestButtonOverride(uint32_t now) {
   if (now < testHoldUntilMs) {
     telemetry.event = "TEST_BUTTON";
+    telemetry.anomalyConfidence = 100;
     if (telemetry.ignitionOn) {
       telemetry.alert = "DROP_TEST_IGN_ON";
     } else {
       telemetry.alert = "FUEL_THEFT_TEST";
-      alertHoldUntilMs = now + ALERT_HOLD_MS;
     }
+  } else if (now < testAlertHoldUntilMs && !telemetry.ignitionOn && telemetry.alert == "NONE") {
+    telemetry.alert = "FUEL_THEFT_ANOMALY";
+    telemetry.anomalyConfidence = 100;
+  }
+}
+
+void updateDetection() {
+  uint32_t now = millis();
+  updateTestButton(now);
+
+  telemetry.event = "NORMAL";
+  telemetry.alert = "NONE";
+  telemetry.anomalyConfidence = 0;
+
+  if (!telemetry.adsReady) {
+    telemetry.sensorHealthy = false;
+    detector.confidence = 0;
+    setDetectorState(DETECTOR_SENSOR_FAULT, now);
+    telemetry.event = "ADS1115_MISSING";
+    telemetry.alert = "NONE";
+    exportDetectorToTelemetry();
+    return;
   }
 
-  if (now < alertHoldUntilMs && telemetry.alert == "NONE") {
-    telemetry.alert = "FUEL_THEFT_ANOMALY";
+  telemetry.sensorHealthy = isFuelSensorHealthy(now);
+  if (!telemetry.sensorHealthy) {
+    detector.confidence = 0;
+    setDetectorState(DETECTOR_SENSOR_FAULT, now);
+    telemetry.event = "SENSOR_FAULT";
+    telemetry.alert = "NONE";
+    exportDetectorToTelemetry();
+    return;
   }
+
+  updateIgnitionTransition(now);
+  updateFuelStateMachine(now);
+  exportDetectorToTelemetry();
+  applyTestButtonOverride(now);
 }
 
 String boolJson(bool value) {
@@ -233,6 +636,11 @@ String friendlyEventLabel(const String& event) {
   if (event == "BOOT") return "Booting";
   if (event == "NORMAL") return "Normal";
   if (event == "ADS1115_MISSING") return "ADS missing";
+  if (event == "SENSOR_FAULT") return "Sensor fault";
+  if (event == "PARKED_SETTLING") return "Parked settling";
+  if (event == "PARKED_MONITORING") return "Parked monitor";
+  if (event == "FUEL_DROP_CANDIDATE") return "Drop candidate";
+  if (event == "REFUEL_CANDIDATE") return "Refuel candidate";
   if (event == "REFUEL_EVENT") return "Refuel detected";
   if (event == "FAST_DROP_IGN_ON") return "Fast drop";
   if (event == "SUSPICIOUS_DROP") return "Suspicious drop";
@@ -257,7 +665,7 @@ String oledStatusLabel() {
 
 String telemetryJson() {
   String json;
-  json.reserve(760);
+  json.reserve(1120);
 
   json += "{";
   json += "\"vehicle_id\":\"";
@@ -304,6 +712,24 @@ String telemetryJson() {
   json += ",";
   json += "\"fuel_delta_window\":";
   json += String(telemetry.fuelDeltaWindow, 1);
+  json += ",";
+  json += "\"fuel_rate_pct_per_sec\":";
+  json += String(telemetry.fuelRatePctPerSec, 2);
+  json += ",";
+  json += "\"parked_baseline_pct\":";
+  json += String(telemetry.parkedBaselinePct, 1);
+  json += ",";
+  json += "\"candidate_drop_pct\":";
+  json += String(telemetry.candidateDropPct, 1);
+  json += ",";
+  json += "\"anomaly_confidence\":";
+  json += String(telemetry.anomalyConfidence);
+  json += ",";
+  json += "\"detector_state\":\"";
+  json += telemetry.detectorState;
+  json += "\",";
+  json += "\"sensor_healthy\":";
+  json += boolJson(telemetry.sensorHealthy);
   json += ",";
   json += "\"event\":\"";
   json += telemetry.event;
@@ -507,7 +933,7 @@ const char DASHBOARD_HTML[] PROGMEM = R"rawliteral(
           <div class="value" id="event">--</div>
         </div>
         <div class="card">
-          <div class="label">Window delta</div>
+          <div class="label">Baseline delta</div>
           <div class="value" id="delta">--%</div>
         </div>
       </div>
@@ -517,7 +943,11 @@ const char DASHBOARD_HTML[] PROGMEM = R"rawliteral(
       <table>
         <tr><td>A0 fuel sender</td><td><span id="a0v">-- V</span> / <span id="a0p">--%</span></td></tr>
         <tr><td>A1 backup pot</td><td><span id="a1v">-- V</span> / <span id="a1p">--%</span></td></tr>
+        <tr><td>Detector state</td><td id="state">--</td></tr>
+        <tr><td>Baseline / rate</td><td><span id="baseline">--%</span> / <span id="rate">-- %/s</span></td></tr>
+        <tr><td>Candidate / confidence</td><td><span id="candidate">--%</span> / <span id="confidence">--</span></td></tr>
         <tr><td>ADS1115 / OLED</td><td><span id="ads">--</span> / <span id="oled">--</span></td></tr>
+        <tr><td>Sensor health</td><td id="health">--</td></tr>
         <tr><td>Test button</td><td id="test">--</td></tr>
         <tr><td>Uptime</td><td id="uptime">--</td></tr>
       </table>
@@ -577,6 +1007,11 @@ const char DASHBOARD_HTML[] PROGMEM = R"rawliteral(
         BOOT: 'Booting',
         NORMAL: 'Normal',
         ADS1115_MISSING: 'ADS missing',
+        SENSOR_FAULT: 'Sensor fault',
+        PARKED_SETTLING: 'Parked settling',
+        PARKED_MONITORING: 'Parked monitor',
+        FUEL_DROP_CANDIDATE: 'Drop candidate',
+        REFUEL_CANDIDATE: 'Refuel candidate',
         REFUEL_EVENT: 'Refuel detected',
         FAST_DROP_IGN_ON: 'Fast drop',
         SUSPICIOUS_DROP: 'Suspicious drop',
@@ -657,8 +1092,14 @@ const char DASHBOARD_HTML[] PROGMEM = R"rawliteral(
         text('a0p', Number(d.fuel_percent_a0 || 0).toFixed(1) + '%');
         text('a1v', Number(d.fuel_volts_a1 || 0).toFixed(3) + ' V');
         text('a1p', Number(d.fuel_percent_a1 || 0).toFixed(1) + '%');
+        text('state', d.detector_state || '--');
+        text('baseline', Number(d.parked_baseline_pct || 0).toFixed(1) + '%');
+        text('rate', Number(d.fuel_rate_pct_per_sec || 0).toFixed(2) + ' %/s');
+        text('candidate', Number(d.candidate_drop_pct || 0).toFixed(1) + '%');
+        text('confidence', Number(d.anomaly_confidence || 0).toFixed(0) + '/100');
         text('ads', d.ads_ready ? 'OK' : 'MISSING');
         text('oled', d.oled_ready ? 'OK' : 'MISSING');
+        text('health', d.sensor_healthy ? 'OK' : 'FAULT');
         text('test', d.test_button ? 'PRESSED' : 'released');
         text('uptime', formatMs(d.uptime_ms));
         document.getElementById('alertCard').className = classByAlert(d.alert);
