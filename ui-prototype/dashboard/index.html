@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartT Fleet Fuel Intelligence</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="brand" href="#overview" aria-label="SmartT home">
+          <img src="../assets/smartt-logo-compact.png" alt="SmartT logo">
+          <span>
+            <strong>SmartT</strong>
+            <small>Fuel Intelligence</small>
+          </span>
+        </a>
+
+        <nav class="section-tabs" aria-label="Dashboard sections">
+          <a href="#overview" class="tab-link is-active" data-section="overview" aria-current="page">Overview</a>
+          <a href="#evidence" class="tab-link" data-section="evidence">Evidence</a>
+          <a href="#telemetry" class="tab-link" data-section="telemetry">Telemetry</a>
+          <a href="#events" class="tab-link" data-section="events">Events</a>
+        </nav>
+
+        <div class="header-status" aria-label="Current monitored asset">
+          <div>
+            <span>Vehicle</span>
+            <strong id="vehicleId">TRUCK_01</strong>
+          </div>
+          <div>
+            <span>Updated</span>
+            <strong id="lastUpdate">--:--</strong>
+          </div>
+        </div>
+
+        <div class="online-status" id="connectionStatus" aria-label="Connection status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Online</span>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="page-section overview-grid nav-section" id="overview" aria-label="Fleet overview">
+          <article class="panel fuel-overview">
+            <div class="panel-heading fuel-heading">
+              <h2>Fuel Level</h2>
+              <span class="state-badge" id="fuelStatus">Normal</span>
+            </div>
+
+            <div class="fuel-summary">
+              <div class="fuel-value" aria-label="Current fuel percentage">
+                <strong id="fuelPercent">--</strong>
+                <span>%</span>
+              </div>
+              <div class="fuel-side">
+                <dl>
+                  <div>
+                    <dt>Estimated volume</dt>
+                    <dd id="fuelLiters">-- L</dd>
+                  </div>
+                  <div>
+                    <dt>Tank capacity</dt>
+                    <dd id="tankCapacity">-- L</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <div class="tank-track" aria-hidden="true">
+              <div class="tank-fill" id="fuelBar"></div>
+              <span style="left:25%"></span>
+              <span style="left:50%"></span>
+              <span style="left:75%"></span>
+            </div>
+
+            <div class="decision-strip" id="decisionStrip">
+              <div>
+                <span>Decision</span>
+                <strong id="decisionTitle">Normal</strong>
+              </div>
+              <div>
+                <span>Rule</span>
+                <strong id="ruleResult">Stable trend</strong>
+              </div>
+              <div>
+                <span>Confidence</span>
+                <strong id="confidenceValue">--%</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel context-panel">
+            <div class="panel-heading simple">
+              <h2>Vehicle context</h2>
+              <button class="state-toggle" id="ignitionToggle" type="button" aria-pressed="false">Ignition OFF</button>
+            </div>
+
+            <dl class="context-list">
+              <div>
+                <dt>Ignition</dt>
+                <dd id="ignitionState">--</dd>
+              </div>
+              <div>
+                <dt>Speed</dt>
+                <dd id="speedValue">-- km/h</dd>
+              </div>
+              <div>
+                <dt>GPS state</dt>
+                <dd id="gpsState">--</dd>
+              </div>
+              <div>
+                <dt>Location</dt>
+                <dd id="gpsLocation">--</dd>
+              </div>
+              <div>
+                <dt>Zone</dt>
+                <dd id="geoZone">--</dd>
+              </div>
+              <div>
+                <dt>Fuel source</dt>
+                <dd id="dataSource">Fuel Sensor</dd>
+              </div>
+            </dl>
+          </article>
+        </section>
+
+        <section class="page-section nav-section" id="evidence" aria-label="Anomaly evidence">
+          <article class="panel evidence-panel">
+            <div class="panel-heading simple">
+              <h2>Evidence</h2>
+              <span class="alert-code" id="alertCode">NORMAL</span>
+            </div>
+
+            <div class="evidence-table" role="table" aria-label="Anomaly evidence table">
+              <div class="evidence-row header" role="row">
+                <span role="columnheader">Fuel delta</span>
+                <span role="columnheader">Ignition</span>
+                <span role="columnheader">Speed</span>
+                <span role="columnheader">GPS</span>
+                <span role="columnheader">Location</span>
+                <span role="columnheader">Result</span>
+              </div>
+              <div class="evidence-row" role="row">
+                <strong id="evidenceFuelDelta" role="cell">--</strong>
+                <strong id="evidenceIgnitionText" role="cell">--</strong>
+                <strong id="evidenceSpeedText" role="cell">--</strong>
+                <strong id="evidenceGpsText" role="cell">--</strong>
+                <strong id="evidenceLocationText" role="cell">--</strong>
+                <strong id="evidenceResult" role="cell">--</strong>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="page-section nav-section" id="telemetry" aria-label="Fuel telemetry">
+          <article class="panel telemetry-panel">
+            <div class="panel-heading simple">
+              <h2>Fuel signal</h2>
+              <div class="legend" aria-label="Signal legend">
+                <span><i class="raw-key"></i>Raw</span>
+                <span><i class="filtered-key"></i>Filtered</span>
+              </div>
+            </div>
+
+            <div class="telemetry-meta">
+              <dl>
+                <div>
+                  <dt>Filtered</dt>
+                  <dd id="filteredFuelValue">--%</dd>
+                </div>
+                <div>
+                  <dt>Raw</dt>
+                  <dd id="rawFuelValue">--%</dd>
+                </div>
+                <div>
+                  <dt>Change</dt>
+                  <dd id="fuelDelta">-- L</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="chart-shell" aria-label="Recent fuel signal trend">
+              <svg id="signalChart" viewBox="0 0 760 260" role="img">
+                <defs>
+                  <linearGradient id="fuelAreaGradient" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#11aebc" stop-opacity="0.16"></stop>
+                    <stop offset="100%" stop-color="#11aebc" stop-opacity="0.01"></stop>
+                  </linearGradient>
+                </defs>
+                <line class="chart-grid" x1="0" y1="52" x2="760" y2="52"></line>
+                <line class="chart-grid" x1="0" y1="104" x2="760" y2="104"></line>
+                <line class="chart-grid" x1="0" y1="156" x2="760" y2="156"></line>
+                <line class="chart-grid" x1="0" y1="208" x2="760" y2="208"></line>
+                <polygon id="filteredArea" class="filtered-area" points=""></polygon>
+                <polyline id="rawLine" class="raw-line" points=""></polyline>
+                <polyline id="filteredLine" class="filtered-line" points=""></polyline>
+              </svg>
+            </div>
+          </article>
+        </section>
+
+        <section class="page-section events-grid nav-section" id="events" aria-label="Events and actions">
+          <article class="panel events-panel">
+            <div class="panel-heading simple">
+              <h2>Events</h2>
+            </div>
+            <ol class="event-log" id="eventLog"></ol>
+          </article>
+
+          <article class="panel actions-panel">
+            <div class="panel-heading simple">
+              <h2>Event review</h2>
+            </div>
+            <div class="action-grid">
+              <button class="action-btn" id="normalBtn" type="button">Mark normal</button>
+              <button class="action-btn" id="refuelBtn" type="button">Mark refuel</button>
+              <button class="action-btn" id="noiseBtn" type="button">Mark sloshing</button>
+              <button class="action-btn danger" id="theftBtn" type="button">Flag theft</button>
+              <button class="action-btn" id="resetBtn" type="button">Clear</button>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
