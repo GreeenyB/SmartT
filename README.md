@@ -17,6 +17,7 @@ display and an ESP32-hosted web dashboard.
 - Refuel, sloshing, and suspicious drop classification
 - OLED device status display
 - ESP32-hosted web dashboard
+- Laptop-hosted local server dashboard with SQLite persistence
 - Diagnostic sketches for hardware validation
 
 ## Firmware Architecture
@@ -32,6 +33,7 @@ The main firmware is modularized under `SmartT_Core_Demo/`:
 - `OledView`: compact OLED device status display
 - `WebDashboard`: ESP32 web server, telemetry API, and dashboard routes
 - `DashboardAssets.h`: embedded dashboard HTML, CSS, and JavaScript assets
+- `LocalServerClient`: optional HTTP telemetry push to the laptop local server
 
 ## Repository Structure
 
@@ -39,8 +41,16 @@ The main firmware is modularized under `SmartT_Core_Demo/`:
 SmartT_Core_Demo/   Main Arduino/ESP32 firmware
 diagnostics/        Hardware validation sketches
 docs/               Wiring, setup, BOM, and algorithm notes
+server/             Flask, SQLite, and local fleet dashboard
 ui-prototype/       Editable dashboard prototype source
 ```
+
+## Local Server Dashboard
+
+The local server under `server/` receives ESP32 telemetry at `/api/ingest`,
+persists telemetry and events to `server/data/smartt.db`, and serves the fleet
+dashboard at `http://localhost:8000`. See `server/README.md` for Windows setup,
+sample data loading, and ESP32 Wi-Fi configuration.
 
 ## Hardware Overview
 
@@ -73,6 +83,11 @@ Required libraries:
 4. Open Serial Monitor at `115200` baud.
 5. Connect to the ESP32 dashboard according to the firmware Wi-Fi mode and
    Serial Monitor output.
+
+For local server push, copy `SmartT_Core_Demo/Secrets.example.h` to
+`SmartT_Core_Demo/Secrets.h` and set the Wi-Fi SSID, password, and
+`http://<LAPTOP_IP>:8000/api/ingest` URL. The sketch still compiles and runs
+without `Secrets.h`.
 
 ## Diagnostics
 

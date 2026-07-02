@@ -28,6 +28,9 @@ build/
 # Arduino-generated intermediates
 *.ino.cpp
 
+# Local ESP32 secrets
+SmartT_Core_Demo/Secrets.h
+
 # PlatformIO, if used later
 .pio/
 .pioenvs/
@@ -51,3 +54,10 @@ temp/
 *.tmp
 *.bak
 *~
+
+# Local server runtime files
+server/.venv/
+server/data/*.db
+server/data/*.db-*
+__pycache__/
+*.pyc

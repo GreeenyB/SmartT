@@ -2,9 +2,40 @@
 
 #include <Arduino.h>
 
+#if defined(__has_include)
+#if __has_include("Secrets.h")
+#include "Secrets.h"
+#define SMARTT_HAS_SECRETS 1
+#else
+#define SMARTT_HAS_SECRETS 0
+#endif
+#else
+#define SMARTT_HAS_SECRETS 0
+#endif
+
+#ifndef SMARTT_WIFI_SSID
+#define SMARTT_WIFI_SSID ""
+#endif
+
+#ifndef SMARTT_WIFI_PASSWORD
+#define SMARTT_WIFI_PASSWORD ""
+#endif
+
+#ifndef SMARTT_SERVER_URL
+#define SMARTT_SERVER_URL ""
+#endif
+
+#ifndef SMARTT_DEVICE_ID
+#define SMARTT_DEVICE_ID "smartt-esp32-001"
+#endif
+
+#ifndef SMARTT_SOURCE_TYPE
+#define SMARTT_SOURCE_TYPE "ANALOG_ADS1115"
+#endif
+
 #define SMARTT_ENABLE_WIFI_DASHBOARD 1
 #define SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL 0
-#define SMARTT_ENABLE_ALERT_LED 1
+#define SMARTT_ENABLE_ALERT_LED 0
 
 static const char* const VEHICLE_ID = "TRUCK_01";
 static const float TANK_CAPACITY_LITERS = 180.0f;
@@ -81,6 +112,9 @@ static const uint32_t SAMPLE_INTERVAL_MS = 250;
 static const uint32_t SERIAL_INTERVAL_MS = 500;
 static const uint32_t OLED_INTERVAL_MS = 500;
 static const uint32_t STARTUP_DETECTION_IGNORE_MS = 2500;
+static const uint32_t WIFI_CONNECT_TIMEOUT_MS = 8000;
+static const uint32_t SERVER_POST_INTERVAL_MS = 2000;
+static const uint16_t SERVER_HTTP_TIMEOUT_MS = 600;
 
 static const uint32_t GPS_VALID_MAX_AGE_MS = 5000;
 static const float GPS_STATIONARY_KMH = 3.0f;

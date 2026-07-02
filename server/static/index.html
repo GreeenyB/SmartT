@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartT Fuel Intelligence</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIINfQmMNHrzpOBQPa9B5s+fR4rtG/K8vlM="
+      crossorigin=""
+    >
+    <link rel="stylesheet" href="/static/style.css">
+    <script
+      defer
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script defer src="/static/app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SmartT Fuel Intelligence</p>
+        <h1>Local Fleet Dashboard</h1>
+      </div>
+      <div class="status-strip" aria-live="polite">
+        <span class="status-pill" id="serverStatus">Connecting</span>
+        <span class="status-detail">Last telemetry <strong id="lastTelemetryTime">--</strong></span>
+      </div>
+    </header>
+
+    <main class="dashboard-shell">
+      <section class="current-grid" aria-label="Current status">
+        <article class="metric-card">
+          <span class="metric-label">Fuel</span>
+          <strong class="metric-value" id="fuelPercent">--</strong>
+          <span class="metric-subvalue" id="fuelLiters">-- L</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Decision</span>
+          <strong class="metric-value compact" id="currentEvent">--</strong>
+          <span class="metric-subvalue" id="ruleResult">--</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Ignition</span>
+          <strong class="metric-value compact" id="ignitionState">--</strong>
+          <span class="metric-subvalue" id="detectorState">--</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">GPS</span>
+          <strong class="metric-value compact" id="gpsState">--</strong>
+          <span class="metric-subvalue" id="gpsMotionState">--</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Confidence</span>
+          <strong class="metric-value" id="confidence">--</strong>
+          <span class="metric-subvalue">event score</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Signal</span>
+          <strong class="metric-value" id="signalStability">--</strong>
+          <span class="metric-subvalue" id="sloshingScore">slosh --</span>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel timeline-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Recent telemetry</p>
+              <h2>Fuel Timeline</h2>
+            </div>
+            <span id="historyCount" class="panel-stat">0 rows</span>
+          </div>
+          <canvas id="fuelChart" width="960" height="360" aria-label="Fuel percentage over time"></canvas>
+        </article>
+
+        <article class="panel map-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Location context</p>
+              <h2>Map</h2>
+            </div>
+            <span id="mapStatus" class="panel-stat">GPS acquiring</span>
+          </div>
+          <div class="map-frame">
+            <div id="map" aria-label="Vehicle location map"></div>
+            <div class="map-fallback" id="mapFallback">GPS acquiring</div>
+          </div>
+          <div class="coordinate-strip">
+            <span id="coordinateText">--</span>
+            <span id="speedText">-- km/h</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel events-panel" aria-label="Event history">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Recent decisions</p>
+            <h2>Event History</h2>
+          </div>
+          <span id="eventCount" class="panel-stat">0 events</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Delta liters</th>
+                <th>GPS state</th>
+                <th>Confidence</th>
+              </tr>
+            </thead>
+            <tbody id="eventRows">
+              <tr>
+                <td colspan="5" class="empty-cell">Waiting for telemetry</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
