@@ -1,149 +1,100 @@
 # SmartT Fuel Intelligence
 
-SmartT is a fleet fuel monitoring and telemetry project built around an
-ESP32-based hardware stack. It acquires a fuel level signal, filters noisy
-readings, estimates fuel percentage and volume, and presents contextual status
-through an OLED display and a local web dashboard. The current firmware also
-classifies basic fuel events using fuel behavior and vehicle context.
+## Overview
+
+SmartT Fuel Intelligence is a fuel monitoring and telemetry prototype for fleet
+operations. It reads fuel level data, estimates fuel percentage and volume,
+classifies contextual fuel events, and presents device status through an OLED
+display and an ESP32-hosted web dashboard.
 
 ## Key Capabilities
 
-- Fuel level acquisition from an analog fuel sender or fuel level signal
-- Filtering for noisy fuel readings
-- Fuel percentage and estimated volume calculation
-- Contextual status classification for normal, refuel, sloshing/noise, and suspicious fuel drop events
-- Local OLED status display
-- Wi-Fi hosted dashboard served by the ESP32
-- Independent hardware diagnostics sketches for bring-up and validation
+- Fuel signal acquisition through ADS1115
+- Fuel percentage and liters estimation
+- Multi-stage filtering and signal stability tracking
+- Rule-based fuel event detection
+- Ignition and GPS/motion context
+- Refuel, sloshing, and suspicious drop classification
+- OLED device status display
+- ESP32-hosted web dashboard
+- Diagnostic sketches for hardware validation
+
+## Firmware Architecture
+
+The main firmware is modularized under `SmartT_Core_Demo/`:
+
+- `Config.h`: pin mapping, calibration constants, timing, and feature flags
+- `Types.h`: shared telemetry, sensor health, GPS, vehicle, and event state
+- `FuelSensor`: ADS1115 fuel signal acquisition and sensor health checks
+- `FuelFilter`: fuel percentage filtering and signal stability tracking
+- `GpsContext`: optional GPS and motion context
+- `EventDetector`: rule-based refuel, slosh, and suspicious drop detection
+- `OledView`: compact OLED device status display
+- `WebDashboard`: ESP32 web server, telemetry API, and dashboard routes
+- `DashboardAssets.h`: embedded dashboard HTML, CSS, and JavaScript assets
 
 ## Repository Structure
 
 ```text
-SmartT_Core_Demo/
-  SmartT_Core_Demo.ino         Main Arduino/ESP32 firmware entry point
-
-ui-prototype/
-  README.md                    Editable dashboard source notes
-  dashboard/                   Approved dashboard HTML, CSS, and JavaScript
-  assets/                      Local SmartT dashboard logo assets
-
-diagnostics/
-  SmartT_ESP32_Serial_Check/   Serial output sanity check
-  SmartT_I2C_Scanner/          I2C bus scanner
-  SmartT_ADS1115_Bus_Doctor/   ADS1115/I2C bus diagnostics
-  SmartT_ADS1115_Read_Test/    ADS1115 fuel signal read test
-  SmartT_OLED_SPI_Test/        SPI OLED test
-  SmartT_OLED_SH1106_SPI_Test/ Alternate OLED controller test
-  SmartT_WiFi_AP_Test/         ESP32 Wi-Fi access point test
-
-docs/
-  BOM.md
-  WIRING_AND_SETUP.md
-  SmartT_Algorithm_Recommendation_for_Codex.md
+SmartT_Core_Demo/   Main Arduino/ESP32 firmware
+diagnostics/        Hardware validation sketches
+docs/               Wiring, setup, BOM, and algorithm notes
+ui-prototype/       Editable dashboard prototype source
 ```
 
 ## Hardware Overview
 
-The current hardware direction uses these main modules:
-
 - ESP32 DevKit
-- ADS1115 ADC for fuel signal acquisition
-- Analog fuel sender or equivalent fuel level signal
-- SPI OLED display for local status
-- Optional GPS context, or placeholder context when GPS hardware is not connected
-- ESP32 Wi-Fi access point for the local dashboard
+- ADS1115 ADC
+- Analog fuel sender or potentiometer
+- SPI OLED 128x64
+- Optional GPS module
+- Breadboard/prototype wiring
 
-The hardware and firmware are organized for iterative development and validation.
-Vehicle-specific calibration is expected before use with a real fuel sender.
+## Arduino IDE Setup
 
-## Main Sketch
+Required board:
 
-[`SmartT_Core_Demo/SmartT_Core_Demo.ino`](SmartT_Core_Demo/SmartT_Core_Demo.ino)
-is the main firmware entry point.
+- ESP32 Dev Module
 
-It handles:
+Required libraries:
 
-- Fuel signal acquisition through the ADS1115
-- Raw-to-percentage conversion and filtering
-- Fuel volume estimation from configured tank capacity
-- Contextual fuel event classification
-- OLED status output
-- Serial telemetry output
-- ESP32-hosted web dashboard serving
+- Adafruit ADS1X15
+- Adafruit BusIO
+- Adafruit GFX
+- Adafruit SSD1306
+- TinyGPS++ if GPS is enabled or used
 
-Open this sketch in Arduino IDE when running the integrated SmartT firmware.
+## Running the Firmware
 
-## Dashboard UI
-
-[`ui-prototype/`](ui-prototype/) contains the editable source of the approved
-dashboard UI. The standalone dashboard files live in
-[`ui-prototype/dashboard/`](ui-prototype/dashboard/), with local image assets in
-[`ui-prototype/assets/`](ui-prototype/assets/).
-
-The Arduino sketch embeds an ESP32-hosted version of the same dashboard style so
-the interface can be served directly from the device without external web
-dependencies. The embedded dashboard reads live telemetry from the firmware API.
+1. Open `SmartT_Core_Demo/SmartT_Core_Demo.ino`.
+2. Select `ESP32 Dev Module` and the correct COM port.
+3. Verify and upload the sketch.
+4. Open Serial Monitor at `115200` baud.
+5. Connect to the ESP32 dashboard according to the firmware Wi-Fi mode and
+   Serial Monitor output.
 
 ## Diagnostics
 
-[`diagnostics/`](diagnostics/) contains independent Arduino sketches for
-hardware validation. These sketches are useful when checking one subsystem at a
-time before loading the main firmware.
+Diagnostic sketches are available under `diagnostics/` for subsystem bring-up
+and hardware validation. They include serial, I2C, ADS1115, OLED SPI, OLED pixel,
+SH1106 OLED comparison, and Wi-Fi access point tests.
 
-Available diagnostics include:
+Use the OLED pixel diagnostic when checking for missing pixels, fixed lines,
+driver mismatch, or unstable SPI/power behavior.
 
-- ESP32 serial check
-- I2C scanner
-- ADS1115 bus and read tests
-- SPI OLED tests
-- Wi-Fi access point test
+## Current Limitations
 
-## Setup
+- Bench prototype, not a vehicle-certified product
+- Vehicle-specific fuel calibration is required
+- GPS depends on module availability and signal quality
+- CAN/OBD-II and 4G/cloud integration are future work
+- Fuel event detection is currently rule-based and requires pilot validation
 
-1. Install Arduino IDE.
-2. Install the ESP32 board package in Arduino IDE.
-3. Install the required libraries:
-   - Adafruit ADS1X15
-   - Adafruit BusIO
-   - Adafruit SSD1306
-   - Adafruit GFX Library
-4. Select `ESP32 Dev Module` as the board.
-5. Open `SmartT_Core_Demo/SmartT_Core_Demo.ino`.
-6. Verify and upload the sketch.
-7. Open Serial Monitor at `115200` baud to view startup logs and telemetry.
+## Roadmap
 
-After upload, connect to the configured ESP32 Wi-Fi access point and open the
-dashboard URL printed in Serial Monitor.
-
-## Suggested Validation Flow
-
-1. Run `diagnostics/SmartT_ESP32_Serial_Check/`.
-2. Run `diagnostics/SmartT_I2C_Scanner/` to confirm I2C communication.
-3. Run `diagnostics/SmartT_ADS1115_Read_Test/` to inspect fuel signal readings.
-4. Run `diagnostics/SmartT_OLED_SPI_Test/` to verify the OLED display.
-5. Upload `SmartT_Core_Demo/SmartT_Core_Demo.ino`.
-6. Check Serial telemetry, OLED output, and the local Wi-Fi dashboard.
-
-If the OLED lights but text appears incorrect, try
-`diagnostics/SmartT_OLED_SH1106_SPI_Test/` to check for an alternate OLED
-controller.
-
-## Documentation
-
-- [`docs/BOM.md`](docs/BOM.md) lists the current hardware and library bill of materials.
-- [`docs/WIRING_AND_SETUP.md`](docs/WIRING_AND_SETUP.md) covers wiring, setup, and calibration notes.
-- [`docs/SmartT_Algorithm_Recommendation_for_Codex.md`](docs/SmartT_Algorithm_Recommendation_for_Codex.md) documents fuel event detection planning.
-
-## Current Limitations and Development Notes
-
-- GPS may be represented as contextual data or a placeholder depending on
-  hardware availability.
-- Vehicle-specific fuel sender calibration is required for real deployment.
-- CAN/OBD-II integration, cloud telemetry, and a production-grade enclosure are
-  future integration directions.
-- Temporary exported UI package folders should not be committed. The editable
-  dashboard source is `ui-prototype/`.
-
-## License
-
-License: not specified yet.
+- Improved calibration workflow
+- Persistent event logging
+- Cleaner enclosure/prototype hardware
+- Optional GPS/geofence context
+- Future CAN/OBD-II and cloud integration
