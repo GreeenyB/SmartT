@@ -10,6 +10,18 @@
 SmartT_UI_ProductGrade_*/
 SmartT_UI_*Patch*/
 ui-prototype/dist/
+/SmartT_Local_Dashboard_Preview*.zip
+/SmartT_Local_Dashboard_Preview*/
+/local-dashboard*.zip
+/local-dashboard*/
+!/ui-prototype/local-dashboard/
+!/ui-prototype/local-dashboard/**
+
+# SmartT local server runtime files
+server/.venv/
+server/data/*.db
+server/data/*.db-*
+!server/data/.gitkeep
 
 # Arduino / build outputs
 build/
@@ -51,3 +63,11 @@ temp/
 *.tmp
 *.bak
 *~
+
+# Python / local runtime caches
+__pycache__/
+*.pyc
+*.py[cod]
+
+# Local firmware secrets
+SmartT_Core_Demo/Secrets.h

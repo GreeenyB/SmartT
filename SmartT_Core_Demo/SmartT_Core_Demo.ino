@@ -9,6 +9,7 @@
 #include "EventDetector.h"
 #include "OledView.h"
 #include "WebDashboard.h"
+#include "LocalServerClient.h"
 
 DashboardState dashboard;
 FuelSensor fuelSensor;
@@ -20,6 +21,9 @@ OledView oledView;
 #if SMARTT_ENABLE_WIFI_DASHBOARD
 WebServer server(80);
 WebDashboard webDashboard(server);
+#if SMARTT_ENABLE_LOCAL_SERVER_PUSH
+LocalServerClient localServerClient;
+#endif
 #endif
 
 uint32_t lastSampleMs = 0;
@@ -92,6 +96,9 @@ void setup() {
 
 #if SMARTT_ENABLE_WIFI_DASHBOARD
   webDashboard.begin(dashboard);
+#if SMARTT_ENABLE_LOCAL_SERVER_PUSH
+  localServerClient.begin();
+#endif
 #endif
 
   uint32_t now = millis();
@@ -124,7 +131,11 @@ void loop() {
   if (now - lastSerialMs >= SERIAL_INTERVAL_MS) {
     lastSerialMs = now;
 #if SMARTT_ENABLE_WIFI_DASHBOARD
-    Serial.println(webDashboard.telemetryJson());
+    String telemetryJson = webDashboard.telemetryJson();
+    Serial.println(telemetryJson);
+#if SMARTT_ENABLE_LOCAL_SERVER_PUSH
+    localServerClient.maybePost(telemetryJson, now);
+#endif
 #else
     Serial.println("{}");
 #endif
