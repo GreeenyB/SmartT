@@ -14,6 +14,10 @@
     currentMarker: null,
     eventLayer: null,
     currentLatLng: null,
+    chartView: { start: null, end: null, mode: "latest" },
+    chartPlot: null,
+    chartDrag: null,
+    chartSuppressClick: false,
     chartEvents: [],
     needsMapFit: true,
     refreshTimer: null,
@@ -37,6 +41,8 @@
     minute: "2-digit",
     hour12: false
   });
+  var CHART_MIN_SPAN_MS = 15 * 1000;
+  var CHART_DEFAULT_SPAN_MS = 10 * 60 * 1000;
 
   function $(id) {
     return document.getElementById(id);
@@ -249,7 +255,7 @@
     var dedupedTelemetry = [];
     var seenTelemetry = {};
     telemetry.forEach(function (row) {
-      var key = row.vehicleId + "|" + row.date.toISOString();
+      var key = row.id || row.vehicleId + "|" + row.date.toISOString();
       if (!seenTelemetry[key]) {
         seenTelemetry[key] = true;
         dedupedTelemetry.push(row);
@@ -304,8 +310,8 @@
   function loadLiveData() {
     return Promise.all([
       fetchJson("/api/latest"),
-      fetchJson("/api/history"),
-      fetchJson("/api/events")
+      fetchJson("/api/history?limit=2000"),
+      fetchJson("/api/events?limit=500")
     ]).then(function (responses) {
       var latestPayload = responses[0] || {};
       var historyPayload = responses[1] || {};
@@ -574,12 +580,216 @@
     if (!latest) return;
     setContext("ignition", latest.ignition ? "ON" : "OFF");
     setContext("gpsState", latest.gpsState);
-    setContext("motionState", latest.gpsMotionState);
+    setContext("motionState", humanize(latest.gpsMotionState));
     setContext("speed", formatNumber(latest.speedKmh, " km/h"));
     setContext("signalStability", latest.signalStability === null ? "--" : Math.round(latest.signalStability) + "%");
     setContext("sloshingScore", latest.sloshingScore === null ? "--" : Math.round(latest.sloshingScore) + "%");
     setContext("confidence", latest.confidence === null ? "--" : Math.round(latest.confidence) + "%");
     setContext("sourceType", latest.sourceType || "--");
+  }
+
+  function clampNumber(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function resetChartView(mode) {
+    state.chartView = { start: null, end: null, mode: mode || "latest" };
+    state.chartPlot = null;
+  }
+
+  function chartBounds(points) {
+    if (!points.length) return null;
+    var minTime = points[0].date.getTime();
+    var maxTime = points[points.length - 1].date.getTime();
+    if (minTime === maxTime) {
+      minTime -= 60 * 1000;
+      maxTime += 60 * 1000;
+    }
+    return {
+      min: minTime,
+      max: maxTime,
+      span: Math.max(1, maxTime - minTime)
+    };
+  }
+
+  function chartMinSpan(bounds) {
+    return Math.min(CHART_MIN_SPAN_MS, bounds.span);
+  }
+
+  function defaultChartSpan(bounds) {
+    return clampNumber(Math.min(bounds.span, CHART_DEFAULT_SPAN_MS), chartMinSpan(bounds), bounds.span);
+  }
+
+  function setChartWindow(start, end, mode, bounds) {
+    bounds = bounds || chartBounds(filteredTelemetry());
+    if (!bounds) return;
+
+    var fullSpan = bounds.span;
+    var span = clampNumber(end - start, chartMinSpan(bounds), fullSpan);
+    if (mode === "full" || span >= fullSpan - 1) {
+      state.chartView = { start: bounds.min, end: bounds.max, mode: "full" };
+      drawTimeline();
+      return;
+    }
+
+    if (start < bounds.min) {
+      start = bounds.min;
+      end = start + span;
+    }
+    if (end > bounds.max) {
+      end = bounds.max;
+      start = end - span;
+    }
+    start = clampNumber(start, bounds.min, bounds.max - span);
+    end = start + span;
+
+    state.chartView = { start: start, end: end, mode: mode || "custom" };
+    drawTimeline();
+  }
+
+  function ensureChartWindow(points) {
+    var bounds = chartBounds(points);
+    if (!bounds) return null;
+    var view = state.chartView || {};
+    var mode = view.mode || "latest";
+
+    if (mode === "full") {
+      state.chartView = { start: bounds.min, end: bounds.max, mode: "full" };
+      return {
+        start: bounds.min,
+        end: bounds.max,
+        fullMin: bounds.min,
+        fullMax: bounds.max,
+        mode: "full"
+      };
+    }
+
+    var span = view.start !== null && view.end !== null ? view.end - view.start : defaultChartSpan(bounds);
+    span = clampNumber(span || defaultChartSpan(bounds), chartMinSpan(bounds), bounds.span);
+    var start = view.start;
+    var end = view.end;
+
+    if (mode === "latest" || start === null || end === null) {
+      end = bounds.max;
+      start = end - span;
+    }
+
+    if (start < bounds.min) {
+      start = bounds.min;
+      end = start + span;
+    }
+    if (end > bounds.max) {
+      end = bounds.max;
+      start = end - span;
+    }
+    start = clampNumber(start, bounds.min, bounds.max - span);
+    end = start + span;
+
+    state.chartView = { start: start, end: end, mode: mode === "custom" ? "custom" : "latest" };
+    return {
+      start: start,
+      end: end,
+      fullMin: bounds.min,
+      fullMax: bounds.max,
+      mode: state.chartView.mode
+    };
+  }
+
+  function durationLabel(ms) {
+    if (ms < 60 * 1000) return Math.max(1, Math.round(ms / 1000)) + " sec";
+    if (ms < 60 * 60 * 1000) return Math.round(ms / (60 * 1000)) + " min";
+    if (ms < 24 * 60 * 60 * 1000) {
+      var hours = ms / (60 * 60 * 1000);
+      return hours.toFixed(hours < 10 ? 1 : 0).replace(/\.0$/, "") + " hr";
+    }
+    var days = ms / (24 * 60 * 60 * 1000);
+    return days.toFixed(days < 10 ? 1 : 0).replace(/\.0$/, "") + " days";
+  }
+
+  function updateChartControls(info, visibleCount, totalCount) {
+    if (!els.chartWindowLabel) return;
+    var buttons = [
+      els.chartPanLeftBtn,
+      els.chartPanRightBtn,
+      els.chartZoomInBtn,
+      els.chartZoomOutBtn,
+      els.chartLatestBtn,
+      els.chartResetBtn
+    ];
+
+    if (!info) {
+      els.chartWindowLabel.textContent = "No telemetry";
+      buttons.forEach(function (button) {
+        if (button) button.disabled = true;
+      });
+      return;
+    }
+
+    var span = info.end - info.start;
+    var fullSpan = info.fullMax - info.fullMin;
+    var isFull = span >= fullSpan - 1;
+    var isAtStart = info.start <= info.fullMin + 1;
+    var isAtEnd = info.end >= info.fullMax - 1;
+    var minSpan = chartMinSpan({ span: fullSpan });
+    var label = isFull ? "Full range" : durationLabel(span) + " window";
+    if (info.mode === "latest" && !isFull) label = "Latest " + durationLabel(span);
+    els.chartWindowLabel.textContent = label + " | " + visibleCount + "/" + totalCount + " pts";
+
+    if (els.chartPanLeftBtn) els.chartPanLeftBtn.disabled = isFull || isAtStart;
+    if (els.chartPanRightBtn) els.chartPanRightBtn.disabled = isFull || isAtEnd;
+    if (els.chartZoomInBtn) els.chartZoomInBtn.disabled = fullSpan <= minSpan || span <= minSpan + 1;
+    if (els.chartZoomOutBtn) els.chartZoomOutBtn.disabled = isFull;
+    if (els.chartLatestBtn) els.chartLatestBtn.disabled = info.mode === "latest" && isAtEnd && !isFull;
+    if (els.chartResetBtn) els.chartResetBtn.disabled = isFull;
+  }
+
+  function zoomChart(scale, anchorRatio) {
+    var plot = state.chartPlot;
+    if (!plot) return;
+    anchorRatio = clampNumber(anchorRatio, 0, 1);
+    var span = plot.maxTime - plot.minTime;
+    var newSpan = clampNumber(span * scale, chartMinSpan({ span: plot.fullMax - plot.fullMin }), plot.fullMax - plot.fullMin);
+    var anchorTime = plot.minTime + span * anchorRatio;
+    var start = anchorTime - newSpan * anchorRatio;
+    var end = start + newSpan;
+    setChartWindow(start, end, "custom", { min: plot.fullMin, max: plot.fullMax, span: plot.fullMax - plot.fullMin });
+  }
+
+  function panChart(fraction) {
+    var plot = state.chartPlot;
+    if (!plot) return;
+    var span = plot.maxTime - plot.minTime;
+    var shift = span * fraction;
+    setChartWindow(plot.minTime + shift, plot.maxTime + shift, "custom", { min: plot.fullMin, max: plot.fullMax, span: plot.fullMax - plot.fullMin });
+  }
+
+  function showLatestChart() {
+    var points = filteredTelemetry();
+    var bounds = chartBounds(points);
+    if (!bounds) return;
+    var currentSpan = state.chartView && state.chartView.start !== null && state.chartView.end !== null
+      ? state.chartView.end - state.chartView.start
+      : defaultChartSpan(bounds);
+    if (currentSpan >= bounds.span - 1) currentSpan = defaultChartSpan(bounds);
+    currentSpan = clampNumber(currentSpan, chartMinSpan(bounds), bounds.span);
+    state.chartView = { start: bounds.max - currentSpan, end: bounds.max, mode: "latest" };
+    drawTimeline();
+  }
+
+  function showFullChart() {
+    var points = filteredTelemetry();
+    var bounds = chartBounds(points);
+    if (!bounds) return;
+    state.chartView = { start: bounds.min, end: bounds.max, mode: "full" };
+    drawTimeline();
+  }
+
+  function chartPointerRatio(pointerEvent) {
+    var plot = state.chartPlot;
+    if (!plot) return 0.5;
+    var rect = els.fuelChart.getBoundingClientRect();
+    var x = pointerEvent.clientX - rect.left;
+    return clampNumber((x - plot.left) / plot.plotW, 0, 1);
   }
 
   function drawTimeline() {
@@ -600,6 +810,7 @@
     var points = filteredTelemetry();
     var events = filteredEvents();
     state.chartEvents = [];
+    state.chartPlot = null;
 
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "#ffffff";
@@ -615,21 +826,44 @@
     if (!points.length) {
       ctx.fillStyle = "#657789";
       ctx.fillText("No telemetry in selected range", pad.left, height / 2);
+      updateChartControls(null, 0, 0);
       return;
     }
 
-    var fuels = points.map(function (point) { return point.fuelPercent; });
+    var windowInfo = ensureChartWindow(points);
+    var minTime = windowInfo.start;
+    var maxTime = windowInfo.end;
+    var visiblePoints = points.filter(function (point) {
+      var time = point.date.getTime();
+      return time >= minTime && time <= maxTime;
+    });
+
+    state.chartPlot = {
+      left: pad.left,
+      right: width - pad.right,
+      top: pad.top,
+      bottom: pad.top + plotH,
+      plotW: plotW,
+      plotH: plotH,
+      minTime: minTime,
+      maxTime: maxTime,
+      fullMin: windowInfo.fullMin,
+      fullMax: windowInfo.fullMax
+    };
+
+    if (!visiblePoints.length) {
+      ctx.fillStyle = "#657789";
+      ctx.fillText("No telemetry in this zoom window", pad.left, height / 2);
+      updateChartControls(windowInfo, 0, points.length);
+      return;
+    }
+
+    var fuels = visiblePoints.map(function (point) { return point.fuelPercent; });
     var minFuel = Math.max(0, Math.floor(Math.min.apply(null, fuels) - 4));
     var maxFuel = Math.min(100, Math.ceil(Math.max.apply(null, fuels) + 4));
     if (maxFuel - minFuel < 8) {
       maxFuel = Math.min(100, maxFuel + 4);
       minFuel = Math.max(0, minFuel - 4);
-    }
-    var minTime = points[0].date.getTime();
-    var maxTime = points[points.length - 1].date.getTime();
-    if (minTime === maxTime) {
-      minTime -= 60 * 1000;
-      maxTime += 60 * 1000;
     }
 
     function xFor(date) {
@@ -659,6 +893,18 @@
       ctx.fillText(Math.round(fuel) + "%", 8, y + 4);
     }
 
+    for (var tick = 1; tick <= 3; tick += 1) {
+      var tickTime = minTime + ((maxTime - minTime) / 4) * tick;
+      var tickX = pad.left + ((tickTime - minTime) / (maxTime - minTime)) * plotW;
+      ctx.strokeStyle = "#e7eef4";
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath();
+      ctx.moveTo(tickX, pad.top);
+      ctx.lineTo(tickX, pad.top + plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
     ctx.strokeStyle = "#cbd8e2";
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -683,7 +929,7 @@
     ctx.strokeStyle = "#087ea4";
     ctx.lineWidth = 3;
     ctx.beginPath();
-    points.forEach(function (point, index) {
+    visiblePoints.forEach(function (point, index) {
       var x = xFor(point.date);
       var y = yFor(point.fuelPercent);
       if (index === 0) ctx.moveTo(x, y);
@@ -691,7 +937,9 @@
     });
     ctx.stroke();
 
-    points.forEach(function (point) {
+    var dotStep = Math.max(1, Math.ceil(visiblePoints.length / 260));
+    visiblePoints.forEach(function (point, index) {
+      if (index % dotStep !== 0 && index !== visiblePoints.length - 1) return;
       ctx.fillStyle = "#ffffff";
       ctx.strokeStyle = "#087ea4";
       ctx.lineWidth = 1.5;
@@ -728,10 +976,11 @@
 
     ctx.fillStyle = "#657789";
     ctx.font = "12px system-ui, sans-serif";
-    ctx.fillText(formatCompact(points[0].date, referenceDate()), pad.left, height - 16);
+    ctx.fillText(formatCompact(new Date(minTime), referenceDate()), pad.left, height - 16);
     ctx.textAlign = "right";
-    ctx.fillText(formatCompact(points[points.length - 1].date, referenceDate()), width - pad.right, height - 16);
+    ctx.fillText(formatCompact(new Date(maxTime), referenceDate()), width - pad.right, height - 16);
     ctx.textAlign = "left";
+    updateChartControls(windowInfo, visiblePoints.length, points.length);
   }
 
   function createCell(row, text, className) {
@@ -843,7 +1092,7 @@
     setDetail("deltaLiters", formatLiters(event.fuelDeltaLiters, true));
     setDetail("ignition", event.ignition ? "ON" : "OFF");
     setDetail("gpsState", event.gpsState);
-    setDetail("motionState", event.gpsMotionState);
+    setDetail("motionState", humanize(event.gpsMotionState));
     setDetail("speed", formatNumber(event.speedKmh, " km/h"));
     setDetail("signalStability", event.signalStability === null ? "--" : Math.round(event.signalStability) + "%");
     setDetail("sloshingScore", event.sloshingScore === null ? "--" : Math.round(event.sloshingScore) + "%");
@@ -901,6 +1150,25 @@
     }
 
     return options;
+  }
+
+  function vehicleMarkerOptions(latest) {
+    var label = latest.vehicleId + " current position";
+    return {
+      icon: L.divIcon({
+        className: "vehicle-pin-icon",
+        html: '<span class="vehicle-pin-shadow"></span><span class="vehicle-pin-body"><span class="vehicle-pin-dot"></span></span>',
+        iconSize: [34, 46],
+        iconAnchor: [17, 43],
+        popupAnchor: [0, -42],
+        tooltipAnchor: [0, -42]
+      }),
+      title: label,
+      alt: label,
+      keyboard: true,
+      riseOnHover: true,
+      riseOffset: 360
+    };
   }
 
   function showMapFallback(message) {
@@ -996,13 +1264,14 @@
     hideMapFallback();
 
     state.currentLatLng = [latest.gpsLat, latest.gpsLon];
-    state.currentMarker = L.circleMarker(state.currentLatLng, {
-      radius: 10,
-      weight: 3,
-      color: "#087ea4",
-      fillColor: "#15b8c7",
-      fillOpacity: 0.88
-    }).addTo(state.map).bindPopup(currentPopup(latest));
+    state.currentMarker = L.marker(state.currentLatLng, vehicleMarkerOptions(latest))
+      .addTo(state.map)
+      .bindPopup(currentPopup(latest))
+      .bindTooltip(latest.vehicleId, {
+        direction: "top",
+        offset: [0, -28],
+        opacity: 0.92
+      });
 
     state.eventLayer = L.layerGroup();
     events.forEach(function (event) {
@@ -1055,6 +1324,7 @@
     state.mode = "sample";
     state.scenarioKey = key || state.scenarioKey;
     els.scenarioSelect.value = state.scenarioKey;
+    resetChartView("latest");
     applyDataset(sampleDataset(state.scenarioKey), "sample");
   }
 
@@ -1072,6 +1342,20 @@
   }
 
   function exportCsv() {
+    function pad2(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function exportStamp(date) {
+      return [
+        pad2(date.getMinutes()),
+        pad2(date.getHours()),
+        pad2(date.getDate()),
+        pad2(date.getMonth() + 1),
+        date.getFullYear()
+      ].join("-");
+    }
+
     var header = [
       "timestamp",
       "vehicle_id",
@@ -1111,7 +1395,7 @@
     var url = URL.createObjectURL(blob);
     var link = document.createElement("a");
     link.href = url;
-    link.download = "smartt_events_" + state.vehicleId + "_" + state.range + ".csv";
+    link.download = "smartt_events_" + state.vehicleId + "_" + exportStamp(new Date()) + ".csv";
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -1124,6 +1408,7 @@
         state.range = button.dataset.range;
         state.selectedEventId = "";
         state.needsMapFit = true;
+        resetChartView("latest");
         renderAll();
       });
     });
@@ -1132,6 +1417,7 @@
       state.vehicleId = els.vehicleSelect.value;
       state.selectedEventId = "";
       state.needsMapFit = true;
+      resetChartView("latest");
       renderAll();
     });
 
@@ -1164,7 +1450,82 @@
 
     els.exportBtn.addEventListener("click", exportCsv);
 
+    els.chartZoomInBtn.addEventListener("click", function () {
+      zoomChart(0.55, 0.5);
+    });
+
+    els.chartZoomOutBtn.addEventListener("click", function () {
+      zoomChart(1.8, 0.5);
+    });
+
+    els.chartPanLeftBtn.addEventListener("click", function () {
+      panChart(-0.55);
+    });
+
+    els.chartPanRightBtn.addEventListener("click", function () {
+      panChart(0.55);
+    });
+
+    els.chartLatestBtn.addEventListener("click", showLatestChart);
+    els.chartResetBtn.addEventListener("click", showFullChart);
+
+    els.fuelChart.addEventListener("wheel", function (event) {
+      if (!state.chartPlot) return;
+      event.preventDefault();
+      zoomChart(event.deltaY < 0 ? 0.72 : 1.38, chartPointerRatio(event));
+    }, { passive: false });
+
+    els.fuelChart.addEventListener("pointerdown", function (event) {
+      if (!state.chartPlot || event.button !== 0) return;
+      var rect = els.fuelChart.getBoundingClientRect();
+      var x = event.clientX - rect.left;
+      var y = event.clientY - rect.top;
+      var plot = state.chartPlot;
+      if (x < plot.left || x > plot.right || y < plot.top || y > plot.bottom) return;
+      state.chartDrag = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        start: plot.minTime,
+        end: plot.maxTime,
+        moved: false
+      };
+      els.fuelChart.classList.add("is-dragging");
+      els.fuelChart.setPointerCapture(event.pointerId);
+    });
+
+    els.fuelChart.addEventListener("pointermove", function (event) {
+      var drag = state.chartDrag;
+      var plot = state.chartPlot;
+      if (!drag || !plot || drag.pointerId !== event.pointerId) return;
+      var deltaX = event.clientX - drag.x;
+      if (Math.abs(deltaX) > 3) drag.moved = true;
+      var span = drag.end - drag.start;
+      var shift = -(deltaX / plot.plotW) * span;
+      setChartWindow(drag.start + shift, drag.end + shift, "custom", { min: plot.fullMin, max: plot.fullMax, span: plot.fullMax - plot.fullMin });
+    });
+
+    els.fuelChart.addEventListener("pointerup", function (event) {
+      if (!state.chartDrag || state.chartDrag.pointerId !== event.pointerId) return;
+      state.chartSuppressClick = state.chartDrag.moved;
+      state.chartDrag = null;
+      els.fuelChart.classList.remove("is-dragging");
+      if (els.fuelChart.hasPointerCapture(event.pointerId)) {
+        els.fuelChart.releasePointerCapture(event.pointerId);
+      }
+    });
+
+    els.fuelChart.addEventListener("pointercancel", function (event) {
+      if (state.chartDrag && state.chartDrag.pointerId === event.pointerId) {
+        state.chartDrag = null;
+        els.fuelChart.classList.remove("is-dragging");
+      }
+    });
+
     els.fuelChart.addEventListener("click", function (event) {
+      if (state.chartSuppressClick) {
+        state.chartSuppressClick = false;
+        return;
+      }
       var rect = els.fuelChart.getBoundingClientRect();
       var x = event.clientX - rect.left;
       var y = event.clientY - rect.top;
@@ -1188,6 +1549,13 @@
       "scenarioSelect",
       "exportBtn",
       "fuelChart",
+      "chartPanLeftBtn",
+      "chartPanRightBtn",
+      "chartZoomInBtn",
+      "chartZoomOutBtn",
+      "chartLatestBtn",
+      "chartResetBtn",
+      "chartWindowLabel",
       "eventsTable",
       "detailTitle",
       "detailToken",
@@ -1235,7 +1603,7 @@
 
     if (canTryApi()) {
       refreshLive().then(function () {
-        state.refreshTimer = window.setInterval(refreshLive, 15000);
+        state.refreshTimer = window.setInterval(refreshLive, 2000);
       });
     } else {
       useSampleData(state.scenarioKey);

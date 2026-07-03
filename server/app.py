@@ -22,7 +22,7 @@ DEFAULT_PORT = int(os.environ.get("SMARTT_PORT", "8000"))
 
 
 def utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def connect_db() -> sqlite3.Connection:
@@ -295,6 +295,7 @@ class SmartTHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Cache-Control", "no-store")
         super().end_headers()
 
     def send_json(self, payload: Any, status: int = 200) -> None:
