@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartT Local Fleet Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ9tvT1xrrpq3jG6fPcAq+ZsfzTRvB0=" crossorigin="" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  <script src="sample_data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="ops-sidebar" aria-label="Fleet console controls">
+      <div class="sidebar-brand">
+        <div class="brand-logo-wrap">
+          <img class="brand-logo" src="assets/smartt-logo-compact-cropped.png" alt="SmartT logo" />
+        </div>
+        <div>
+          <p class="eyebrow">SmartT Fuel Intelligence</p>
+          <strong>Local Fleet</strong>
+        </div>
+      </div>
+
+      <section class="sidebar-section" aria-label="Vehicle controls">
+        <label class="field-control">
+          <span>Vehicle</span>
+          <select id="vehicleSelect"></select>
+        </label>
+
+        <div class="field-control">
+          <span>Date range</span>
+          <div class="range-control" aria-label="Date range">
+            <button type="button" class="range-button is-active" data-range="today">Today</button>
+            <button type="button" class="range-button" data-range="7">7 days</button>
+            <button type="button" class="range-button" data-range="30">30 days</button>
+            <button type="button" class="range-button" data-range="all">All</button>
+          </div>
+        </div>
+
+        <button class="primary-action" type="button" id="exportBtn">Export CSV</button>
+      </section>
+
+      <section class="sidebar-section data-source-section" aria-label="Data source">
+        <p class="section-label">Data source</p>
+        <div class="source-mode">
+          <span>Mode</span>
+          <span class="status-pill" id="dataMode"><span></span>Live APIs</span>
+        </div>
+        <label class="field-control scenario-control">
+          <span>Preview scenario</span>
+          <select id="scenarioSelect">
+            <option value="normal">Normal operations</option>
+            <option value="refuel">Refuel</option>
+            <option value="parked_drop">Parked drop</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="sidebar-section sidebar-status" aria-label="Server and device status">
+        <p class="section-label">System status</p>
+        <div class="status-stack">
+          <span class="status-pill live" id="serverStatus"><span></span>Server online</span>
+        </div>
+        <div class="device-status">
+          <span>Device</span>
+          <strong id="kpiStatus">--</strong>
+          <small id="kpiStatusSub">--</small>
+        </div>
+      </section>
+    </aside>
+
+    <main class="console-main">
+      <header class="console-header">
+        <div>
+          <p class="eyebrow">Operations overview</p>
+          <h1>Fleet Operations Console</h1>
+        </div>
+        <div class="header-readout" aria-label="Selected vehicle status">
+          <div>
+            <span>Vehicle</span>
+            <strong id="headerVehicle">--</strong>
+          </div>
+          <div>
+            <span>Decision</span>
+            <strong id="headerDecision">--</strong>
+          </div>
+          <div>
+            <span>Last telemetry</span>
+            <strong id="lastTelemetry">--</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="summary-strip" aria-label="Fleet operational summary">
+        <article class="summary-tile kpi-card summary-primary fuel-block">
+          <span>Fuel level</span>
+          <strong id="kpiFuel">--</strong>
+          <small id="kpiFuelSub">--</small>
+        </article>
+        <article class="summary-tile kpi-card summary-primary decision-block">
+          <span>Current decision</span>
+          <strong id="kpiDecision">--</strong>
+          <small id="kpiDecisionSub">--</small>
+        </article>
+        <article class="summary-tile kpi-card">
+          <span>Events in range</span>
+          <strong id="kpiEvents">--</strong>
+          <small id="kpiEventsSub">--</small>
+        </article>
+        <article class="summary-tile kpi-card kpi-suspicious">
+          <span>Suspicious loss</span>
+          <strong id="kpiSuspicious">--</strong>
+          <small id="kpiSuspiciousSub">--</small>
+        </article>
+        <article class="summary-tile kpi-card">
+          <span>Last refuel</span>
+          <strong id="kpiRefuel">--</strong>
+          <small id="kpiRefuelSub">--</small>
+        </article>
+      </section>
+
+      <section class="operations-grid">
+        <article class="panel timeline-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-label">Fuel timeline</p>
+              <h2>Level trend and event annotations</h2>
+            </div>
+            <div class="legend">
+              <span><i class="line-key"></i>Fuel level</span>
+              <span><i class="event-key"></i>Fuel event</span>
+            </div>
+          </div>
+          <canvas id="fuelChart" width="960" height="340" aria-label="Fuel timeline chart"></canvas>
+        </article>
+
+        <aside class="panel context-panel" aria-label="Live vehicle context">
+          <div class="panel-header compact-header">
+            <div>
+              <p class="section-label">Live vehicle context</p>
+              <h2>Current telemetry</h2>
+            </div>
+          </div>
+          <dl class="context-grid">
+            <div>
+              <dt>Ignition</dt>
+              <dd data-context="ignition">--</dd>
+            </div>
+            <div>
+              <dt>GPS state</dt>
+              <dd data-context="gpsState">--</dd>
+            </div>
+            <div>
+              <dt>Motion</dt>
+              <dd data-context="motionState">--</dd>
+            </div>
+            <div>
+              <dt>Speed</dt>
+              <dd data-context="speed">--</dd>
+            </div>
+            <div>
+              <dt>Signal stability</dt>
+              <dd data-context="signalStability">--</dd>
+            </div>
+            <div>
+              <dt>Sloshing score</dt>
+              <dd data-context="sloshingScore">--</dd>
+            </div>
+            <div>
+              <dt>Confidence</dt>
+              <dd data-context="confidence">--</dd>
+            </div>
+            <div>
+              <dt>Source type</dt>
+              <dd data-context="sourceType">--</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+
+      <section class="incident-workspace">
+        <div class="incident-left-stack">
+          <article class="panel map-panel">
+            <div class="panel-header map-header">
+              <div>
+                <p class="section-label">Location</p>
+                <h2>Vehicle position and event markers</h2>
+              </div>
+              <div class="map-controls" aria-label="Map controls">
+                <button type="button" id="recenterBtn">Recenter</button>
+                <button type="button" id="fitEventsBtn">Fit events</button>
+                <label class="toggle-control">
+                  <input type="checkbox" id="showEventsToggle" checked />
+                  <span>Events</span>
+                </label>
+                <button type="button" id="openMapsBtn">Open in Maps</button>
+              </div>
+            </div>
+            <div id="map" aria-label="Fleet map"></div>
+            <div class="map-fallback hidden" id="mapFallback">
+              <strong>Map unavailable</strong>
+              <span id="mapFallbackText">Coordinates remain available in event details.</span>
+            </div>
+          </article>
+
+          <article class="panel events-panel log-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-label">Event history</p>
+                <h2>Operational log for selected range</h2>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Vehicle</th>
+                    <th>Event</th>
+                    <th>Delta</th>
+                    <th>GPS</th>
+                    <th>Confidence</th>
+                    <th>Evidence</th>
+                  </tr>
+                </thead>
+                <tbody id="eventsTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <aside class="panel detail-panel" id="detailPanel" aria-label="Incident evidence">
+          <div class="incident-report-head">
+            <p class="section-label">Incident evidence</p>
+            <span class="event-token" id="detailToken">--</span>
+          </div>
+          <div class="incident-hero">
+            <p class="incident-summary-label">Incident summary</p>
+            <h2 id="detailTitle">Incident detail</h2>
+            <p class="incident-state" data-detail="heroState">--</p>
+            <div class="incident-metrics">
+              <div>
+                <span>Delta liters</span>
+                <strong data-detail="heroDeltaLiters">--</strong>
+              </div>
+              <div>
+                <span>Confidence</span>
+                <strong data-detail="heroConfidence">--</strong>
+              </div>
+            </div>
+            <p data-detail="heroRuleResult">--</p>
+          </div>
+          <div class="detail-sections">
+            <section class="detail-section">
+              <h3>Event</h3>
+              <dl class="detail-grid">
+                <div><dt>Event type</dt><dd data-detail="eventType">--</dd></div>
+                <div><dt>Vehicle</dt><dd data-detail="vehicleId">--</dd></div>
+                <div class="wide"><dt>Date and time</dt><dd data-detail="timestamp">--</dd></div>
+              </dl>
+            </section>
+            <section class="detail-section">
+              <h3>Fuel change</h3>
+              <dl class="detail-grid">
+                <div><dt>Fuel before</dt><dd data-detail="fuelBefore">--</dd></div>
+                <div><dt>Fuel after</dt><dd data-detail="fuelAfter">--</dd></div>
+                <div><dt>Delta liters</dt><dd data-detail="deltaLiters">--</dd></div>
+                <div><dt>Delta percent</dt><dd data-detail="deltaPercent">--</dd></div>
+              </dl>
+            </section>
+            <section class="detail-section">
+              <h3>Vehicle / GPS context</h3>
+              <dl class="detail-grid">
+                <div><dt>Ignition</dt><dd data-detail="ignition">--</dd></div>
+                <div><dt>GPS state</dt><dd data-detail="gpsState">--</dd></div>
+                <div><dt>Motion</dt><dd data-detail="motionState">--</dd></div>
+                <div><dt>Speed</dt><dd data-detail="speed">--</dd></div>
+                <div class="wide"><dt>Coordinates</dt><dd data-detail="coordinates">--</dd></div>
+              </dl>
+            </section>
+            <section class="detail-section">
+              <h3>Signal quality</h3>
+              <dl class="detail-grid">
+                <div><dt>Signal stability</dt><dd data-detail="signalStability">--</dd></div>
+                <div><dt>Sloshing score</dt><dd data-detail="sloshingScore">--</dd></div>
+                <div class="wide"><dt>Confidence</dt><dd data-detail="signalConfidence">--</dd></div>
+              </dl>
+            </section>
+            <section class="detail-section">
+              <h3>Decision evidence</h3>
+              <dl class="detail-grid">
+                <div class="wide"><dt>Rule result</dt><dd data-detail="ruleResult">--</dd></div>
+              </dl>
+            </section>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

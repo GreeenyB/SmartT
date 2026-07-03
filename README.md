@@ -36,11 +36,17 @@ The main firmware is modularized under `SmartT_Core_Demo/`:
 ## Repository Structure
 
 ```text
-SmartT_Core_Demo/   Main Arduino/ESP32 firmware
-diagnostics/        Hardware validation sketches
-docs/               Wiring, setup, BOM, and algorithm notes
-ui-prototype/       Editable dashboard prototype source
+SmartT_Core_Demo/              ESP32 firmware and embedded fallback dashboard
+server/                        Local Python + SQLite server and telemetry APIs
+ui-prototype/local-dashboard/  Official Local Fleet Dashboard source
+ui-prototype/dashboard/        Earlier editable UI prototype
+diagnostics/                   Hardware validation sketches
+docs/                          Wiring, setup, BOM, and reference notes
 ```
+
+The Local Fleet Dashboard source lives in
+`ui-prototype/local-dashboard/`. It can be opened directly with sample data or
+served by the local server at `http://localhost:8000`.
 
 ## Hardware Overview
 

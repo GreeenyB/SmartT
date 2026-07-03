@@ -2,9 +2,43 @@
 
 #include <Arduino.h>
 
+#if defined(__has_include)
+#if __has_include("Secrets.h")
+#include "Secrets.h"
+#endif
+#endif
+
 #define SMARTT_ENABLE_WIFI_DASHBOARD 1
 #define SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL 0
 #define SMARTT_ENABLE_ALERT_LED 1
+
+#ifndef SMARTT_ENABLE_LOCAL_SERVER_PUSH
+#define SMARTT_ENABLE_LOCAL_SERVER_PUSH 1
+#endif
+
+#ifndef SMARTT_WIFI_SSID
+#define SMARTT_WIFI_SSID ""
+#endif
+
+#ifndef SMARTT_WIFI_PASS
+#define SMARTT_WIFI_PASS ""
+#endif
+
+#ifndef SMARTT_SERVER_URL
+#define SMARTT_SERVER_URL ""
+#endif
+
+#ifndef SMARTT_LOCAL_SERVER_POST_INTERVAL_MS
+#define SMARTT_LOCAL_SERVER_POST_INTERVAL_MS 5000UL
+#endif
+
+#ifndef SMARTT_LOCAL_SERVER_HTTP_TIMEOUT_MS
+#define SMARTT_LOCAL_SERVER_HTTP_TIMEOUT_MS 700
+#endif
+
+#ifndef SMARTT_WIFI_RECONNECT_INTERVAL_MS
+#define SMARTT_WIFI_RECONNECT_INTERVAL_MS 30000UL
+#endif
 
 static const char* const VEHICLE_ID = "TRUCK_01";
 static const float TANK_CAPACITY_LITERS = 180.0f;
