@@ -267,6 +267,90 @@ void EventDetector::updateRefuelCandidate(DashboardState& state, uint32_t now, f
   }
 }
 
+void EventDetector::clearDropCandidate() {
+  candidateStartMs_ = 0;
+  candidateDropPct_ = 0.0f;
+  candidateWorstDropPct_ = 0.0f;
+  confidence_ = 0;
+}
+
+void EventDetector::startDropCandidate(DashboardState& state, uint32_t now, float fuel, float dropPct) {
+  candidateStartMs_ = now;
+  candidateStartFuelPct_ = fuel;
+  candidateDropPct_ = dropPct;
+  candidateWorstDropPct_ = dropPct;
+  setDetectorState(DETECTOR_DROP_CANDIDATE, now);
+  setCurrentEvent(state, "FUEL_DROP_CANDIDATE", "NONE", "Stationary drop confirming",
+                  -dropPct, computeTheftConfidence(state, dropPct, state.fuel.ratePercentPerSec), now);
+}
+
+void EventDetector::updateDropCandidate(DashboardState& state, uint32_t now, float fuel) {
+  float drop = parkedBaselinePct_ - fuel;
+  candidateDropPct_ = drop;
+  if (drop > candidateWorstDropPct_) {
+    candidateWorstDropPct_ = drop;
+  }
+
+  uint8_t candidateConfidence = computeTheftConfidence(state, drop, state.fuel.ratePercentPerSec);
+  setCurrentEvent(state, "FUEL_DROP_CANDIDATE", "NONE", "Stationary drop confirming",
+                  -drop, candidateConfidence, now);
+
+  DetectorState recoveredState = state.vehicle.ignitionOn ? DETECTOR_NORMAL_ON : DETECTOR_PARKED_MONITORING;
+
+  if (fuel >= parkedBaselinePct_ - THEFT_CANCEL_RECOVERY_PCT ||
+      state.fuel.ratePercentPerSec > THEFT_MAX_RECOVERY_RATE_PCT_PER_SEC) {
+    clearDropCandidate();
+    setDetectorState(recoveredState, now);
+    setCurrentEvent(state, state.vehicle.ignitionOn ? "NORMAL" : "PARKED_MONITORING",
+                    "NONE", "Drop recovered", 0.0f, 0, now);
+    return;
+  }
+
+  if (state.fuel.sloshingScore >= SLOSHING_SCORE_SUPPRESS_THEFT &&
+      drop < candidateWorstDropPct_ + THEFT_CANCEL_RECOVERY_PCT) {
+    clearDropCandidate();
+    confidence_ = computeSloshingConfidence(state);
+    setDetectorState(DETECTOR_SLOSHING, now);
+    setCurrentEvent(state, "SLOSHING_DETECTED", "NONE", "Signal unstable",
+                    -drop, confidence_, now);
+    return;
+  }
+
+  if (!gpsAllowsParkedTheftDecision(state)) {
+    clearDropCandidate();
+    setDetectorState(recoveredState, now);
+    setCurrentEvent(state, "FUEL_DROP_WHILE_MOVING", "NONE", "GPS motion context",
+                    -drop, 0, now);
+    return;
+  }
+
+  bool confirmedDuration = now - candidateStartMs_ >= THEFT_CONFIRM_MS;
+  bool sustainedDrop = drop >= THEFT_MIN_TOTAL_DROP_PCT;
+  bool notRecovering = state.fuel.ratePercentPerSec <= THEFT_MAX_RECOVERY_RATE_PCT_PER_SEC;
+
+  if (confirmedDuration && sustainedDrop && notRecovering) {
+    confidence_ = computeTheftConfidence(state, drop, state.fuel.ratePercentPerSec);
+    alertHoldUntilMs_ = now + THEFT_ALERT_HOLD_MS;
+    setDetectorState(DETECTOR_THEFT_ALERT, now);
+    setCurrentEvent(state, "SUSPICIOUS_DROP", "FUEL_THEFT_ANOMALY",
+                    "Stationary drop confirmed", -drop, confidence_, now);
+  }
+}
+
+void EventDetector::updateTheftAlert(DashboardState& state, uint32_t now, float fuel) {
+  setCurrentEvent(state, "SUSPICIOUS_DROP", "FUEL_THEFT_ANOMALY",
+                  "Stationary drop confirmed", -candidateDropPct_, confidence_, now);
+  if (now >= alertHoldUntilMs_) {
+    parkedBaselinePct_ = fuel;
+    parkedBaselineReady_ = !state.vehicle.ignitionOn;
+    lastStableUpdateMs_ = now;
+    clearDropCandidate();
+    setDetectorState(state.vehicle.ignitionOn ? DETECTOR_NORMAL_ON : DETECTOR_PARKED_MONITORING, now);
+    setCurrentEvent(state, state.vehicle.ignitionOn ? "NORMAL" : "PARKED_MONITORING",
+                    "NONE", "Alert hold complete", 0.0f, 0, now);
+  }
+}
+
 void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) {
   float fuel = state.fuel.filteredPercent;
   state.fuel.deltaPercent = fuel - parkedBaselinePct_;
@@ -279,6 +363,17 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
 
   if (state.vehicle.ignitionOn) {
     parkedBaselineReady_ = false;
+
+    if (state_ == DETECTOR_DROP_CANDIDATE) {
+      updateDropCandidate(state, now, fuel);
+      return;
+    }
+
+    if (state_ == DETECTOR_THEFT_ALERT) {
+      updateTheftAlert(state, now, fuel);
+      return;
+    }
+
     candidateStartMs_ = 0;
     candidateDropPct_ = 0.0f;
     candidateWorstDropPct_ = 0.0f;
@@ -301,6 +396,18 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
 
     setDetectorState(DETECTOR_NORMAL_ON, now);
     if (state.fuel.ratePercentPerSec <= THEFT_MIN_RATE_PCT_PER_SEC) {
+      float drop = parkedBaselinePct_ - fuel;
+      if (drop >= THEFT_MIN_TOTAL_DROP_PCT) {
+        if (!gpsAllowsParkedTheftDecision(state)) {
+          setCurrentEvent(state, "FUEL_DROP_WHILE_MOVING", "NONE", "GPS motion context",
+                          -drop, 0, now);
+          return;
+        }
+
+        startDropCandidate(state, now, fuel, drop);
+        return;
+      }
+
       setCurrentEvent(state, "FAST_DROP_IGN_ON", "NONE", "Rapid drop while on",
                       state.fuel.deltaPercent, 0, now);
     } else {
@@ -364,13 +471,7 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
           break;
         }
 
-        candidateStartMs_ = now;
-        candidateStartFuelPct_ = fuel;
-        candidateDropPct_ = drop;
-        candidateWorstDropPct_ = drop;
-        setDetectorState(DETECTOR_DROP_CANDIDATE, now);
-        setCurrentEvent(state, "FUEL_DROP_CANDIDATE", "NONE", "Stationary drop confirming",
-                        -drop, computeTheftConfidence(state, drop, state.fuel.ratePercentPerSec), now);
+        startDropCandidate(state, now, fuel, drop);
         break;
       }
 
@@ -386,72 +487,12 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
     }
 
     case DETECTOR_DROP_CANDIDATE: {
-      float drop = parkedBaselinePct_ - fuel;
-      candidateDropPct_ = drop;
-      if (drop > candidateWorstDropPct_) {
-        candidateWorstDropPct_ = drop;
-      }
-      uint8_t candidateConfidence = computeTheftConfidence(state, drop, state.fuel.ratePercentPerSec);
-      setCurrentEvent(state, "FUEL_DROP_CANDIDATE", "NONE", "Stationary drop confirming",
-                      -drop, candidateConfidence, now);
-
-      if (fuel >= parkedBaselinePct_ - THEFT_CANCEL_RECOVERY_PCT ||
-          state.fuel.ratePercentPerSec > THEFT_MAX_RECOVERY_RATE_PCT_PER_SEC) {
-        candidateDropPct_ = 0.0f;
-        candidateWorstDropPct_ = 0.0f;
-        confidence_ = 0;
-        setDetectorState(DETECTOR_PARKED_MONITORING, now);
-        setCurrentEvent(state, "PARKED_MONITORING", "NONE", "Drop recovered", 0.0f, 0, now);
-        break;
-      }
-
-      if (state.fuel.sloshingScore >= SLOSHING_SCORE_SUPPRESS_THEFT &&
-          drop < candidateWorstDropPct_ + THEFT_CANCEL_RECOVERY_PCT) {
-        candidateDropPct_ = 0.0f;
-        candidateWorstDropPct_ = 0.0f;
-        confidence_ = computeSloshingConfidence(state);
-        setDetectorState(DETECTOR_SLOSHING, now);
-        setCurrentEvent(state, "SLOSHING_DETECTED", "NONE", "Signal unstable",
-                        -drop, confidence_, now);
-        break;
-      }
-
-      if (!gpsAllowsParkedTheftDecision(state)) {
-        candidateDropPct_ = 0.0f;
-        candidateWorstDropPct_ = 0.0f;
-        confidence_ = 0;
-        setDetectorState(DETECTOR_PARKED_MONITORING, now);
-        setCurrentEvent(state, "FUEL_DROP_WHILE_MOVING", "NONE", "GPS motion context",
-                        -drop, 0, now);
-        break;
-      }
-
-      bool confirmedDuration = now - candidateStartMs_ >= THEFT_CONFIRM_MS;
-      bool sustainedDrop = drop >= THEFT_MIN_TOTAL_DROP_PCT;
-      bool notRecovering = state.fuel.ratePercentPerSec <= THEFT_MAX_RECOVERY_RATE_PCT_PER_SEC;
-
-      if (confirmedDuration && sustainedDrop && notRecovering) {
-        confidence_ = computeTheftConfidence(state, drop, state.fuel.ratePercentPerSec);
-        alertHoldUntilMs_ = now + THEFT_ALERT_HOLD_MS;
-        setDetectorState(DETECTOR_THEFT_ALERT, now);
-        setCurrentEvent(state, "SUSPICIOUS_DROP", "FUEL_THEFT_ANOMALY",
-                        "Stationary drop confirmed", -drop, confidence_, now);
-      }
+      updateDropCandidate(state, now, fuel);
       break;
     }
 
     case DETECTOR_THEFT_ALERT:
-      setCurrentEvent(state, "SUSPICIOUS_DROP", "FUEL_THEFT_ANOMALY",
-                      "Stationary drop confirmed", -candidateDropPct_, confidence_, now);
-      if (now >= alertHoldUntilMs_) {
-        parkedBaselinePct_ = fuel;
-        lastStableUpdateMs_ = now;
-        candidateDropPct_ = 0.0f;
-        candidateWorstDropPct_ = 0.0f;
-        confidence_ = 0;
-        setDetectorState(DETECTOR_PARKED_MONITORING, now);
-        setCurrentEvent(state, "PARKED_MONITORING", "NONE", "Alert hold complete", 0.0f, 0, now);
-      }
+      updateTheftAlert(state, now, fuel);
       break;
 
     default:

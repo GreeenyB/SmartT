@@ -287,6 +287,7 @@ h3 {
 }
 
 .primary-action,
+.chart-controls button,
 .map-controls button {
   min-height: 36px;
   padding: 7px 10px;
@@ -306,9 +307,11 @@ h3 {
 }
 
 .range-button:hover,
+.chart-controls button:hover,
 .map-controls button:hover,
 .primary-action:hover,
 .range-button:focus-visible,
+.chart-controls button:focus-visible,
 .map-controls button:focus-visible,
 .primary-action:focus-visible,
 .field-control select:focus-visible,
@@ -531,6 +534,45 @@ h3 {
   background: var(--amber);
 }
 
+.chart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -4px 0 10px;
+  flex-wrap: wrap;
+}
+
+.chart-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chart-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 32px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.chart-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.chart-window-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
 .timeline-panel {
   min-height: 460px;
 }
@@ -546,6 +588,15 @@ canvas {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
+}
+
+#fuelChart {
+  cursor: grab;
+  touch-action: none;
+}
+
+#fuelChart.is-dragging {
+  cursor: grabbing;
 }
 
 .context-panel {
@@ -571,10 +622,11 @@ canvas {
 .context-grid dd {
   margin: 8px 0 0;
   color: var(--navy);
-  font-size: 18px;
+  font-size: clamp(16px, 1.25vw, 18px);
   line-height: 1.1;
   font-weight: 850;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: keep-all;
 }
 
 .map-header {
@@ -640,6 +692,61 @@ canvas {
 
 .hidden {
   display: none;
+}
+
+.vehicle-pin-icon {
+  position: relative;
+  width: 34px !important;
+  height: 46px !important;
+  border: 0;
+  background: transparent;
+}
+
+.vehicle-pin-shadow {
+  position: absolute;
+  left: 8px;
+  top: 35px;
+  width: 22px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(15, 35, 52, 0.22);
+  filter: blur(2px);
+}
+
+.vehicle-pin-body {
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 26px;
+  height: 26px;
+  border: 2px solid #466fa6;
+  border-radius: 50% 50% 50% 0;
+  background: linear-gradient(135deg, #80a9e6 0%, #4d79b9 52%, #315f9f 100%);
+  box-shadow: 0 2px 4px rgba(15, 35, 52, 0.28);
+  transform: rotate(-45deg);
+  transform-origin: 50% 50%;
+}
+
+.vehicle-pin-body::after {
+  content: "";
+  position: absolute;
+  inset: 2px 2px auto auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.vehicle-pin-dot {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(48, 86, 132, 0.45);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9);
 }
 
 .detail-panel {
@@ -1213,12 +1320,20 @@ tbody tr.event-row-candidate.is-selected {
   }
 
   .map-controls,
+  .chart-toolbar,
+  .chart-controls,
   .map-controls button,
+  .chart-controls button,
   .toggle-control {
     width: 100%;
   }
 
+  .chart-window-label {
+    white-space: normal;
+  }
+
   .map-controls button,
+  .chart-controls button,
   .toggle-control {
     justify-content: center;
   }

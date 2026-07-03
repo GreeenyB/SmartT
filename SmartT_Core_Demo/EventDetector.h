@@ -50,6 +50,10 @@ private:
   void maybeUpdateStableBaseline(const DashboardState& state, uint32_t now, float fuel);
   void startRefuelCandidate(DashboardState& state, uint32_t now, float fuel);
   void updateRefuelCandidate(DashboardState& state, uint32_t now, float fuel);
+  void clearDropCandidate();
+  void startDropCandidate(DashboardState& state, uint32_t now, float fuel, float dropPct);
+  void updateDropCandidate(DashboardState& state, uint32_t now, float fuel);
+  void updateTheftAlert(DashboardState& state, uint32_t now, float fuel);
   void updateFuelStateMachine(DashboardState& state, uint32_t now);
   void applyTestButtonOverride(DashboardState& state, uint32_t now);
   void exportDetectorToState(DashboardState& state);
