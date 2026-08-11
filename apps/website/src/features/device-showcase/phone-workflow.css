@@ -1,0 +1,934 @@
+/* ==========================================================================
+ * SmartT mobile screens — visual language taken from the official console
+ * Manrope + JetBrains Mono, oklch token set, 0.75rem radius,
+ * hairline borders, panel shadows.
+ * ========================================================================== */
+
+.sm-screen {
+  --sm-bg: oklch(97.4% 0.008 240);
+  --sm-surface: oklch(100% 0 0);
+  --sm-surface-2: oklch(95.8% 0.012 240);
+  --sm-fg: oklch(24% 0.03 258);
+  --sm-muted: oklch(52% 0.028 250);
+  --sm-border: oklch(90% 0.014 240);
+  --sm-border-strong: oklch(84% 0.02 240);
+  --sm-primary: oklch(53.5% 0.152 248);
+  --sm-primary-soft: oklch(94.5% 0.035 235);
+  --sm-navy: oklch(28% 0.075 260);
+  --sm-navy-2: oklch(22% 0.05 250);
+  --sm-warning: oklch(72% 0.15 72);
+  --sm-critical: oklch(55.2% 0.196 25);
+  --sm-success: oklch(63% 0.12 175);
+
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--sm-bg);
+  color: var(--sm-fg);
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+
+.sm-screen *,
+.sm-screen *::before,
+.sm-screen *::after {
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------- primitives */
+
+.sm-status {
+  position: relative;
+  z-index: 4;
+  flex: none;
+  height: 26px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 4px 16px 0;
+  background: var(--sm-surface);
+  color: var(--sm-fg);
+  font-size: 8.6px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.sm-status__time {
+  justify-self: start;
+  font-variant-numeric: tabular-nums;
+}
+
+.sm-status__cutout {
+  width: 66px;
+}
+
+.sm-status__icons {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sm-status__signal {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.sm-status__signal i {
+  width: 1.6px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.sm-status__signal i:nth-child(1) {
+  height: 3px;
+}
+.sm-status__signal i:nth-child(2) {
+  height: 4.5px;
+}
+.sm-status__signal i:nth-child(3) {
+  height: 6px;
+}
+.sm-status__signal i:nth-child(4) {
+  height: 7.5px;
+  opacity: 0.35;
+}
+
+.sm-status__battery {
+  position: relative;
+  width: 13px;
+  height: 6.5px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+.sm-status__battery::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  right: 4px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+/* Home indicator — bottom of every screen */
+.sm-home {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 5px;
+  width: 33%;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 99px;
+  background: color-mix(in oklab, var(--sm-fg) 55%, transparent);
+}
+
+.sm-icon {
+  width: 10px;
+  height: 10px;
+  stroke-width: 1.8;
+}
+
+.sm-icon--xs {
+  width: 8px;
+  height: 8px;
+}
+
+.sm-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border: 1px solid var(--sm-border);
+  border-radius: 6px;
+  color: var(--sm-muted);
+  background: var(--sm-surface);
+}
+
+.sm-icon-btn--ghost {
+  border-color: var(--sm-border);
+  color: var(--sm-muted);
+  background: var(--sm-surface-2);
+}
+
+.sm-eyebrow {
+  display: block;
+  color: var(--sm-muted);
+  font-size: 6.6px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.sm-eyebrow--inverse {
+  color: oklch(88% 0.03 235 / 0.8);
+}
+
+.sm-plate {
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sm-plate--inverse {
+  margin-top: 5px;
+  color: oklch(99% 0.004 240);
+  font-size: 14px;
+}
+
+.sm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.sm-chip--moving {
+  color: oklch(38% 0.11 248);
+  background: var(--sm-primary-soft);
+}
+
+.sm-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 6.8px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.sm-tag--warning {
+  color: oklch(42% 0.11 72);
+  background: oklch(93% 0.055 78);
+}
+
+.sm-tag--critical {
+  color: oklch(99% 0.004 20);
+  background: var(--sm-critical);
+}
+
+.sm-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.sm-dot--moving {
+  background: oklch(45% 0.13 250);
+}
+
+.sm-dot--idling {
+  background: oklch(68% 0.14 65);
+}
+
+.sm-dot--parked {
+  background: oklch(66% 0.02 250);
+}
+
+/* ==========================================================================
+ * PHONE 1 — LIVE MAP
+ * ========================================================================== */
+
+.sm-screen--map {
+  background: var(--sm-surface);
+}
+
+.sm-map-top {
+  flex: none;
+  padding: 4px 14px 9px;
+  border-bottom: 1px solid var(--sm-border);
+  background: var(--sm-surface);
+}
+
+.sm-map-top__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sm-map-top__title h3 {
+  margin: 2px 0 0;
+  font-family: "Sora", "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.sm-map-top__tools {
+  display: inline-flex;
+  gap: 5px;
+  padding-top: 4px;
+}
+
+.sm-map-top__meta {
+  margin: 3px 0 0;
+  color: var(--sm-muted);
+  font-size: 8px;
+}
+
+.sm-filter-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.sm-filter {
+  flex: none;
+  padding: 3px 7px;
+  border: 1px solid var(--sm-border);
+  border-radius: 999px;
+  color: var(--sm-muted);
+  background: var(--sm-surface);
+  font-size: 7.6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sm-filter.is-active {
+  border-color: transparent;
+  color: oklch(99% 0.004 240);
+  background: var(--sm-primary);
+}
+
+.sm-map {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--sm-surface-2);
+}
+
+.sm-map__tiles {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 52% 42%;
+}
+
+.sm-map__focus {
+  position: absolute;
+  left: 41.5%;
+  top: 55%;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: oklch(53.5% 0.152 248 / 0.16);
+  box-shadow: 0 0 0 1px oklch(53.5% 0.152 248 / 0.35);
+  display: grid;
+  place-items: center;
+}
+
+.sm-map__focus-dot {
+  width: 11px;
+  height: 11px;
+  border: 2px solid oklch(100% 0 0);
+  border-radius: 50%;
+  background: oklch(45% 0.13 250);
+  box-shadow: 0 2px 5px oklch(28% 0.09 250 / 0.45);
+}
+
+.sm-map__locate {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  box-shadow: 0 2px 6px oklch(30% 0.06 250 / 0.16);
+}
+
+.sm-map__legend {
+  position: absolute;
+  left: 9px;
+  bottom: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 5px 7px;
+  border: 1px solid var(--sm-border);
+  border-radius: 7px;
+  background: oklch(100% 0 0 / 0.93);
+  box-shadow: 0 2px 8px oklch(30% 0.06 250 / 0.12);
+  font-size: 7.2px;
+  font-weight: 600;
+  color: var(--sm-muted);
+}
+
+.sm-map__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sm-sheet {
+  flex: none;
+  padding: 6px 14px 16px;
+  border-top: 1px solid var(--sm-border-strong);
+  border-radius: 14px 14px 0 0;
+  margin-top: -12px;
+  background: var(--sm-surface);
+  box-shadow: 0 -10px 26px -18px oklch(32% 0.09 250 / 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.sm-sheet__grip {
+  display: block;
+  width: 34px;
+  height: 3px;
+  margin: 0 auto 9px;
+  border-radius: 999px;
+  background: var(--sm-border-strong);
+}
+
+.sm-sheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sm-sheet__where {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 3px 0 0;
+  color: var(--sm-muted);
+  font-size: 7.8px;
+}
+
+.sm-kv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 10px 0 0;
+  border: 1px solid var(--sm-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sm-kv > div {
+  padding: 6px 8px;
+  border-right: 1px solid var(--sm-border);
+  border-bottom: 1px solid var(--sm-border);
+}
+
+.sm-kv > div:nth-child(2n) {
+  border-right: 0;
+}
+
+.sm-kv > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.sm-kv dt {
+  color: var(--sm-muted);
+  font-size: 6.6px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.sm-kv dd {
+  margin: 2px 0 0;
+  font-size: 9.4px;
+  font-weight: 600;
+}
+
+.sm-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  color: oklch(99% 0.004 240);
+  background: var(--sm-primary);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+ * PHONE 2 — VEHICLE DETAIL
+ * ========================================================================== */
+
+.sm-vhead {
+  flex: none;
+  padding: 4px 14px 12px;
+  border-bottom: 1px solid var(--sm-border);
+  background: var(--sm-surface);
+  color: var(--sm-fg);
+}
+
+.sm-vhead__nav {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sm-vhead__sub {
+  margin: 3px 0 0;
+  color: var(--sm-muted);
+  font-size: 8px;
+}
+
+.sm-vhead__strip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+  color: var(--sm-muted);
+  font-size: 7.4px;
+  font-weight: 600;
+}
+
+.sm-vbody {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 16px;
+  overflow: hidden;
+}
+
+.sm-panel {
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  background: var(--sm-surface);
+  box-shadow:
+    0 1px 2px 0 oklch(30% 0.06 250 / 0.06),
+    0 12px 28px -22px oklch(32% 0.09 250 / 0.4);
+  overflow: hidden;
+}
+
+.sm-panel__head {
+  padding: 8px 10px 6px;
+}
+
+.sm-panel__head h4 {
+  margin: 0;
+  font-family: "Sora", "Manrope", sans-serif;
+  font-size: 9.6px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.sm-panel__head p {
+  margin: 2px 0 0;
+  color: var(--sm-muted);
+  font-size: 7.2px;
+}
+
+.sm-chart {
+  padding: 0 10px;
+}
+
+.sm-chart svg {
+  width: 100%;
+  height: 62px;
+  display: block;
+  overflow: visible;
+}
+
+.sm-chart__grid {
+  stroke: var(--sm-border);
+  stroke-width: 0.6;
+  stroke-dasharray: 2 3;
+}
+
+.sm-chart__area {
+  fill: oklch(53.5% 0.152 248 / 0.12);
+  stroke: none;
+}
+
+.sm-chart__line {
+  fill: none;
+  stroke: oklch(58% 0.15 245);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sm-chart__node {
+  fill: oklch(100% 0 0);
+  stroke: oklch(58% 0.15 245);
+  stroke-width: 1.4;
+}
+
+.sm-chart__node--alert {
+  stroke: var(--sm-critical);
+}
+
+.sm-chart__marker {
+  stroke: var(--sm-critical);
+  stroke-width: 0.9;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.sm-chart__axis {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0 8px;
+  color: var(--sm-muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 6.4px;
+}
+
+.sm-chart__note {
+  margin: 0;
+  padding: 0 10px 9px;
+  color: var(--sm-muted);
+  font-size: 7.4px;
+}
+
+.sm-chart--alert svg {
+  height: 50px;
+}
+
+.sm-chart--alert .sm-chart__area {
+  fill: oklch(55.2% 0.196 25 / 0.1);
+}
+
+.sm-chart--alert .sm-chart__line {
+  stroke: var(--sm-critical);
+}
+
+.sm-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.sm-metric {
+  padding: 7px 7px 8px;
+  border: 1px solid var(--sm-border);
+  border-radius: 9px;
+  background: var(--sm-surface);
+}
+
+.sm-metric span {
+  display: block;
+  color: var(--sm-muted);
+  font-size: 6.2px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.sm-metric strong {
+  display: block;
+  margin-top: 3px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.sm-metric strong em {
+  font-family: "Manrope", sans-serif;
+  font-size: 6.6px;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--sm-muted);
+}
+
+.sm-metric small {
+  display: block;
+  margin-top: 2px;
+  color: var(--sm-muted);
+  font-size: 6.4px;
+}
+
+.sm-metric small.is-up {
+  color: oklch(50% 0.14 45);
+  font-weight: 700;
+}
+
+.sm-rows {
+  margin: 0;
+  padding: 0 10px 9px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 10px;
+}
+
+.sm-rows dt {
+  color: var(--sm-muted);
+  font-size: 6.4px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sm-rows dd {
+  margin: 1px 0 0;
+  font-size: 8.6px;
+  font-weight: 600;
+}
+
+.sm-events {
+  margin: 0;
+  padding: 0 10px 9px;
+  list-style: none;
+}
+
+.sm-events li {
+  padding: 7px 0;
+  border-top: 1px solid var(--sm-border);
+}
+
+.sm-events li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.sm-events__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sm-events__status {
+  color: var(--sm-muted);
+  font-size: 6.8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sm-events__type {
+  margin: 4px 0 0;
+  font-size: 8.8px;
+  font-weight: 700;
+}
+
+.sm-events__body {
+  margin: 2px 0 0;
+  color: var(--sm-muted);
+  font-size: 7.6px;
+  line-height: 1.5;
+}
+
+.sm-events__when {
+  margin: 3px 0 0;
+  color: var(--sm-muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 6.6px;
+}
+
+/* ==========================================================================
+ * PHONE 3 — ALERT EVIDENCE
+ * ========================================================================== */
+
+.sm-ahead {
+  flex: none;
+  padding: 4px 14px 13px;
+  border-bottom: 1px solid var(--sm-border);
+  background: var(--sm-surface);
+  color: var(--sm-fg);
+}
+
+.sm-ahead__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.sm-ahead h3 {
+  margin: 6px 0 0;
+  font-family: "Sora", "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.sm-ahead__meta {
+  margin: 4px 0 0;
+  color: var(--sm-muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 7.2px;
+}
+
+.sm-ahead__body {
+  margin: 8px 0 0;
+  color: var(--sm-muted);
+  font-size: 8.4px;
+  line-height: 1.55;
+}
+
+.sm-abody {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 16px;
+  overflow: hidden;
+}
+
+.sm-evidence {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  background: var(--sm-surface);
+  overflow: hidden;
+}
+
+.sm-evidence > div {
+  padding: 6px 9px;
+  border-right: 1px solid var(--sm-border);
+  border-bottom: 1px solid var(--sm-border);
+}
+
+.sm-evidence > div:nth-child(2n) {
+  border-right: 0;
+}
+
+.sm-evidence > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.sm-evidence > div.is-lead {
+  grid-column: 1 / -1;
+  border-right: 0;
+  background: oklch(97% 0.02 25);
+}
+
+.sm-evidence dt {
+  color: var(--sm-muted);
+  font-size: 6.4px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sm-evidence dd {
+  margin: 2px 0 0;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 8.4px;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sm-evidence > div.is-wide {
+  grid-column: 1 / -1;
+  border-right: 0;
+}
+
+.sm-evidence > div.is-lead dd {
+  color: var(--sm-critical);
+  font-size: 13px;
+}
+
+.sm-geo {
+  margin: 0;
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--sm-surface);
+}
+
+.sm-geo img {
+  width: 100%;
+  height: 58px;
+  display: block;
+  object-fit: cover;
+  object-position: 50% 55%;
+}
+
+.sm-geo figcaption {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 9px;
+  border-top: 1px solid var(--sm-border);
+  color: var(--sm-muted);
+  font-size: 7.4px;
+  font-weight: 600;
+}
+
+.sm-actions {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.sm-actions__primary,
+.sm-actions__ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.sm-actions__primary {
+  color: oklch(99% 0.004 240);
+  background: var(--sm-primary);
+}
+
+.sm-actions__ghost {
+  border: 1px solid var(--sm-border-strong);
+  color: var(--sm-muted);
+  background: var(--sm-surface);
+}
+
+/* -------------------------------------------------------- narrow rendering */
+
+@media (max-width: 920px) {
+  .sm-screen {
+    font-size: 11px;
+  }
+}
+
+.sm-events__more {
+  margin: 0;
+  padding: 7px 10px 9px;
+  border-top: 1px solid var(--sm-border);
+  color: var(--sm-primary);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+/* Larger plate readout on the vehicle header (light theme). */
+.sm-plate--lg {
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+/* The screen content is a scroll surface: fade the clipped bottom edge and
+ * leave room for the home indicator so the cut never looks accidental. */
+.sm-vbody,
+.sm-abody {
+  padding-bottom: 22px;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+}

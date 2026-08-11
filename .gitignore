@@ -1,4 +1,5 @@
 # Archives / handoff packages
+/review/
 *.zip
 *.rar
 *.7z
@@ -63,6 +64,14 @@ temp/
 *.tmp
 *.bak
 *~
+
+# Frontend generated/local files
+node_modules/
+dist/
+.output/
+.vercel/
+.env
+.env.local
 
 # Python / local runtime caches
 __pycache__/

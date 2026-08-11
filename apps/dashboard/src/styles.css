@@ -1,0 +1,279 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * SmartT design system — enterprise fleet & fuel intelligence.
+ * Light is the default theme. All colors are oklch tokens.
+ *
+ * Semantic colour contract (do not overload):
+ *   primary / brand blue -> brand, active nav, normal telemetry, moving vehicle, info
+ *   success green        -> positive outcome / verified good result only
+ *   warning amber        -> needs attention
+ *   destructive red      -> critical issue only
+ *   neutral gray         -> parked, inactive, offline, maintenance, secondary
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-azure: var(--brand-azure);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-teal: var(--brand-teal);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-info: var(--primary);
+  --color-neutral: var(--neutral);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--ring);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* SmartT brand ramp — taken from the logo (deep navy -> azure -> cyan -> teal) */
+  --brand-deep: oklch(0.34 0.11 260);
+  --brand-navy: oklch(0.42 0.14 258);
+  --brand-azure: oklch(0.58 0.15 245);
+  --brand-cyan: oklch(0.72 0.13 217);
+  --brand-teal: oklch(0.76 0.12 185);
+
+  --background: oklch(0.974 0.008 240);
+  --foreground: oklch(0.24 0.03 258);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.958 0.012 240);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.03 258);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.03 258);
+
+  --primary: oklch(0.535 0.152 248);
+  --primary-foreground: oklch(0.99 0.004 240);
+  --primary-soft: oklch(0.945 0.035 235);
+
+  --secondary: oklch(0.95 0.014 240);
+  --secondary-foreground: oklch(0.32 0.04 256);
+
+  --muted: oklch(0.955 0.012 240);
+  --muted-foreground: oklch(0.52 0.028 250);
+
+  --accent: oklch(0.94 0.04 220);
+  --accent-foreground: oklch(0.36 0.1 250);
+
+  --destructive: oklch(0.552 0.196 25);
+  --destructive-foreground: oklch(0.99 0.004 20);
+  --warning: oklch(0.72 0.15 72);
+  --warning-foreground: oklch(0.99 0.004 70);
+  --success: oklch(0.63 0.12 175);
+  --success-foreground: oklch(0.99 0.004 170);
+  --neutral: oklch(0.62 0.02 250);
+
+  --border: oklch(0.9 0.014 240);
+  --border-strong: oklch(0.84 0.02 240);
+  --input: oklch(0.9 0.014 240);
+  --ring: oklch(0.6 0.14 235);
+
+  --chart-1: var(--brand-azure);
+  --chart-2: var(--brand-teal);
+  --chart-3: var(--warning);
+  --chart-4: var(--destructive);
+  --chart-5: oklch(0.66 0.05 245);
+
+  --sidebar: oklch(0.28 0.075 260);
+  --sidebar-foreground: oklch(0.9 0.02 235);
+  --sidebar-accent: oklch(0.36 0.09 253);
+  --sidebar-accent-foreground: oklch(0.985 0.008 220);
+  --sidebar-border: oklch(0.37 0.06 258);
+
+  --gradient-primary: linear-gradient(135deg, var(--brand-navy), var(--brand-cyan) 60%, var(--brand-teal));
+  --gradient-sidebar: linear-gradient(185deg, oklch(0.3 0.085 262), oklch(0.24 0.06 258) 70%, oklch(0.22 0.05 250));
+  --gradient-hero: linear-gradient(120deg, oklch(0.31 0.09 261), oklch(0.4 0.12 248) 45%, oklch(0.55 0.13 210));
+  --gradient-sheen: linear-gradient(150deg, oklch(1 0 0 / 0.9), oklch(0.97 0.02 225 / 0.72));
+  --shadow-panel:
+    0 1px 2px 0 oklch(0.3 0.06 250 / 0.06), 0 12px 28px -20px oklch(0.32 0.09 250 / 0.4);
+  --shadow-float: 0 24px 56px -26px oklch(0.28 0.09 250 / 0.45);
+  --shadow-glow: 0 14px 40px -18px oklch(0.6 0.14 232 / 0.55);
+  --map-filter: none;
+}
+
+.dark {
+  --background: oklch(0.19 0.028 258);
+  --foreground: oklch(0.965 0.008 235);
+  --surface: oklch(0.235 0.032 258);
+  --surface-2: oklch(0.278 0.036 256);
+
+  --card: oklch(0.235 0.032 258);
+  --card-foreground: oklch(0.965 0.008 235);
+  --popover: oklch(0.252 0.034 258);
+  --popover-foreground: oklch(0.965 0.008 235);
+
+  --primary: oklch(0.72 0.128 226);
+  --primary-foreground: oklch(0.18 0.04 258);
+  --primary-soft: oklch(0.33 0.06 245);
+
+  --secondary: oklch(0.3 0.034 256);
+  --secondary-foreground: oklch(0.94 0.01 235);
+
+  --muted: oklch(0.285 0.032 256);
+  --muted-foreground: oklch(0.72 0.026 240);
+
+  --accent: oklch(0.33 0.06 240);
+  --accent-foreground: oklch(0.95 0.015 230);
+
+  --destructive: oklch(0.652 0.18 24);
+  --destructive-foreground: oklch(0.98 0.01 20);
+  --warning: oklch(0.79 0.14 76);
+  --warning-foreground: oklch(0.22 0.05 70);
+  --success: oklch(0.75 0.12 178);
+  --success-foreground: oklch(0.2 0.04 175);
+  --neutral: oklch(0.66 0.024 248);
+
+  --border: oklch(0.33 0.032 254);
+  --border-strong: oklch(0.41 0.04 252);
+  --input: oklch(0.33 0.032 254);
+  --ring: oklch(0.72 0.128 226);
+
+  --chart-1: oklch(0.68 0.13 235);
+  --chart-2: oklch(0.79 0.12 185);
+  --chart-5: var(--neutral);
+
+  --sidebar: oklch(0.175 0.03 260);
+  --sidebar-foreground: oklch(0.9 0.015 235);
+  --sidebar-accent: oklch(0.3 0.06 250);
+  --sidebar-accent-foreground: oklch(0.97 0.01 230);
+  --sidebar-border: oklch(0.3 0.04 256);
+
+  --gradient-sidebar: linear-gradient(185deg, oklch(0.21 0.045 262), oklch(0.165 0.03 258));
+  --gradient-hero: linear-gradient(120deg, oklch(0.26 0.06 261), oklch(0.32 0.08 246) 50%, oklch(0.42 0.1 214));
+  --gradient-sheen: linear-gradient(150deg, oklch(0.28 0.04 250 / 0.9), oklch(0.24 0.035 245 / 0.7));
+  --shadow-panel: 0 1px 0 0 oklch(1 0 0 / 0.05) inset, 0 16px 36px -26px oklch(0.08 0.03 258 / 0.9);
+  --shadow-float: 0 24px 56px -28px oklch(0.06 0.02 258 / 0.95);
+  --shadow-glow: 0 14px 40px -18px oklch(0.5 0.13 232 / 0.6);
+  --map-filter: invert(0.92) hue-rotate(180deg) saturate(0.7) brightness(0.95);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    background-image:
+      radial-gradient(900px 420px at 12% -8%, oklch(0.72 0.13 217 / 0.16), transparent 60%),
+      radial-gradient(760px 380px at 92% 4%, oklch(0.76 0.12 185 / 0.13), transparent 62%);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+}
+
+@utility panel {
+  position: relative;
+  background-image: var(--gradient-sheen);
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  transition:
+    box-shadow 220ms ease,
+    transform 220ms ease,
+    border-color 220ms ease;
+}
+
+@utility panel-hover {
+  &:hover {
+    border-color: color-mix(in oklab, var(--brand-cyan) 40%, var(--color-border));
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+  }
+}
+
+
+@utility text-gradient-brand {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility surface-hero {
+  background-image: var(--gradient-hero);
+  color: oklch(0.98 0.01 220);
+}
+
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+@utility scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+@utility map-tiles {
+  filter: var(--map-filter);
+}
