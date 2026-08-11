@@ -2,8 +2,6 @@ import { ArrowDownRight } from "lucide-react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 
-import fleetBanner from "@/assets/fleet-depot-banner.png.asset.json";
-
 export function HeroSection() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -73,7 +71,7 @@ export function HeroSection() {
           className="hero-banner"
         >
           <img
-            src={fleetBanner.url}
+            src="/images/fleet-depot-banner.png"
             alt="Top-down aerial view of truck chassis lined up in rows across a fleet depot yard."
             width={1127}
             height={750}
