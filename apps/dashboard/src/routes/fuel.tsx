@@ -12,19 +12,14 @@ import {
   SeverityBadge,
   WorkflowBadge,
 } from "@/components/dashboard-kit";
+import { useDemoData } from "@/demo/demo-data";
 import { FleetMap, MapLegend, type MapMarker } from "@/components/fleet-map";
 import {
-  depotStats,
   eventKindLabel,
-  eventsForRange,
-  fleetKpis,
   formatDate,
   formatNum,
   formatVnd,
   rangeLabel,
-  refuelEventsForRange,
-  seriesForRange,
-  vehicleStats,
   type TimeRange,
 } from "@/lib/fleet-data";
 import { cn } from "@/lib/utils";
@@ -51,6 +46,7 @@ function FuelAnalytics() {
   const [range, setRange] = useState<TimeRange>("7d");
   const [tab, setTab] = useState<Tab>("loss");
   const [selected, setSelected] = useState<string | null>(null);
+  const { depotStats, eventsForRange, fleetKpis, refuelEventsForRange, seriesForRange, vehicleStats } = useDemoData();
 
   const kpis = fleetKpis(range);
   const series = seriesForRange(range);
@@ -59,9 +55,9 @@ function FuelAnalytics() {
 
   const lossEvents = useMemo(
     () => eventsForRange(range).filter((e) => e.kind === "fuel_drop" || e.kind === "overconsumption"),
-    [range],
+    [eventsForRange, range],
   );
-  const rangeRefuels = useMemo(() => refuelEventsForRange(range), [range]);
+  const rangeRefuels = useMemo(() => refuelEventsForRange(range), [refuelEventsForRange, range]);
 
   const markers: MapMarker[] = useMemo(
     () =>

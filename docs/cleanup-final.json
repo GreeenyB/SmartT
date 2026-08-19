@@ -1,0 +1,627 @@
+{
+  "before_size_bytes": 4266407911,
+  "after_size_bytes": 213345046,
+  "recovered_bytes": 4053062865,
+  "deleted_paths": [
+    {
+      "path": ".tmp_v6_extract_check",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\.tmp_v6_extract_check",
+      "type": "directory",
+      "size_bytes": 1698138
+    },
+    {
+      "path": "cursor-full-production",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cursor-full-production",
+      "type": "directory",
+      "size_bytes": 269741594
+    },
+    {
+      "path": "cursor-full-production-v2",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cursor-full-production-v2",
+      "type": "directory",
+      "size_bytes": 288428401
+    },
+    {
+      "path": "cursor-full-production-v3",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cursor-full-production-v3",
+      "type": "directory",
+      "size_bytes": 642519328
+    },
+    {
+      "path": "cursor-full-production-v4",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cursor-full-production-v4",
+      "type": "directory",
+      "size_bytes": 247914784
+    },
+    {
+      "path": "cursor-full-production-v4-diagnostic",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cursor-full-production-v4-diagnostic",
+      "type": "directory",
+      "size_bytes": 2964700
+    },
+    {
+      "path": "cursor-replay-proof",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cursor-replay-proof",
+      "type": "directory",
+      "size_bytes": 143696591
+    },
+    {
+      "path": "cartesia-audio",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cartesia-audio",
+      "type": "directory",
+      "size_bytes": 53714681
+    },
+    {
+      "path": "cartesia-final",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cartesia-final",
+      "type": "directory",
+      "size_bytes": 502527646
+    },
+    {
+      "path": "final-audio",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\final-audio",
+      "type": "directory",
+      "size_bytes": 107272454
+    },
+    {
+      "path": "final-audio-v2",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\final-audio-v2",
+      "type": "directory",
+      "size_bytes": 19077947
+    },
+    {
+      "path": "SmartT_cursor_fix_handoff",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_cursor_fix_handoff",
+      "type": "directory",
+      "size_bytes": 24795685
+    },
+    {
+      "path": "SmartT_incident_cursor_fix_v3",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_incident_cursor_fix_v3",
+      "type": "directory",
+      "size_bytes": 98857
+    },
+    {
+      "path": "ui-prototype",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\ui-prototype",
+      "type": "directory",
+      "size_bytes": 254437
+    },
+    {
+      "path": "apps\\dashboard\\output",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output",
+      "type": "directory",
+      "size_bytes": 167964827
+    },
+    {
+      "path": "scripts\\video-replay",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\video-replay",
+      "type": "directory",
+      "size_bytes": 326980
+    },
+    {
+      "path": "scripts\\audition-smartt-cartesia.py",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\audition-smartt-cartesia.py",
+      "type": "file",
+      "size_bytes": 33748
+    },
+    {
+      "path": "scripts\\finalize-smartt-audio.py",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\finalize-smartt-audio.py",
+      "type": "file",
+      "size_bytes": 55883
+    },
+    {
+      "path": "scripts\\finalize-smartt-audio-v2.py",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\finalize-smartt-audio-v2.py",
+      "type": "file",
+      "size_bytes": 29280
+    },
+    {
+      "path": "scripts\\finalize-smartt-cartesia.py",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\finalize-smartt-cartesia.py",
+      "type": "file",
+      "size_bytes": 53396
+    },
+    {
+      "path": "scripts\\incident-diagnostics.py",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\incident-diagnostics.py",
+      "type": "file",
+      "size_bytes": 6164
+    },
+    {
+      "path": "scripts\\maintenance\\inventory-project.ps1",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\maintenance\\inventory-project.ps1",
+      "type": "file",
+      "size_bytes": 45442
+    },
+    {
+      "path": "SmartT_CursorFull_REVIEW.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_CursorFull_REVIEW.zip",
+      "type": "file",
+      "size_bytes": 88538948
+    },
+    {
+      "path": "SmartT_CursorFull_v2_REVIEW.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_CursorFull_v2_REVIEW.zip",
+      "type": "file",
+      "size_bytes": 104187619
+    },
+    {
+      "path": "SmartT_CursorFull_v3_REVIEW.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_CursorFull_v3_REVIEW.zip",
+      "type": "file",
+      "size_bytes": 104964061
+    },
+    {
+      "path": "SmartT_CursorFull_v4_REVIEW.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_CursorFull_v4_REVIEW.zip",
+      "type": "file",
+      "size_bytes": 114139871
+    },
+    {
+      "path": "SmartT_EngSub_V6_REVIEW.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_EngSub_V6_REVIEW.zip",
+      "type": "file",
+      "size_bytes": 35479397
+    },
+    {
+      "path": "cartesia-final.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cartesia-final.zip",
+      "type": "file",
+      "size_bytes": 33394024
+    },
+    {
+      "path": "cartesia-final (2).zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cartesia-final (2).zip",
+      "type": "file",
+      "size_bytes": 145745321
+    },
+    {
+      "path": "cartesia-final (3).zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\cartesia-final (3).zip",
+      "type": "file",
+      "size_bytes": 234697635
+    },
+    {
+      "path": "apps.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps.zip",
+      "type": "file",
+      "size_bytes": 156982479
+    },
+    {
+      "path": "SmartT_cursor_fix_handoff.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_cursor_fix_handoff.zip",
+      "type": "file",
+      "size_bytes": 24121465
+    },
+    {
+      "path": "SmartT_incident_cursor_fix_v3.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_incident_cursor_fix_v3.zip",
+      "type": "file",
+      "size_bytes": 28882
+    },
+    {
+      "path": "SmartT_incident_cursor_fix.patch",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_incident_cursor_fix.patch",
+      "type": "file",
+      "size_bytes": 14556
+    },
+    {
+      "path": "SmartT_Incident_v4_DIAGNOSTIC.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_Incident_v4_DIAGNOSTIC.zip",
+      "type": "file",
+      "size_bytes": 2777124
+    },
+    {
+      "path": "review-checkpoint-demo-1.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\review-checkpoint-demo-1.zip",
+      "type": "file",
+      "size_bytes": 55848
+    },
+    {
+      "path": "review-checkpoint-demo-2.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\review-checkpoint-demo-2.zip",
+      "type": "file",
+      "size_bytes": 54993
+    },
+    {
+      "path": "review-checkpoint-demo-3.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\review-checkpoint-demo-3.zip",
+      "type": "file",
+      "size_bytes": 4723307
+    },
+    {
+      "path": "review-final-audit.zip",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\review-final-audit.zip",
+      "type": "file",
+      "size_bytes": 4462
+    },
+    {
+      "path": "README.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\README.txt",
+      "type": "file",
+      "size_bytes": 398
+    },
+    {
+      "path": "README_RUN.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\README_RUN.txt",
+      "type": "file",
+      "size_bytes": 1924
+    },
+    {
+      "path": "README_HOTFIX.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\README_HOTFIX.txt",
+      "type": "file",
+      "size_bytes": 1063
+    },
+    {
+      "path": "README_V4.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\README_V4.txt",
+      "type": "file",
+      "size_bytes": 1263
+    },
+    {
+      "path": "RUN_INCIDENT_CURSOR_FIX.ps1",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\RUN_INCIDENT_CURSOR_FIX.ps1",
+      "type": "file",
+      "size_bytes": 2176
+    },
+    {
+      "path": "RUN_INCIDENT_CURSOR_FIX_V4.ps1",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\RUN_INCIDENT_CURSOR_FIX_V4.ps1",
+      "type": "file",
+      "size_bytes": 2249
+    },
+    {
+      "path": "RESUME_INCIDENT_CURSOR_FIX_V4.ps1",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\RESUME_INCIDENT_CURSOR_FIX_V4.ps1",
+      "type": "file",
+      "size_bytes": 1901
+    },
+    {
+      "path": "RUN_INCIDENT_V4_DIAGNOSTIC.ps1",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\RUN_INCIDENT_V4_DIAGNOSTIC.ps1",
+      "type": "file",
+      "size_bytes": 1636
+    },
+    {
+      "path": "SmartT_English_Narration_FINAL.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_English_Narration_FINAL.txt",
+      "type": "file",
+      "size_bytes": 2609
+    },
+    {
+      "path": "SmartT_English_Narration_FINAL_v2.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_English_Narration_FINAL_v2.txt",
+      "type": "file",
+      "size_bytes": 2420
+    },
+    {
+      "path": "SmartT_English_Subtitles_FINAL.srt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_English_Subtitles_FINAL.srt",
+      "type": "file",
+      "size_bytes": 2004
+    },
+    {
+      "path": "SmartT_English_Subtitles_FINAL_v2.srt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_English_Subtitles_FINAL_v2.srt",
+      "type": "file",
+      "size_bytes": 2031
+    },
+    {
+      "path": "SmartT_TTS_Copy_FINAL.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_TTS_Copy_FINAL.txt",
+      "type": "file",
+      "size_bytes": 1421
+    },
+    {
+      "path": "SmartT_TTS_Copy_FINAL_v2.txt",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\SmartT_TTS_Copy_FINAL_v2.txt",
+      "type": "file",
+      "size_bytes": 1412
+    },
+    {
+      "path": "final-audio-config.json",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\final-audio-config.json",
+      "type": "file",
+      "size_bytes": 1085
+    },
+    {
+      "path": "apps\\website\\node_modules",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\website\\node_modules",
+      "type": "directory",
+      "size_bytes": 262940235
+    },
+    {
+      "path": "apps\\dashboard\\node_modules",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\node_modules",
+      "type": "directory",
+      "size_bytes": 248966990
+    },
+    {
+      "path": "server\\.venv",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\server\\.venv",
+      "type": "directory",
+      "size_bytes": 17287134
+    },
+    {
+      "path": ".tanstack",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\.tanstack",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "apps\\website\\.tanstack",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\website\\.tanstack",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "apps\\dashboard\\.tanstack",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\.tanstack",
+      "type": "directory",
+      "size_bytes": 0
+    },
+    {
+      "path": "scripts\\__pycache__",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\__pycache__",
+      "type": "directory",
+      "size_bytes": 292071
+    },
+    {
+      "path": "scripts\\production\\__pycache__",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\scripts\\production\\__pycache__",
+      "type": "directory",
+      "size_bytes": 9603
+    },
+    {
+      "path": "server\\__pycache__",
+      "resolved": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\server\\__pycache__",
+      "type": "directory",
+      "size_bytes": 48055
+    },
+    {
+      "path": "docs/BOM.md",
+      "type": "file",
+      "size_bytes": 914
+    },
+    {
+      "path": "docs/WIRING_AND_SETUP.md",
+      "type": "file",
+      "size_bytes": 4266
+    },
+    {
+      "path": "docs/SmartT_Algorithm_Recommendation_for_Codex.md",
+      "type": "file",
+      "size_bytes": 25149
+    },
+    {
+      "path": "docs/demo",
+      "type": "directory",
+      "size_bytes": 197923
+    },
+    {
+      "path": "docs/video",
+      "type": "directory",
+      "size_bytes": 16459
+    },
+    {
+      "path": "apps/website/README.md",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "apps/website/src/README.md",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "apps/website/src/routes/README.md",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "apps/dashboard/README.md",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "apps/dashboard/src/routes/README.md",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "server/static/dashboard/README.md",
+      "type": "file",
+      "size_bytes": 0
+    },
+    {
+      "path": "docs/cleanup",
+      "type": "directory",
+      "size_bytes": 273167
+    }
+  ],
+  "moved_paths": [
+    {
+      "from": ".tmp_v6_extract_check\\SmartT_Final_CURSOR_THEO_EngSub_V6.mp4",
+      "to": "production\\masters\\SmartT_Final_EngSub.mp4"
+    },
+    {
+      "from": ".tmp_v6_extract_check\\SmartT_Final_BurnIn_THEO_V6.ass",
+      "to": "production\\subtitles\\SmartT_Final_EngSub.ass"
+    },
+    {
+      "from": "cursor-full-production-v4\\outputs\\SmartT_Final_CURSOR_THEO_Voice_Clean_v4.mp4",
+      "to": "production\\masters\\SmartT_Final_Voice_Clean.mp4"
+    },
+    {
+      "from": "cursor-full-production-v4\\outputs\\SmartT_Picture_CURSOR_LOCK_v4_candidate.mp4",
+      "to": "production\\masters\\SmartT_Picture_Lock.mp4"
+    },
+    {
+      "from": "cartesia-final\\narration\\master\\SmartT_Narration_THEO_Master.wav",
+      "to": "production\\audio\\SmartT_Narration_THEO_Master.wav"
+    },
+    {
+      "from": "cartesia-final\\SmartT_English_Subtitles_THEO_FINAL.srt",
+      "to": "production\\subtitles\\SmartT_Final_EngSub.srt"
+    },
+    {
+      "from": "cartesia-final\\SmartT_English_Narration_THEO_FINAL.txt",
+      "to": "production\\audio\\SmartT_English_Narration_THEO_FINAL.txt"
+    },
+    {
+      "from": "cartesia-final\\SmartT_TTS_Copy_THEO_FINAL.txt",
+      "to": "production\\audio\\SmartT_TTS_Copy_THEO_FINAL.txt"
+    },
+    {
+      "from": "cartesia-final\\SmartT_Narration_Timeline_THEO_FINAL.json",
+      "to": "production\\audio\\SmartT_Narration_Timeline_THEO_FINAL.json"
+    },
+    {
+      "from": "cursor-full-production-v4\\config\\cursor-full-timeline.json",
+      "to": "production\\config\\cursor-full-timeline.json"
+    },
+    {
+      "from": "cursor-replay-proof\\config\\cursor-26px.png",
+      "to": "production\\config\\cursor-26px.png"
+    },
+    {
+      "from": "cartesia-final\\qa\\reference-theo-audition.wav",
+      "to": "production\\references\\voice\\reference-theo-audition.wav"
+    },
+    {
+      "from": "cartesia-final\\qa\\theo-voice-lock.json",
+      "to": "production\\references\\voice\\theo-voice-lock.source.json"
+    },
+    {
+      "from": "apps\\dashboard\\output\\demo\\SmartT_BKI_Demo_Raw.webm",
+      "to": "production\\references\\dashboard\\SmartT_BKI_Demo_Raw.webm"
+    },
+    {
+      "from": "apps\\dashboard\\output\\showcase\\dashboard-v2\\dashboard-v2-qa.json",
+      "to": "production\\references\\dashboard-showcase-v2\\dashboard-v2-qa.json"
+    },
+    {
+      "from": "apps\\dashboard\\output\\showcase\\dashboard-v2\\sources",
+      "to": "production\\references\\dashboard-showcase-v2\\sources"
+    },
+    {
+      "from": "apps\\dashboard\\output\\showcase\\dashboard-v2\\Dashboard_Showcase_v2.mp4",
+      "to": "production\\references\\dashboard-showcase-v2\\Dashboard_Showcase_v2.mp4"
+    },
+    {
+      "from": "apps\\dashboard\\output\\demo\\incident-camera-v2\\Incident_Camera_v2_1.mp4",
+      "to": "production\\references\\incident-camera-v2\\Incident_Camera_v2_1.mp4"
+    },
+    {
+      "from": "apps\\dashboard\\output\\demo\\incident-camera-v2\\incident-camera-v2_1-qa.json",
+      "to": "production\\references\\incident-camera-v2\\incident-camera-v2_1-qa.json"
+    },
+    {
+      "from": "apps\\dashboard\\output\\demo\\render_incident_camera_v2.py",
+      "to": "production\\references\\incident-camera-v2\\render_incident_camera_v2.py"
+    },
+    {
+      "from": "ui-prototype\\local-dashboard",
+      "to": "server\\static\\dashboard"
+    }
+  ],
+  "canonical_assets": [
+    {
+      "path": "production/masters/SmartT_Final_EngSub.mp4",
+      "role": "current English-subtitle visual master"
+    },
+    {
+      "path": "production/masters/SmartT_Final_Voice_Clean.mp4",
+      "role": "current clean video+voice master"
+    },
+    {
+      "path": "production/masters/SmartT_Picture_Lock.mp4",
+      "role": "current picture/camera/cursor master"
+    },
+    {
+      "path": "production/audio/SmartT_Narration_THEO_Master.wav",
+      "role": "current Theo narration master"
+    },
+    {
+      "path": "production/subtitles/SmartT_Final_EngSub.ass",
+      "role": "current V6 subtitle style/timing source"
+    }
+  ],
+  "hash_validation": [
+    {
+      "name": "V6 EngSub MP4",
+      "path": "production/masters/SmartT_Final_EngSub.mp4",
+      "expected": "14f64044277841191f92d4a6a5152a15d21cad13830b2f83c3d5f5dd3ef682e3",
+      "actual": "14f64044277841191f92d4a6a5152a15d21cad13830b2f83c3d5f5dd3ef682e3",
+      "status": "PASS"
+    },
+    {
+      "name": "V6 ASS",
+      "path": "production/subtitles/SmartT_Final_EngSub.ass",
+      "expected": "2f319a091ad4deea3165c9c8ef07fc71c7cc0455382dd5f8cacb4c40e2ed3b3a",
+      "actual": "2f319a091ad4deea3165c9c8ef07fc71c7cc0455382dd5f8cacb4c40e2ed3b3a",
+      "status": "PASS"
+    },
+    {
+      "name": "V4 Voice Clean",
+      "path": "production/masters/SmartT_Final_Voice_Clean.mp4",
+      "expected": "81bbd8812304842525bd68c6ec6d0bc63c1a7fdc0e456236f3d994e05195d603",
+      "actual": "81bbd8812304842525bd68c6ec6d0bc63c1a7fdc0e456236f3d994e05195d603",
+      "status": "PASS"
+    },
+    {
+      "name": "V4 Picture Lock",
+      "path": "production/masters/SmartT_Picture_Lock.mp4",
+      "expected": "1d5a9250d845d1ee4f4826502b54ae61a007d66b5913996a6edc166bad4c79a5",
+      "actual": "1d5a9250d845d1ee4f4826502b54ae61a007d66b5913996a6edc166bad4c79a5",
+      "status": "PASS"
+    },
+    {
+      "name": "Theo narration WAV",
+      "path": "production/audio/SmartT_Narration_THEO_Master.wav",
+      "expected": "75a809ad5e840e4d7f5c14b918a42ca5f223a95c8b2bfe3a149f8c1b686df324",
+      "actual": "75a809ad5e840e4d7f5c14b918a42ca5f223a95c8b2bfe3a149f8c1b686df324",
+      "status": "PASS"
+    }
+  ],
+  "build_validation": {
+    "website": "PASS",
+    "dashboard": "PASS",
+    "server": "PASS",
+    "production_preflight": "PASS",
+    "ffprobe": "PASS"
+  },
+  "stale_reference_scan": {
+    "status": "PASS",
+    "hits": null
+  },
+  "security_scan": {
+    "status": "PASS",
+    "hits": null
+  },
+  "final_markdown_files": [
+    "AGENTS.md",
+    "apps/dashboard/AGENTS.md",
+    "apps/dashboard/public/robots.txt",
+    "apps/website/AGENTS.md",
+    "apps/website/public/robots.txt",
+    "docs/ALGORITHM.md",
+    "docs/ARCHITECTURE.md",
+    "docs/CLEANUP_REPORT.md",
+    "docs/HARDWARE.md",
+    "docs/HISTORY.md",
+    "docs/VIDEO_PRODUCTION.md",
+    "production/audio/SmartT_English_Narration_THEO_FINAL.txt",
+    "production/audio/SmartT_TTS_Copy_THEO_FINAL.txt",
+    "README.md",
+    "server/README.md"
+  ],
+  "retained_pending_review": [],
+  "deliberately_retained_legacy": [
+    "apps/website/.vercel",
+    "apps/dashboard/.vercel"
+  ]
+}

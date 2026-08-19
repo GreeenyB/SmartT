@@ -3,7 +3,10 @@ import { AlertTriangle, BarChart3, Bell, Droplets, Gauge, Map as MapIcon, Search
 import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
 
 import { ThemeToggle } from "@/components/theme";
-import { fleetEvents, fleetKpis, vehicles } from "@/lib/fleet-data";
+import { useDemoData } from "@/demo/demo-data";
+import { useDemoScenario } from "@/demo/demo-context";
+import { DEMO_TARGETS } from "@/demo/demo-targets";
+import { CONTROLLED_SCENARIO } from "@/demo/showcase-scenario";
 import { cn } from "@/lib/utils";
 
 type NavTo = "/" | "/live-map" | "/vehicles" | "/fuel" | "/alerts" | "/reports";
@@ -19,6 +22,8 @@ type NavItem = {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const { fleetEvents, fleetKpis, vehicles } = useDemoData();
+  const { active: demoActive, stage: demoStage } = useDemoScenario();
   const kpis = fleetKpis("30d");
   const [q, setQ] = useState("");
   const [notifOpen, setNotifOpen] = useState(false);
@@ -57,9 +62,15 @@ export function AppShell({ children }: { children: ReactNode }) {
       .slice(0, 4)
       .map((x) => ({ id: x.id, kind: "event" as const, title: x.title, sub: `${x.id} · ${x.plate}` }));
     return [...v, ...e];
-  }, [q]);
+  }, [fleetEvents, q, vehicles]);
 
-  const recent = fleetEvents.filter((e) => e.workflow === "New").slice(0, 5);
+  const recent = useMemo(() => {
+    const next = fleetEvents.filter((e) => e.workflow === "New");
+    if (!demoActive || demoStage === "NORMAL") return next.slice(0, 5);
+    const hero = next.find((e) => e.id === CONTROLLED_SCENARIO.eventId);
+    if (!hero) return next.slice(0, 5);
+    return [hero, ...next.filter((e) => e.id !== CONTROLLED_SCENARIO.eventId)].slice(0, 5);
+  }, [demoActive, demoStage, fleetEvents]);
 
   return (
     <div className="flex min-h-screen w-full">
@@ -94,6 +105,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
+                data-demo-target={item.to === "/" ? DEMO_TARGETS.SIDEBAR_OVERVIEW : undefined}
                 className={cn(
                   "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                   active
@@ -208,7 +220,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               type="button"
               aria-label="Notifications"
               onClick={() => setNotifOpen((o) => !o)}
-              className="relative grid h-9 w-9 place-items-center rounded-lg border border-border bg-surface text-muted-foreground transition-colors hover:text-foreground"
+              data-demo-target={DEMO_TARGETS.NOTIFICATION_BELL}
+              className={cn(
+                "relative grid h-9 w-9 place-items-center rounded-lg border border-border bg-surface text-muted-foreground transition-colors hover:text-foreground",
+                demoActive && demoStage === "INCIDENT" && recent.length && "demo-bell-pulse",
+              )}
             >
               <Bell className="h-4 w-4" />
               {recent.length ? <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" /> : null}
@@ -226,6 +242,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       <li key={e.id}>
                         <button
                           type="button"
+                          data-demo-target={e.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.HERO_NOTIFICATION : undefined}
                           onClick={() => {
                             setNotifOpen(false);
                             navigate({ to: "/alerts", search: { event: e.id } });

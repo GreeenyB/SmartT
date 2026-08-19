@@ -1,0 +1,305 @@
+{
+  "source": {
+    "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\SmartT_BKI_Demo_Raw.webm",
+    "expected_frames": 752,
+    "actual_frames": 752,
+    "fps": "25/1"
+  },
+  "master": {
+    "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\Incident_Camera_v2_1.mp4",
+    "expected_frames": 752,
+    "actual_frames": 752,
+    "fps": "25/1",
+    "duration_seconds": 30.08,
+    "pass": true
+  },
+  "shots": [
+    {
+      "id": "I00",
+      "name": "Normal",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I00_Normal.mp4",
+      "source_frame_range": [
+        0,
+        73
+      ],
+      "review_frame_range_with_handles": [
+        0,
+        78
+      ],
+      "frames_with_handles": 79,
+      "duration_seconds_with_handles": 3.16,
+      "useful_duration_seconds": 2.96,
+      "start_scale": 1.0,
+      "end_scale": 1.0,
+      "start_center": [
+        960,
+        540
+      ],
+      "end_center": [
+        960,
+        540
+      ],
+      "motion_interval": null,
+      "target_description": "Normal fleet state before incident.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I01",
+      "name": "Detect",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I01_Detect.mp4",
+      "source_frame_range": [
+        74,
+        141
+      ],
+      "review_frame_range_with_handles": [
+        69,
+        146
+      ],
+      "frames_with_handles": 78,
+      "duration_seconds_with_handles": 3.12,
+      "useful_duration_seconds": 2.72,
+      "start_scale": 1.0,
+      "end_scale": 1.6,
+      "start_center": [
+        960,
+        540
+      ],
+      "end_center": [
+        1140,
+        338
+      ],
+      "motion_interval": [
+        74,
+        89
+      ],
+      "target_description": "Suspected Fuel Loss KPI and top-right notification bell.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I02",
+      "name": "Notify",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I02_Notify.mp4",
+      "source_frame_range": [
+        142,
+        195
+      ],
+      "review_frame_range_with_handles": [
+        137,
+        200
+      ],
+      "frames_with_handles": 64,
+      "duration_seconds_with_handles": 2.56,
+      "useful_duration_seconds": 2.16,
+      "start_scale": 1.6,
+      "end_scale": 1.65,
+      "start_center": [
+        1140,
+        338
+      ],
+      "end_center": [
+        1338,
+        328
+      ],
+      "motion_interval": [
+        142,
+        157
+      ],
+      "target_description": "Notification bell, dropdown, and cursor interaction.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I03",
+      "name": "Alerts Context",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I03_Alerts_Context.mp4",
+      "source_frame_range": [
+        196,
+        269
+      ],
+      "review_frame_range_with_handles": [
+        191,
+        274
+      ],
+      "frames_with_handles": 84,
+      "duration_seconds_with_handles": 3.36,
+      "useful_duration_seconds": 2.96,
+      "start_scale": 1.0,
+      "end_scale": 1.0,
+      "start_center": [
+        960,
+        540
+      ],
+      "end_center": [
+        960,
+        540
+      ],
+      "motion_interval": null,
+      "target_description": "Alerts workspace with KPIs, event list, and detail panel.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I04",
+      "name": "Evidence",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I04_Evidence.mp4",
+      "source_frame_range": [
+        270,
+        389
+      ],
+      "review_frame_range_with_handles": [
+        265,
+        394
+      ],
+      "frames_with_handles": 130,
+      "duration_seconds_with_handles": 5.2,
+      "useful_duration_seconds": 4.8,
+      "start_scale": 1.0,
+      "end_scale": 1.9,
+      "start_center": [
+        960,
+        540
+      ],
+      "end_center": [
+        1410,
+        540
+      ],
+      "motion_interval": [
+        270,
+        287
+      ],
+      "target_description": "Right evidence panel with incident details and action row.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I05",
+      "name": "Location Trend",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I05_Location_Trend.mp4",
+      "source_frame_range": [
+        390,
+        542
+      ],
+      "review_frame_range_with_handles": [
+        385,
+        547
+      ],
+      "frames_with_handles": 163,
+      "duration_seconds_with_handles": 6.52,
+      "useful_duration_seconds": 6.12,
+      "start_scale": 1.9,
+      "end_scale": 1.9,
+      "start_center": [
+        1410,
+        540
+      ],
+      "end_center": [
+        1410,
+        540
+      ],
+      "motion_interval": null,
+      "target_description": "Stable evidence-panel camera while native page scroll reveals map and fuel trend.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I06",
+      "name": "Verify",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I06_Verify.mp4",
+      "source_frame_range": [
+        543,
+        619
+      ],
+      "review_frame_range_with_handles": [
+        538,
+        624
+      ],
+      "frames_with_handles": 87,
+      "duration_seconds_with_handles": 3.48,
+      "useful_duration_seconds": 3.08,
+      "start_scale": 1.9,
+      "end_scale": 2.3,
+      "start_center": [
+        1410,
+        540
+      ],
+      "end_center": [
+        1503,
+        405
+      ],
+      "motion_interval": [
+        543,
+        552
+      ],
+      "target_description": "Tight right action area with Mark verified, cursor click, and Verified result.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I07",
+      "name": "Release",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I07_Release.mp4",
+      "source_frame_range": [
+        620,
+        674
+      ],
+      "review_frame_range_with_handles": [
+        615,
+        679
+      ],
+      "frames_with_handles": 65,
+      "duration_seconds_with_handles": 2.6,
+      "useful_duration_seconds": 2.2,
+      "start_scale": 2.3,
+      "end_scale": 1.0,
+      "start_center": [
+        1503,
+        405
+      ],
+      "end_center": [
+        960,
+        540
+      ],
+      "motion_interval": [
+        625,
+        670
+      ],
+      "target_description": "Closing release from verified detail to full-frame overview before route transition.",
+      "pass_fail": "PASS"
+    },
+    {
+      "id": "I08",
+      "name": "Resolved",
+      "path": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\I08_Resolved.mp4",
+      "source_frame_range": [
+        675,
+        751
+      ],
+      "review_frame_range_with_handles": [
+        670,
+        751
+      ],
+      "frames_with_handles": 82,
+      "duration_seconds_with_handles": 3.28,
+      "useful_duration_seconds": 3.08,
+      "start_scale": 1.0,
+      "end_scale": 1.0,
+      "start_center": [
+        960,
+        540
+      ],
+      "end_center": [
+        960,
+        540
+      ],
+      "motion_interval": null,
+      "target_description": "Resolved Overview closure.",
+      "pass_fail": "PASS"
+    }
+  ],
+  "contact_sheets": {
+    "I01": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\contact-sheets\\I01_Detect_contact_sheet.png",
+    "I02": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\contact-sheets\\I02_Notify_contact_sheet.png",
+    "I06": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\contact-sheets\\I06_Verify_contact_sheet.png",
+    "I07": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\demo\\incident-camera-v2\\contact-sheets\\I07_Release_contact_sheet.png"
+  },
+  "visual_substitutions": {
+    "87": 86,
+    "88": 86
+  },
+  "known_remaining_visual_issue": "None observed during generated full-resolution contact sheet and still-frame QA."
+}

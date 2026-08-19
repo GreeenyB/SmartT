@@ -1,0 +1,71 @@
+1
+00:00:00,500 --> 00:00:05,000
+Fuel data becomes useful when it explains an operational event.
+
+2
+00:00:05,800 --> 00:00:11,800
+That requires linking each reading to vehicle state, movement, time, and location.
+
+3
+00:00:13,000 --> 00:00:18,300
+SmartT keeps that context intact from the vehicle to the operator.
+
+4
+00:00:18,300 --> 00:00:24,400
+Signals are captured at the source, transmitted as telemetry, and processed for operational review.
+
+5
+00:00:25,200 --> 00:00:31,800
+Operators can move from fleet-wide patterns to a specific vehicle, location, or event.
+
+6
+00:00:31,800 --> 00:00:38,500
+Desktop and mobile views keep that workflow consistent across operations.
+
+7
+00:00:43,000 --> 00:00:46,000
+The overview summarizes fleet status.
+
+8
+00:00:46,500 --> 00:00:52,000
+Live Map adds location context, narrowing the fleet to vehicles in view.
+
+9
+00:00:52,000 --> 00:00:58,400
+Selecting a vehicle reveals its route, fuel level, speed, ignition, and latest telemetry.
+
+10
+00:00:58,500 --> 00:01:03,800
+Vehicle Detail brings fuel state, route, and telemetry together in one view.
+
+11
+00:01:04,800 --> 00:01:12,300
+Over the last seven days, Fuel Analytics shows consumption, suspected loss, efficiency, and loss by depot.
+
+12
+00:01:12,800 --> 00:01:20,000
+Reports summarize trends, costs, anomalies, depot comparisons, and exportable results.
+
+13
+00:01:20,900 --> 00:01:23,400
+Now, incident handling begins.
+
+14
+00:01:23,600 --> 00:01:28,300
+Suspected fuel loss rises to 58 liters, triggering an alert.
+
+15
+00:01:29,000 --> 00:01:36,600
+The incident view brings together vehicle identity, fuel levels, ignition, speed, and GPS location.
+
+16
+00:01:37,000 --> 00:01:42,300
+The map and event-day fuel trend provide the supporting evidence.
+
+17
+00:01:42,600 --> 00:01:45,800
+After review, the operator verifies the event.
+
+18
+00:01:45,800 --> 00:01:50,500
+With the event verified, SmartT returns to the fleet overview.

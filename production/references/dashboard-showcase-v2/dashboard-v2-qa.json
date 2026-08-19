@@ -1,0 +1,646 @@
+{
+  "generatedAt": "2026-08-15T19:16:46.760Z",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "fps": 25,
+  "codec": "H.264",
+  "pixelFormat": "yuv420p",
+  "crf": 13,
+  "scaler": "ffmpeg zoompan / swscale lanczos",
+  "recorderRendererFiles": [
+    "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\scripts\\showcase\\record-showcase.mjs",
+    "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\scripts\\showcase\\render-dashboard-showcase-v2.mjs",
+    "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-camera-plan\\dashboard-camera-plan.json"
+  ],
+  "reportsCaptureMethod": "additive live /reports capture in render-dashboard-showcase-v2.mjs; original 02_Dashboard_Tour.webm is not modified",
+  "sourceCapture": {
+    "routeScreenshots": {
+      "overview": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\sources\\overview.png",
+      "liveMap": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\sources\\live-map.png",
+      "liveMapSelected": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\sources\\live-map-selected.png",
+      "vehicleDetail": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\sources\\vehicle-detail.png",
+      "fuel": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\sources\\fuel.png",
+      "reports": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\sources\\reports.png"
+    },
+    "targets": {
+      "overviewNav": {
+        "x": 125.5,
+        "y": 127,
+        "bounds": {
+          "x": 12,
+          "y": 107,
+          "width": 227,
+          "height": 40
+        }
+      },
+      "liveMapNav": {
+        "x": 125.5,
+        "y": 171,
+        "bounds": {
+          "x": 12,
+          "y": 151,
+          "width": 227,
+          "height": 40
+        }
+      },
+      "vehicleButton": {
+        "x": 1642.63,
+        "y": 615.23,
+        "bounds": {
+          "x": 1394.25,
+          "y": 586.98,
+          "width": 496.75,
+          "height": 56.5
+        }
+      },
+      "openDetail": {
+        "x": 1525.94,
+        "y": 600.3,
+        "bounds": {
+          "x": 1414.25,
+          "y": 583.3,
+          "width": 223.38,
+          "height": 34
+        }
+      },
+      "fuelNav": {
+        "x": 125.5,
+        "y": 259,
+        "bounds": {
+          "x": 12,
+          "y": 239,
+          "width": 227,
+          "height": 40
+        }
+      },
+      "reportsNav": {
+        "x": 125.5,
+        "y": 347,
+        "bounds": {
+          "x": 12,
+          "y": 327,
+          "width": 227,
+          "height": 40
+        }
+      }
+    }
+  },
+  "shots": [
+    {
+      "id": "D00",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D00_Overview.mp4",
+      "route": "/",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-89",
+      "durationSeconds": 3.6,
+      "startScale": 1,
+      "endScale": 1.14,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 900,
+        "y": 540
+      },
+      "cameraMotionInterval": "0-17",
+      "cursorState": "HIDDEN, FADE_IN, MOVE, CLICK",
+      "interactionTarget": "Live Map sidebar nav",
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D00_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D01",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D01_Live_Map_Establish.mp4",
+      "route": "/live-map",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-75",
+      "durationSeconds": 3.04,
+      "startScale": 1,
+      "endScale": 1.3,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 828.63,
+        "y": 509.49
+      },
+      "cameraMotionInterval": "0-17",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D01_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D02",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D02_Map_to_Vehicles.mp4",
+      "route": "/live-map",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-64",
+      "durationSeconds": 2.6,
+      "startScale": 1.3,
+      "endScale": 1.42,
+      "startCenter": {
+        "x": 828.63,
+        "y": 509.49
+      },
+      "endCenter": {
+        "x": 1243.94,
+        "y": 590
+      },
+      "cameraMotionInterval": "0-21",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D02_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D03",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D03_Vehicle_Selection_Summary.mp4",
+      "route": "/live-map",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-119",
+      "durationSeconds": 4.8,
+      "startScale": 1.42,
+      "endScale": 1.52,
+      "startCenter": {
+        "x": 1243.94,
+        "y": 590
+      },
+      "endCenter": {
+        "x": 1288,
+        "y": 520
+      },
+      "cameraMotionInterval": "0-21",
+      "cursorState": "HIDDEN, FADE_IN, MOVE, CLICK, FADE_OUT",
+      "interactionTarget": "53C-982.57 vehicle row",
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D03_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D04",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D04_Open_Vehicle_Detail.mp4",
+      "route": "/live-map",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-27",
+      "durationSeconds": 1.12,
+      "startScale": 1.52,
+      "endScale": 1.52,
+      "startCenter": {
+        "x": 1288,
+        "y": 520
+      },
+      "endCenter": {
+        "x": 1288,
+        "y": 520
+      },
+      "cameraMotionInterval": "none",
+      "cursorState": "FADE_IN, MOVE, CLICK",
+      "interactionTarget": "Open vehicle detail link",
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D04_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D05",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D05_Vehicle_Detail_Establish.mp4",
+      "route": "/vehicles/V-1024",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-44",
+      "durationSeconds": 1.8,
+      "startScale": 1,
+      "endScale": 1,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "cameraMotionInterval": "none",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D05_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D06",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D06_Vehicle_Detail_Focus.mp4",
+      "route": "/vehicles/V-1024",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-91",
+      "durationSeconds": 3.68,
+      "startScale": 1,
+      "endScale": 1.18,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 1086,
+        "y": 547
+      },
+      "cameraMotionInterval": "0-17",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D06_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D06B",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D06B_Fuel_Analytics_Action.mp4",
+      "route": "/vehicles/V-1024",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-26",
+      "durationSeconds": 1.08,
+      "startScale": 1.18,
+      "endScale": 1.18,
+      "startCenter": {
+        "x": 1086,
+        "y": 547
+      },
+      "endCenter": {
+        "x": 1086,
+        "y": 547
+      },
+      "cameraMotionInterval": "none",
+      "cursorState": "FADE_IN, MOVE, CLICK",
+      "interactionTarget": "Fuel Analytics sidebar nav",
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D06B_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D07",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D07_Fuel_Analytics_Establish.mp4",
+      "route": "/fuel",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-35",
+      "durationSeconds": 1.44,
+      "startScale": 1,
+      "endScale": 1,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "cameraMotionInterval": "none",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D07_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D08",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D08_Fuel_Analytics_Headline.mp4",
+      "route": "/fuel",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-81",
+      "durationSeconds": 3.28,
+      "startScale": 1,
+      "endScale": 1.38,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 880,
+        "y": 391.3
+      },
+      "cameraMotionInterval": "0-17",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D08_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D09",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D09_Fuel_Analytics_Explanation.mp4",
+      "route": "/fuel",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-81",
+      "durationSeconds": 3.28,
+      "startScale": 1.38,
+      "endScale": 1.42,
+      "startCenter": {
+        "x": 880,
+        "y": 391.3
+      },
+      "endCenter": {
+        "x": 1225,
+        "y": 490
+      },
+      "cameraMotionInterval": "0-19",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D09_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D09B",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D09B_Reports_Action.mp4",
+      "route": "/fuel",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-27",
+      "durationSeconds": 1.12,
+      "startScale": 1.42,
+      "endScale": 1.42,
+      "startCenter": {
+        "x": 1225,
+        "y": 490
+      },
+      "endCenter": {
+        "x": 1225,
+        "y": 490
+      },
+      "cameraMotionInterval": "none",
+      "cursorState": "FADE_IN, MOVE, CLICK",
+      "interactionTarget": "Analytics & Reports sidebar nav",
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D09B_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D10",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D10_Reports_Establish.mp4",
+      "route": "/reports",
+      "sourceCapture": "new additive Reports capture",
+      "frameRange": "0-44",
+      "durationSeconds": 1.8,
+      "startScale": 1,
+      "endScale": 1,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "cameraMotionInterval": "none",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D10_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D10B",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D10B_Reports_Focus.mp4",
+      "route": "/reports",
+      "sourceCapture": "new additive Reports capture",
+      "frameRange": "0-89",
+      "durationSeconds": 3.6,
+      "startScale": 1,
+      "endScale": 1.16,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 1085,
+        "y": 465
+      },
+      "cameraMotionInterval": "0-17",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D10B_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D10C",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D10C_Return_Overview_Action.mp4",
+      "route": "/reports",
+      "sourceCapture": "new additive Reports capture",
+      "frameRange": "0-41",
+      "durationSeconds": 1.68,
+      "startScale": 1.16,
+      "endScale": 1,
+      "startCenter": {
+        "x": 1085,
+        "y": 465
+      },
+      "endCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "cameraMotionInterval": "0-13",
+      "cursorState": "CAMERA_SETTLE, FADE_IN, MOVE, CLICK",
+      "interactionTarget": "Overview sidebar nav",
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D10C_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    },
+    {
+      "id": "D11",
+      "output": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D11_Overview_Landing.mp4",
+      "route": "/",
+      "sourceCapture": "new live dashboard capture",
+      "frameRange": "0-11",
+      "durationSeconds": 0.48,
+      "startScale": 1,
+      "endScale": 1,
+      "startCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "endCenter": {
+        "x": 960,
+        "y": 540
+      },
+      "cameraMotionInterval": "none",
+      "cursorState": "HIDDEN",
+      "interactionTarget": null,
+      "contactSheet": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets\\D11_contact_sheet.png",
+      "status": "PASS",
+      "knownIssue": null
+    }
+  ],
+  "continuousSeams": [
+    {
+      "seam": "D01->D02",
+      "expected": "end == start",
+      "result": "PASS",
+      "fromEnd": {
+        "scale": 1.3,
+        "center": {
+          "x": 828.63,
+          "y": 509.49
+        }
+      },
+      "toStart": {
+        "scale": 1.3,
+        "center": {
+          "x": 828.63,
+          "y": 509.49
+        }
+      }
+    },
+    {
+      "seam": "D02->D03",
+      "expected": "end == start",
+      "result": "PASS",
+      "fromEnd": {
+        "scale": 1.42,
+        "center": {
+          "x": 1243.94,
+          "y": 590
+        }
+      },
+      "toStart": {
+        "scale": 1.42,
+        "center": {
+          "x": 1243.94,
+          "y": 590
+        }
+      }
+    },
+    {
+      "seam": "D03->D04",
+      "expected": "end == start",
+      "result": "PASS",
+      "fromEnd": {
+        "scale": 1.52,
+        "center": {
+          "x": 1288,
+          "y": 520
+        }
+      },
+      "toStart": {
+        "scale": 1.52,
+        "center": {
+          "x": 1288,
+          "y": 520
+        }
+      }
+    },
+    {
+      "seam": "D05->D06",
+      "expected": "end == start",
+      "result": "PASS",
+      "fromEnd": {
+        "scale": 1,
+        "center": {
+          "x": 960,
+          "y": 540
+        }
+      },
+      "toStart": {
+        "scale": 1,
+        "center": {
+          "x": 960,
+          "y": 540
+        }
+      }
+    },
+    {
+      "seam": "D07->D08",
+      "expected": "end == start",
+      "result": "PASS",
+      "fromEnd": {
+        "scale": 1,
+        "center": {
+          "x": 960,
+          "y": 540
+        }
+      },
+      "toStart": {
+        "scale": 1,
+        "center": {
+          "x": 960,
+          "y": 540
+        }
+      }
+    },
+    {
+      "seam": "D08->D09",
+      "expected": "end == start",
+      "result": "PASS",
+      "fromEnd": {
+        "scale": 1.38,
+        "center": {
+          "x": 880,
+          "y": 391.3
+        }
+      },
+      "toStart": {
+        "scale": 1.38,
+        "center": {
+          "x": 880,
+          "y": 391.3
+        }
+      }
+    }
+  ],
+  "routeSeams": [
+    {
+      "seam": "D00->D01",
+      "type": "CUT ON ACTION",
+      "result": "PASS"
+    },
+    {
+      "seam": "D04->D05",
+      "type": "CUT ON ACTION",
+      "result": "PASS"
+    },
+    {
+      "seam": "D06B->D07",
+      "type": "CUT ON ACTION",
+      "result": "PASS"
+    },
+    {
+      "seam": "D09B->D10",
+      "type": "CUT ON ACTION",
+      "result": "PASS"
+    },
+    {
+      "seam": "D10C->D11/I00",
+      "type": "CUT ON ACTION",
+      "result": "PASS"
+    }
+  ],
+  "outputs": {
+    "outputDir": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2",
+    "master": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\Dashboard_Showcase_v2.mp4",
+    "qa": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\dashboard-v2-qa.json",
+    "storyboard": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\dashboard-v2-storyboard.png",
+    "contactSheets": "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\contact-sheets",
+    "masterDurationSeconds": 38.4,
+    "renderedShots": [
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D00_Overview.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D01_Live_Map_Establish.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D02_Map_to_Vehicles.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D03_Vehicle_Selection_Summary.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D04_Open_Vehicle_Detail.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D05_Vehicle_Detail_Establish.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D06_Vehicle_Detail_Focus.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D06B_Fuel_Analytics_Action.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D07_Fuel_Analytics_Establish.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D08_Fuel_Analytics_Headline.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D09_Fuel_Analytics_Explanation.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D09B_Reports_Action.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D10_Reports_Establish.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D10B_Reports_Focus.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D10C_Return_Overview_Action.mp4",
+      "C:\\Users\\danhlee\\Documents\\BKI\\SmartT\\apps\\dashboard\\output\\showcase\\dashboard-v2\\D11_Overview_Landing.mp4"
+    ]
+  },
+  "knownRemainingVisualIssue": "None"
+}

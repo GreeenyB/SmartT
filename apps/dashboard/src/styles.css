@@ -277,3 +277,121 @@
 @utility map-tiles {
   filter: var(--map-filter);
 }
+
+.demo-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 9000;
+  width: 28px;
+  height: 28px;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 7px oklch(0.18 0.03 250 / 0.24));
+  will-change: transform;
+  animation: demo-cursor-enter 150ms ease-out both;
+}
+
+.demo-cursor-outline {
+  fill: oklch(0.17 0.02 250);
+}
+
+.demo-cursor-fill {
+  fill: oklch(0.99 0 0);
+}
+
+.demo-click-ripple {
+  position: fixed;
+  z-index: 8999;
+  width: 12px;
+  height: 12px;
+  border: 1px solid color-mix(in oklab, var(--brand-teal) 86%, white);
+  border-radius: 999px;
+  opacity: 0.62;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1);
+  animation: demo-click-ripple 380ms ease-out forwards;
+}
+
+.demo-incident-emphasis,
+.demo-incident-emphasis-subtle {
+  animation: demo-incident-emphasis 760ms ease-out 1;
+}
+
+.demo-incident-emphasis-subtle {
+  animation-name: demo-incident-emphasis-subtle;
+  animation-duration: 520ms;
+}
+
+.demo-bell-pulse {
+  animation: demo-bell-pulse 560ms ease-out 1;
+}
+
+@keyframes demo-click-ripple {
+  from {
+    opacity: 0.62;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3);
+  }
+}
+
+@keyframes demo-cursor-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes demo-incident-emphasis {
+  0% {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-panel);
+  }
+
+  34% {
+    border-color: color-mix(in oklab, var(--brand-teal) 58%, var(--color-border));
+    box-shadow: 0 0 0 2px oklch(0.76 0.12 185 / 0.18), var(--shadow-glow);
+  }
+
+  100% {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-panel);
+  }
+}
+
+@keyframes demo-incident-emphasis-subtle {
+  0% {
+    border-color: var(--color-border);
+  }
+
+  42% {
+    border-color: color-mix(in oklab, var(--brand-cyan) 42%, var(--color-border));
+    box-shadow: 0 0 0 1px oklch(0.72 0.13 217 / 0.13), var(--shadow-panel);
+  }
+
+  100% {
+    border-color: var(--color-border);
+  }
+}
+
+@keyframes demo-bell-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  38% {
+    transform: scale(1.08);
+    border-color: color-mix(in oklab, var(--brand-teal) 55%, var(--color-border));
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}

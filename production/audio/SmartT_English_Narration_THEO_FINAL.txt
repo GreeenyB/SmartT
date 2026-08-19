@@ -1,0 +1,107 @@
+SEGMENT 01
+START: 00:00:00,500
+END: 00:00:05,000
+VISIBLE:
+Fuel data becomes useful when it explains an operational event.
+
+SEGMENT 02
+START: 00:00:05,800
+END: 00:00:11,800
+VISIBLE:
+That requires linking each reading to vehicle state, movement, time, and location.
+
+SEGMENT 03
+START: 00:00:13,000
+END: 00:00:18,300
+VISIBLE:
+SmartT keeps that context intact from the vehicle to the operator.
+
+SEGMENT 04
+START: 00:00:18,300
+END: 00:00:24,400
+VISIBLE:
+Signals are captured at the source, transmitted as telemetry, and processed for operational review.
+
+SEGMENT 05
+START: 00:00:25,200
+END: 00:00:31,800
+VISIBLE:
+Operators can move from fleet-wide patterns to a specific vehicle, location, or event.
+
+SEGMENT 06
+START: 00:00:31,800
+END: 00:00:38,500
+VISIBLE:
+Desktop and mobile views keep that workflow consistent across operations.
+
+SEGMENT 07
+START: 00:00:43,000
+END: 00:00:46,000
+VISIBLE:
+The overview summarizes fleet status.
+
+SEGMENT 08
+START: 00:00:46,500
+END: 00:00:52,000
+VISIBLE:
+Live Map adds location context, narrowing the fleet to vehicles in view.
+
+SEGMENT 09
+START: 00:00:52,000
+END: 00:00:58,400
+VISIBLE:
+Selecting a vehicle reveals its route, fuel level, speed, ignition, and latest telemetry.
+
+SEGMENT 10
+START: 00:00:58,500
+END: 00:01:03,800
+VISIBLE:
+Vehicle Detail brings fuel state, route, and telemetry together in one view.
+
+SEGMENT 11
+START: 00:01:04,800
+END: 00:01:12,300
+VISIBLE:
+Over the last seven days, Fuel Analytics shows consumption, suspected loss, efficiency, and loss by depot.
+
+SEGMENT 12
+START: 00:01:12,800
+END: 00:01:20,000
+VISIBLE:
+Reports summarize trends, costs, anomalies, depot comparisons, and exportable results.
+
+SEGMENT 13
+START: 00:01:20,900
+END: 00:01:23,400
+VISIBLE:
+Now, incident handling begins.
+
+SEGMENT 14
+START: 00:01:23,600
+END: 00:01:28,300
+VISIBLE:
+Suspected fuel loss rises to 58 liters, triggering an alert.
+
+SEGMENT 15
+START: 00:01:29,000
+END: 00:01:36,600
+VISIBLE:
+The incident view brings together vehicle identity, fuel levels, ignition, speed, and GPS location.
+
+SEGMENT 16
+START: 00:01:37,000
+END: 00:01:42,300
+VISIBLE:
+The map and event-day fuel trend provide the supporting evidence.
+
+SEGMENT 17
+START: 00:01:42,600
+END: 00:01:45,800
+VISIBLE:
+After review, the operator verifies the event.
+
+SEGMENT 18
+START: 00:01:45,800
+END: 00:01:50,500
+VISIBLE:
+With the event verified, SmartT returns to the fleet overview.

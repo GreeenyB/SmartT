@@ -1,0 +1,4 @@
+9b596db431251dd35c549350e82095e2a7a52097bed43964f184baedbde3bb8d  patch/DeviceShowcase.tsx
+ae1568c68e8ba9fe1aae939a5377414c01f4761c11330937d864db33cc1c10d2  patch/laptop-scroll.css
+27ce3de2685426b7a3be7b6c2230b9b431b8d00e19576796d0d22f3450863aa7  assets/laptop-open-scroll.webm
+aaf4addaa6c40353dcb217d500720bdc6f6d26e9302e1384f45312d8c5942a07  assets/laptop-open-poster.webp

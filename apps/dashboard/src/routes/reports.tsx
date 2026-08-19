@@ -4,17 +4,13 @@ import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import { ChartTooltip, ConsumptionTrendChart, KpiCard, Panel, PageHeader, RangeSwitch, axisProps } from "@/components/dashboard-kit";
+import { useDemoData } from "@/demo/demo-data";
 import {
-  depotStats,
-  fleetKpis,
   formatNum,
   formatVnd,
   rangeLabel,
-  rangeTotalSeries,
-  seriesForRange,
-  vehicleStats,
-  weeklySeriesForRange,
   type TimeRange,
+  type VehicleStat,
 } from "@/lib/fleet-data";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +34,7 @@ type Grain = "daily" | "weekly" | "range";
 function Reports() {
   const [range, setRange] = useState<TimeRange>("30d");
   const [grain, setGrain] = useState<Grain>("daily");
+  const { depotStats, fleetKpis, rangeTotalSeries, seriesForRange, vehicleStats, weeklySeriesForRange } = useDemoData();
 
   const kpis = fleetKpis(range);
   const daily = seriesForRange(range);
@@ -191,7 +188,7 @@ function Reports() {
   );
 }
 
-function Ranking({ rows }: { rows: ReturnType<typeof vehicleStats> }) {
+function Ranking({ rows }: { rows: VehicleStat[] }) {
   return (
     <ul className="divide-y divide-border">
       {rows.map((s) => (

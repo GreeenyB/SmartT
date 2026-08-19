@@ -1,0 +1,128 @@
+/* --------------------------------------------------------------------------
+ * SmartT desktop-console scroll reveal
+ *
+ * The heading and laptop remain one composition. Scroll progress has three
+ * phases: closed hold -> lid opening -> open settle. Mobile/reduced-motion
+ * layouts show the final open state without scrubbing.
+ * -------------------------------------------------------------------------- */
+
+/* `overflow: hidden` creates a scrolling ancestor and breaks sticky behavior.
+ * `clip` keeps the showcase visually bounded without becoming a scrollport. */
+.device-showcase-v2 {
+  overflow: clip;
+}
+
+.showcase-section--desktop {
+  min-height: 0;
+}
+
+/* The animated asset already carries its own grounded device shadow. */
+.showcase-section--desktop::after {
+  display: none;
+}
+
+.desktop-reveal-track {
+  position: relative;
+  width: 100%;
+  height: clamp(1420px, 165vh, 1740px);
+}
+
+.desktop-reveal-sticky {
+  position: sticky;
+  top: 64px;
+  width: 100%;
+}
+
+.scroll-laptop {
+  position: relative;
+  width: min(1120px, 94vw, max(760px, calc(169.86vh - 582px)));
+  aspect-ratio: 1240 / 730;
+  margin: 0 auto;
+  overflow: visible;
+  isolation: isolate;
+  filter: drop-shadow(0 18px 20px rgba(28, 45, 53, 0.13));
+}
+
+.scroll-laptop__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: 50% 50%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Portal bounds are calibrated against the fully-open 1240 x 730 asset. */
+.scroll-laptop__portal.dashboard-portal {
+  position: absolute;
+  z-index: 6;
+  left: 7.7%;
+  top: 7.2%;
+  width: 86.5%;
+  height: 74.7%;
+  inset: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.scroll-laptop.is-ready .scroll-laptop__portal.dashboard-portal {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scroll-laptop__portal .dashboard-portal__copy {
+  right: 2.2%;
+  bottom: 2.8%;
+}
+
+@media (max-width: 920px) {
+  .desktop-reveal-track {
+    height: clamp(1220px, 160vh, 1500px);
+  }
+
+  .desktop-reveal-sticky {
+    top: 68px;
+  }
+
+  .scroll-laptop {
+    width: min(960px, 92vw, max(680px, calc(169.86vh - 560px)));
+  }
+}
+
+@media (max-width: 680px) {
+  .desktop-reveal-track {
+    height: auto;
+  }
+
+  .desktop-reveal-sticky {
+    position: relative;
+    top: auto;
+  }
+
+  .scroll-laptop {
+    width: 108vw;
+    margin-left: -4vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-reveal-track {
+    height: auto;
+  }
+
+  .desktop-reveal-sticky {
+    position: relative;
+    top: auto;
+  }
+
+  .scroll-laptop__portal.dashboard-portal {
+    opacity: 1;
+    pointer-events: auto;
+    transition: none;
+  }
+}

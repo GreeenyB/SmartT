@@ -1,0 +1,48 @@
+{
+  "name": "Theo - Modern Narrator",
+  "voice_id": "79f8b5fb-2cc8-479a-80df-29f7a7cf1a3e",
+  "model": "sonic-3.5",
+  "source": "production/audio/THEO_VOICE_LOCK.json",
+  "human_approved": true,
+  "metadata": {
+    "description": "Steady, enunciating, confident young male for narrations",
+    "gender": "masculine",
+    "language": "en",
+    "country": "US",
+    "locales": [
+      {
+        "locale": "en-US",
+        "is_native": true
+      },
+      {
+        "locale": "hi-IN",
+        "is_native": false
+      },
+      {
+        "locale": "es-MX",
+        "is_native": false
+      },
+      {
+        "locale": "de-DE",
+        "is_native": false
+      },
+      {
+        "locale": "fr-CA",
+        "is_native": false
+      },
+      {
+        "locale": "it-IT",
+        "is_native": false
+      },
+      {
+        "locale": "pt-BR",
+        "is_native": false
+      },
+      {
+        "locale": "zh-CN",
+        "is_native": false
+      }
+    ],
+    "api_verified": true
+  }
+}

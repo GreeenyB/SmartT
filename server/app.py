@@ -14,7 +14,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 SERVER_DIR = Path(__file__).resolve().parent
 REPO_DIR = SERVER_DIR.parent
-UI_DIR = REPO_DIR / "ui-prototype" / "local-dashboard"
+UI_DIR = SERVER_DIR / "static" / "dashboard"
 DATA_DIR = SERVER_DIR / "data"
 DB_PATH = DATA_DIR / "smartt.db"
 DEFAULT_HOST = os.environ.get("SMARTT_HOST", "0.0.0.0")

@@ -1,0 +1,146 @@
+[
+  {
+    "id": 1,
+    "start": 0.5,
+    "end": 5.0,
+    "slot_duration": 4.5,
+    "visible_text": "Fuel data becomes useful when it explains an operational event.",
+    "tts_text": "Fuel data becomes useful when it explains an operational event."
+  },
+  {
+    "id": 2,
+    "start": 5.8,
+    "end": 11.8,
+    "slot_duration": 6.0,
+    "visible_text": "That requires linking each reading to vehicle state, movement, time, and location.",
+    "tts_text": "That requires linking each reading to vehicle state, movement, time, and location."
+  },
+  {
+    "id": 3,
+    "start": 13.0,
+    "end": 18.3,
+    "slot_duration": 5.3,
+    "visible_text": "SmartT keeps that context intact from the vehicle to the operator.",
+    "tts_text": "Smart T keeps that context intact from the vehicle to the operator."
+  },
+  {
+    "id": 4,
+    "start": 18.3,
+    "end": 24.4,
+    "slot_duration": 6.1,
+    "visible_text": "Signals are captured at the source, transmitted as telemetry, and processed for operational review.",
+    "tts_text": "Signals are captured at the source, transmitted as telemetry, and processed for operational review."
+  },
+  {
+    "id": 5,
+    "start": 25.2,
+    "end": 31.8,
+    "slot_duration": 6.6,
+    "visible_text": "Operators can move from fleet-wide patterns to a specific vehicle, location, or event.",
+    "tts_text": "Operators can move from fleet-wide patterns to a specific vehicle, location, or event."
+  },
+  {
+    "id": 6,
+    "start": 31.8,
+    "end": 38.5,
+    "slot_duration": 6.7,
+    "visible_text": "Desktop and mobile views keep that workflow consistent across operations.",
+    "tts_text": "Desktop and mobile views keep that workflow consistent across operations."
+  },
+  {
+    "id": 7,
+    "start": 43.0,
+    "end": 46.0,
+    "slot_duration": 3.0,
+    "visible_text": "The overview summarizes fleet status.",
+    "tts_text": "The overview summarizes fleet status."
+  },
+  {
+    "id": 8,
+    "start": 46.5,
+    "end": 52.0,
+    "slot_duration": 5.5,
+    "visible_text": "Live Map adds location context, narrowing the fleet to vehicles in view.",
+    "tts_text": "Live Map adds location context, narrowing the fleet to vehicles in view."
+  },
+  {
+    "id": 9,
+    "start": 52.0,
+    "end": 58.4,
+    "slot_duration": 6.4,
+    "visible_text": "Selecting a vehicle reveals its route, fuel level, speed, ignition, and latest telemetry.",
+    "tts_text": "Selecting a vehicle reveals its route, fuel level, speed, ignition, and latest telemetry."
+  },
+  {
+    "id": 10,
+    "start": 58.5,
+    "end": 63.8,
+    "slot_duration": 5.3,
+    "visible_text": "Vehicle Detail brings fuel state, route, and telemetry together in one view.",
+    "tts_text": "Vehicle Detail brings fuel state, route, and telemetry together in one view."
+  },
+  {
+    "id": 11,
+    "start": 64.8,
+    "end": 72.3,
+    "slot_duration": 7.5,
+    "visible_text": "Over the last seven days, Fuel Analytics shows consumption, suspected loss, efficiency, and loss by depot.",
+    "tts_text": "Over the last seven days, Fuel Analytics shows consumption, suspected loss, efficiency, and loss by depot."
+  },
+  {
+    "id": 12,
+    "start": 72.8,
+    "end": 80.0,
+    "slot_duration": 7.2,
+    "visible_text": "Reports summarize trends, costs, anomalies, depot comparisons, and exportable results.",
+    "tts_text": "Reports summarize trends, costs, anomalies, depot comparisons, and exportable results."
+  },
+  {
+    "id": 13,
+    "start": 80.9,
+    "end": 83.4,
+    "slot_duration": 2.5,
+    "visible_text": "Now, incident handling begins.",
+    "tts_text": "Now, incident handling begins."
+  },
+  {
+    "id": 14,
+    "start": 83.6,
+    "end": 88.3,
+    "slot_duration": 4.7,
+    "visible_text": "Suspected fuel loss rises to 58 liters, triggering an alert.",
+    "tts_text": "Suspected fuel loss rises to fifty-eight liters, triggering an alert."
+  },
+  {
+    "id": 15,
+    "start": 89.0,
+    "end": 96.6,
+    "slot_duration": 7.6,
+    "visible_text": "The incident view brings together vehicle identity, fuel levels, ignition, speed, and GPS location.",
+    "tts_text": "The incident view brings together vehicle identity, fuel levels, ignition, speed, and GPS location."
+  },
+  {
+    "id": 16,
+    "start": 97.0,
+    "end": 102.3,
+    "slot_duration": 5.3,
+    "visible_text": "The map and event-day fuel trend provide the supporting evidence.",
+    "tts_text": "The map and event-day fuel trend provide the supporting evidence."
+  },
+  {
+    "id": 17,
+    "start": 102.6,
+    "end": 105.8,
+    "slot_duration": 3.2,
+    "visible_text": "After review, the operator verifies the event.",
+    "tts_text": "After review, the operator verifies the event."
+  },
+  {
+    "id": 18,
+    "start": 105.8,
+    "end": 110.5,
+    "slot_duration": 4.7,
+    "visible_text": "With the event verified, SmartT returns to the fleet overview.",
+    "tts_text": "With the event verified, Smart T returns to the fleet overview."
+  }
+]

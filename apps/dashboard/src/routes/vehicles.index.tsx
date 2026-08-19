@@ -3,6 +3,7 @@ import { ArrowUpDown, Download, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState, FuelBar, Panel, PageHeader, RangeSwitch, StatusPill } from "@/components/dashboard-kit";
+import { useDemoData } from "@/demo/demo-data";
 import {
   depots,
   formatNum,
@@ -10,7 +11,6 @@ import {
   rangeLabel,
   routeById,
   statusLabel,
-  vehicleStats,
   type TimeRange,
   type VehicleStatus,
 } from "@/lib/fleet-data";
@@ -42,6 +42,7 @@ function VehiclesIndex() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("efficiency");
   const [asc, setAsc] = useState(false);
+  const { vehicleStats } = useDemoData();
 
   const stats = vehicleStats(range);
 

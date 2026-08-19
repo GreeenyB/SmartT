@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { EmptyState, Panel, PageHeader, StatusPill } from "@/components/dashboard-kit";
+import { useDemoData } from "@/demo/demo-data";
 import { FleetMap, MapLegend, type MapMarker, type MapTone } from "@/components/fleet-map";
 import {
   depots,
@@ -9,7 +10,6 @@ import {
   formatRelative,
   routeById,
   statusLabel,
-  vehicles,
   type VehicleStatus,
 } from "@/lib/fleet-data";
 import { cn } from "@/lib/utils";
@@ -40,13 +40,14 @@ function LiveMap() {
   const [depotId, setDepotId] = useState<string>("all");
   const [selected, setSelected] = useState<string | null>(null);
   const [showDepots, setShowDepots] = useState(true);
+  const { vehicles } = useDemoData();
 
   const visible = useMemo(
     () =>
       vehicles.filter(
         (v) => (status === "all" || v.status === status) && (depotId === "all" || v.depotId === depotId),
       ),
-    [status, depotId],
+    [depotId, status, vehicles],
   );
 
   const markers: MapMarker[] = useMemo(() => {

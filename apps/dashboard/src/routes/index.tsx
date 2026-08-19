@@ -14,20 +14,16 @@ import {
   StatusPill,
   WorkflowBadge,
 } from "@/components/dashboard-kit";
+import { useDemoData } from "@/demo/demo-data";
+import { useDemoScenario } from "@/demo/demo-context";
+import { DemoAnimatedNumber } from "@/demo/demo-number";
+import { DEMO_TARGETS } from "@/demo/demo-targets";
 import {
-  depotStats,
   eventKindLabel,
-  eventsForRange,
-  fleetKpis,
-  fleetStatusCounts,
   formatNum,
   formatRelative,
-  hourlyUsage,
   rangeLabel,
-  seriesForRange,
   statusLabel,
-  vehicleStats,
-  vehicles,
   type TimeRange,
   type VehicleStatus,
 } from "@/lib/fleet-data";
@@ -55,6 +51,17 @@ const statusOrder: VehicleStatus[] = ["moving", "idling", "parked", "maintenance
 
 function Overview() {
   const [range, setRange] = useState<TimeRange>("today");
+  const {
+    depotStats,
+    eventsForRange,
+    fleetKpis,
+    fleetStatusCounts,
+    hourlyUsage,
+    seriesForRange,
+    vehicleStats,
+    vehicles,
+  } = useDemoData();
+  const { active: demoActive, stage: demoStage } = useDemoScenario();
   const kpis = fleetKpis(range);
   const series = seriesForRange(range);
   const counts = fleetStatusCounts();
@@ -93,12 +100,20 @@ function Overview() {
         />
         <KpiCard
           label="Suspected fuel loss"
-          value={formatNum(kpis.suspectedLossL)}
+          value={
+            demoActive ? (
+              <DemoAnimatedNumber active={demoActive} value={kpis.suspectedLossL} durationMs={680} />
+            ) : (
+              formatNum(kpis.suspectedLossL)
+            )
+          }
           unit="L"
           delta={`${formatNum(kpis.anomalyRate, 2)}%`}
           deltaLabel={`anomaly rate over ${rangeLabel[range].toLowerCase()}`}
           tone={kpis.anomalyRate > 1 ? "bad" : "neutral"}
           icon={<Droplets className="h-4 w-4" />}
+          demoTarget={DEMO_TARGETS.OVERVIEW_LOSS_KPI}
+          demoEmphasis={demoActive && demoStage === "INCIDENT" ? "strong" : undefined}
         />
         <KpiCard
           label="Idle fuel waste"
@@ -111,11 +126,19 @@ function Overview() {
         />
         <KpiCard
           label="Open alerts"
-          value={formatNum(kpis.openAlerts)}
+          value={
+            demoActive ? (
+              <DemoAnimatedNumber active={demoActive} value={kpis.openAlerts} durationMs={420} />
+            ) : (
+              formatNum(kpis.openAlerts)
+            )
+          }
           delta={`${formatNum(kpis.criticalAlerts)} critical`}
           deltaLabel="awaiting operator review"
           tone={kpis.criticalAlerts > 0 ? "bad" : "good"}
           icon={<AlertTriangle className="h-4 w-4" />}
+          demoTarget={DEMO_TARGETS.OVERVIEW_OPEN_ALERTS_KPI}
+          demoEmphasis={demoActive && demoStage === "INCIDENT" ? "subtle" : undefined}
         />
       </div>
 

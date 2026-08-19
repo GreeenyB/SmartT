@@ -13,6 +13,7 @@ import {
   StatusPill,
   WorkflowBadge,
 } from "@/components/dashboard-kit";
+import { useDemoData } from "@/demo/demo-data";
 import { FleetMap, MapLegend, type MapMarker } from "@/components/fleet-map";
 import { statusTone } from "@/routes/live-map";
 import {
@@ -27,7 +28,6 @@ import {
   rangeLabel,
   routeById,
   vehicleById,
-  vehicleStats,
   type TimeRange,
 } from "@/lib/fleet-data";
 
@@ -59,10 +59,11 @@ export const Route = createFileRoute("/vehicles/$vehicleId")({
 function VehicleDetail() {
   const { vehicleId } = Route.useParams();
   const [range, setRange] = useState<TimeRange>("7d");
-  const vehicle = vehicleById(vehicleId)!;
-  const stat = vehicleStats(range).find((s) => s.vehicle.id === vehicleId)!;
-  const events = eventsForVehicle(vehicleId);
-  const rangeEvents = eventsForRange(range).filter((e) => e.vehicleId === vehicleId);
+  const data = useDemoData();
+  const vehicle = data.vehicleById(vehicleId)!;
+  const stat = data.vehicleStats(range).find((s) => s.vehicle.id === vehicleId)!;
+  const events = data.eventsForVehicle(vehicleId);
+  const rangeEvents = data.eventsForRange(range).filter((e) => e.vehicleId === vehicleId);
   const route = routeById(vehicle.routeId);
   const depot = depotById(vehicle.depotId);
 

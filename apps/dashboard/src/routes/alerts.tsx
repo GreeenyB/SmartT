@@ -12,13 +12,15 @@ import {
   StatusPill,
   WorkflowBadge,
 } from "@/components/dashboard-kit";
+import { useDemoData } from "@/demo/demo-data";
+import { useDemoScenario } from "@/demo/demo-context";
+import { DEMO_TARGETS, type DemoTarget } from "@/demo/demo-targets";
+import { CONTROLLED_SCENARIO } from "@/demo/showcase-scenario";
 import { FleetMap, type MapMarker } from "@/components/fleet-map";
 import {
   eventKindLabel,
-  fleetEvents,
   formatDate,
   formatNum,
-  vehicleById,
   type AlertSeverity,
   type EventKind,
   type FleetEvent,
@@ -85,6 +87,8 @@ const kinds: ("all" | EventKind)[] = [
 function Alerts() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const { fleetEvents, vehicleById } = useDemoData();
+  const { active: demoActive, stage: demoStage, verifyIncident } = useDemoScenario();
   const [severity, setSeverity] = useState<"all" | AlertSeverity>("all");
   const [workflow, setWorkflow] = useState<"all" | WorkflowStatus>("all");
   const [kind, setKind] = useState<"all" | EventKind>("all");
@@ -92,12 +96,16 @@ function Alerts() {
 
   const resolved = useMemo(
     () =>
-      fleetEvents.map((e) => ({
-        ...e,
-        workflow: overrides[e.id]?.workflow ?? e.workflow,
-        operator: overrides[e.id]?.operator,
-      })),
-    [overrides],
+      fleetEvents.map((e) => {
+        const centralVerifiedHero =
+          demoActive && e.id === CONTROLLED_SCENARIO.eventId && e.workflow === "Verified";
+        return {
+          ...e,
+          workflow: centralVerifiedHero ? e.workflow : (overrides[e.id]?.workflow ?? e.workflow),
+          operator: centralVerifiedHero ? undefined : overrides[e.id]?.operator,
+        };
+      }),
+    [demoActive, fleetEvents, overrides],
   );
 
   const filtered = useMemo(
@@ -115,10 +123,22 @@ function Alerts() {
   const selectedId = search.event ?? filtered[0]?.id ?? null;
   const active = resolved.find((e) => e.id === selectedId) ?? null;
   const vehicle = active ? vehicleById(active.vehicleId) ?? null : null;
+  const showDemoVerifiedAction =
+    demoActive && demoStage === "VERIFIED" && active?.id === CONTROLLED_SCENARIO.eventId;
 
   const select = (id: string) => navigate({ to: "/alerts", search: { ...search, event: id } });
-  const setWorkflowFor = (id: string, next: WorkflowStatus, operator?: string) =>
+  const setWorkflowFor = (id: string, next: WorkflowStatus, operator?: string) => {
+    if (demoActive && id === CONTROLLED_SCENARIO.eventId && next === "Verified") {
+      setOverrides((o) => {
+        const { [id]: _removed, ...rest } = o;
+        return rest;
+      });
+      verifyIncident();
+      return;
+    }
+
     setOverrides((o) => ({ ...o, [id]: { workflow: next, ...(operator ? { operator } : {}) } }));
+  };
 
   const unresolved = (e: (typeof resolved)[number]) => e.workflow === "New" || e.workflow === "In Progress";
   const counts = {
@@ -194,6 +214,7 @@ function Alerts() {
                 <li key={e.id}>
                   <button
                     type="button"
+                    data-demo-target={e.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.ALERT_HERO_EVENT : undefined}
                     onClick={() => select(e.id)}
                     className={cn(
                       "w-full px-5 py-3 text-left transition-colors hover:bg-surface",
@@ -226,11 +247,16 @@ function Alerts() {
               title={eventKindLabel[active.kind]}
               subtitle={`${active.id} · ${formatDate(active.date)} ${active.time}`}
               actions={<SeverityBadge severity={active.severity} />}
+              demoTarget={active.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.ALERT_EVIDENCE : undefined}
             >
               <p className="text-sm text-muted-foreground">{active.detail}</p>
 
               <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-border bg-surface p-4 text-sm">
-                <Field label="Measurement" value={metricLine(active)} />
+                <Field
+                  label="Measurement"
+                  value={metricLine(active)}
+                  demoTarget={active.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.ALERT_MEASUREMENT : undefined}
+                />
                 <Field label="Vehicle" value={`${active.plate} · ${vehicle.driver}`} />
                 {active.kind === "fuel_drop" || active.kind === "refueling" ? (
                   <>
@@ -240,7 +266,11 @@ function Alerts() {
                 ) : (
                   <Field label="Fuel level at detection" value={`${active.evidence.fuelPctAfter.toFixed(0)}%`} />
                 )}
-                <Field label="Ignition at detection" value={active.evidence.ignition ? "On" : "Off"} />
+                <Field
+                  label="Ignition at detection"
+                  value={active.evidence.ignition ? "On" : "Off"}
+                  demoTarget={active.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.ALERT_VEHICLE_CONTEXT : undefined}
+                />
                 <Field label="Speed at detection" value={`${formatNum(active.evidence.speedKph)} km/h`} />
                 <Field label="GPS position" value={`${active.lat.toFixed(4)}, ${active.lng.toFixed(4)}`} />
                 <Field label="Location" value={active.location} />
@@ -258,11 +288,18 @@ function Alerts() {
                 </button>
                 <button
                   type="button"
+                  data-demo-target={active.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.ALERT_MARK_VERIFIED : undefined}
                   onClick={() => setWorkflowFor(active.id, "Verified")}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                  disabled={showDemoVerifiedAction}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                    showDemoVerifiedAction
+                      ? "border border-success/30 bg-success/10 text-success"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90",
+                  )}
                 >
                   <Check className="h-3.5 w-3.5" />
-                  Mark verified
+                  {showDemoVerifiedAction ? "Verified" : "Mark verified"}
                 </button>
                 <button
                   type="button"
@@ -280,24 +317,31 @@ function Alerts() {
               ) : null}
             </Panel>
 
-            <Panel title="Event location" subtitle="GPS position recorded at detection time" bodyClassName="p-0">
+            <Panel
+              title="Event location"
+              subtitle="GPS position recorded at detection time"
+              bodyClassName="p-0"
+              demoTarget={active.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.ALERT_LOCATION : undefined}
+            >
               <FleetMap markers={markers} height={220} focus={{ lat: active.lat, lng: active.lng, zoom: 11 }} />
             </Panel>
 
             <Panel title="Event-day fuel trend" subtitle={`${vehicle.plate} · ${formatDate(active.date)} evidence window`} bodyClassName="p-4">
-              <FuelLevelChart
-                data={active.evidence.fuelTrend}
-                markers={
-                  active.kind === "refueling" || active.kind === "fuel_drop"
-                    ? [
-                        {
-                          hour: Number(active.time.slice(0, 2)),
-                          tone: active.kind === "refueling" ? "success" : "destructive",
-                        },
-                      ]
-                    : undefined
-                }
-              />
+              <div data-demo-target={active.id === CONTROLLED_SCENARIO.eventId ? DEMO_TARGETS.ALERT_FUEL_TREND : undefined}>
+                <FuelLevelChart
+                  data={active.evidence.fuelTrend}
+                  markers={
+                    active.kind === "refueling" || active.kind === "fuel_drop"
+                      ? [
+                          {
+                            hour: Number(active.time.slice(0, 2)),
+                            tone: active.kind === "refueling" ? "success" : "destructive",
+                          },
+                        ]
+                      : undefined
+                  }
+                />
+              </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <StatusPill status={vehicle.status} />
                 <Link
@@ -353,9 +397,9 @@ function FilterGroup<T extends string>({
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value, demoTarget }: { label: string; value: string; demoTarget?: DemoTarget | undefined }) {
   return (
-    <div className="min-w-0">
+    <div className="min-w-0" data-demo-target={demoTarget}>
       <dt className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground">{label}</dt>
       <dd className="num mt-0.5 truncate text-sm font-medium">{value}</dd>
     </div>

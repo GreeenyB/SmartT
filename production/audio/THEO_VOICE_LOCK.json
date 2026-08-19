@@ -1,0 +1,38 @@
+{
+  "voice_name": "Theo - Modern Narrator",
+  "voice_id": "79f8b5fb-2cc8-479a-80df-29f7a7cf1a3e",
+  "model": "sonic-3.5",
+  "human_approved": true,
+  "generation_settings": {
+    "language": "en",
+    "output_format": {
+      "container": "wav",
+      "encoding": "pcm_s16le",
+      "sample_rate": 48000
+    },
+    "generation_config": {
+      "speed": 0.97,
+      "volume": 1
+    },
+    "pause_between_lines_seconds": 0.55,
+    "output_rate_fallback_used": false
+  },
+  "canonical_source_text_paths": {
+    "narration": "production/audio/SmartT_English_Narration_THEO_FINAL.txt",
+    "tts_copy": "production/audio/SmartT_TTS_Copy_THEO_FINAL.txt",
+    "timing": "production/audio/SmartT_Narration_Timeline_THEO_FINAL.json",
+    "subtitles": "production/subtitles/SmartT_Final_EngSub.srt"
+  },
+  "narration_master": {
+    "path": "production/audio/SmartT_Narration_THEO_Master.wav",
+    "sha256": "75a809ad5e840e4d7f5c14b918a42ca5f223a95c8b2bfe3a149f8c1b686df324",
+    "sample_rate": 48000,
+    "channels": 2,
+    "duration_seconds": 110.76
+  },
+  "reference_sample": {
+    "path": "production/references/voice/reference-theo-audition.wav",
+    "purpose": "Human-approved Theo audition reference"
+  },
+  "api_key": null
+}

@@ -1,109 +1,76 @@
-# SmartT Fuel Intelligence
+# SmartT
 
-## Overview
+SmartT is a fuel monitoring and fleet telemetry prototype. It combines ESP32 firmware, a local Python telemetry server, a public website, a fleet dashboard, and a locked production film package.
 
-SmartT Fuel Intelligence is a fuel monitoring and telemetry prototype for fleet
-operations. It reads fuel level data, estimates fuel percentage and volume,
-classifies contextual fuel events, and presents device status through an OLED
-display and an ESP32-hosted web dashboard.
+## Architecture
 
-## Key Capabilities
+- `apps/website`: public SmartT website.
+- `apps/dashboard`: fleet operations dashboard and dashboard demo capture scripts.
+- `server`: local Python and SQLite telemetry API, serving static dashboard files from `server/static/dashboard`.
+- `SmartT_Core_Demo`: ESP32 firmware and embedded dashboard.
+- `diagnostics`: hardware validation sketches.
+- `production`: locked current film masters, Theo audio, subtitles, cursor config, and minimal rebuild references.
+- `scripts/production`: current film production entry point and helper.
+- `docs`: compact architecture, hardware, video, algorithm, history, and cleanup notes.
 
-- Fuel signal acquisition through ADS1115
-- Fuel percentage and liters estimation
-- Multi-stage filtering and signal stability tracking
-- Rule-based fuel event detection
-- Ignition and GPS/motion context
-- Refuel, sloshing, and suspicious drop classification
-- OLED device status display
-- ESP32-hosted web dashboard
-- Diagnostic sketches for hardware validation
+## Quick Start
 
-## Firmware Architecture
+Install frontend dependencies after a clean checkout:
 
-The main firmware is modularized under `SmartT_Core_Demo/`:
-
-- `Config.h`: pin mapping, calibration constants, timing, and feature flags
-- `Types.h`: shared telemetry, sensor health, GPS, vehicle, and event state
-- `FuelSensor`: ADS1115 fuel signal acquisition and sensor health checks
-- `FuelFilter`: fuel percentage filtering and signal stability tracking
-- `GpsContext`: optional GPS and motion context
-- `EventDetector`: rule-based refuel, slosh, and suspicious drop detection
-- `OledView`: compact OLED device status display
-- `WebDashboard`: ESP32 web server, telemetry API, and dashboard routes
-- `DashboardAssets.h`: embedded dashboard HTML, CSS, and JavaScript assets
-
-## Repository Structure
-
-```text
-apps/website/                 Canonical public SmartT website
-apps/dashboard/               Canonical SmartT fleet dashboard
-SmartT_Core_Demo/              ESP32 firmware and embedded fallback dashboard
-server/                        Local Python + SQLite server and telemetry APIs
-ui-prototype/local-dashboard/  Official Local Fleet Dashboard source
-ui-prototype/dashboard/        Earlier editable UI prototype
-diagnostics/                   Hardware validation sketches
-docs/                          Wiring, setup, BOM, and reference notes
+```sh
+cd apps/website && npm ci
+cd ../dashboard && npm ci
 ```
 
-The canonical web apps now live under `apps/website/` and `apps/dashboard/`.
-The legacy Local Fleet Dashboard source lives in
-`ui-prototype/local-dashboard/`. It can be opened directly with sample data or
-served by the local server at `http://localhost:8000`.
+Run the website:
 
-## Hardware Overview
+```sh
+cd apps/website
+npm run dev
+```
 
-- ESP32 DevKit
-- ADS1115 ADC
-- Analog fuel sender or potentiometer
-- SPI OLED 128x64
-- Optional GPS module
-- Breadboard/prototype wiring
+Run the dashboard:
 
-## Arduino IDE Setup
+```sh
+cd apps/dashboard
+npm run dev
+```
 
-Required board:
+Run the local telemetry server:
 
-- ESP32 Dev Module
+```sh
+python server/app.py
+```
 
-Required libraries:
+The server defaults to `http://localhost:8000` and exposes `/api/health`, `/api/latest`, `/api/history`, `/api/events`, and `/api/ingest`.
 
-- Adafruit ADS1X15
-- Adafruit BusIO
-- Adafruit GFX
-- Adafruit SSD1306
-- TinyGPS++ if GPS is enabled or used
+## Firmware
 
-## Running the Firmware
+Open `SmartT_Core_Demo/SmartT_Core_Demo.ino` in Arduino IDE with the ESP32 Dev Module board selected. Hardware wiring and bring-up are documented in `docs/HARDWARE.md`.
 
-1. Open `SmartT_Core_Demo/SmartT_Core_Demo.ino`.
-2. Select `ESP32 Dev Module` and the correct COM port.
-3. Verify and upload the sketch.
-4. Open Serial Monitor at `115200` baud.
-5. Connect to the ESP32 dashboard according to the firmware Wi-Fi mode and
-   Serial Monitor output.
+## Production Film
 
-## Diagnostics
+Current locked masters live in `production/masters`:
 
-Diagnostic sketches are available under `diagnostics/` for subsystem bring-up
-and hardware validation. They include serial, I2C, ADS1115, OLED SPI, OLED pixel,
-SH1106 OLED comparison, and Wi-Fi access point tests.
+- `SmartT_Final_EngSub.mp4`
+- `SmartT_Final_Voice_Clean.mp4`
+- `SmartT_Picture_Lock.mp4`
 
-Use the OLED pixel diagnostic when checking for missing pixels, fixed lines,
-driver mismatch, or unstable SPI/power behavior.
+Current production entry point:
 
-## Current Limitations
+```sh
+node scripts/production/render-smartt-film.mjs --preflight
+```
 
-- Bench prototype, not a vehicle-certified product
-- Vehicle-specific fuel calibration is required
-- GPS depends on module availability and signal quality
-- CAN/OBD-II and 4G/cloud integration are future work
-- Fuel event detection is currently rule-based and requires pilot validation
+Full video production notes and hashes are in `docs/VIDEO_PRODUCTION.md`.
 
-## Roadmap
+## Development Commands
 
-- Improved calibration workflow
-- Persistent event logging
-- Cleaner enclosure/prototype hardware
-- Optional GPS/geofence context
-- Future CAN/OBD-II and cloud integration
+```sh
+cd apps/website && npm run build
+cd apps/dashboard && npm run build
+python -m py_compile server/app.py
+node scripts/production/render-smartt-film.mjs --preflight
+```
+
+Use npm for both frontend apps. Do not delete or rewrite firmware, backend, locked media masters, or Vercel project metadata unless a task explicitly calls for it.

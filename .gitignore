@@ -1,4 +1,4 @@
-# Archives / handoff packages
+﻿# Archives / handoff packages
 /review/
 *.zip
 *.rar
@@ -10,13 +10,10 @@
 # Temporary exported UI packages
 SmartT_UI_ProductGrade_*/
 SmartT_UI_*Patch*/
-ui-prototype/dist/
 /SmartT_Local_Dashboard_Preview*.zip
 /SmartT_Local_Dashboard_Preview*/
 /local-dashboard*.zip
 /local-dashboard*/
-!/ui-prototype/local-dashboard/
-!/ui-prototype/local-dashboard/**
 
 # SmartT local server runtime files
 server/.venv/
@@ -65,6 +62,20 @@ temp/
 *.bak
 *~
 
+# Generated project caches
+.tanstack/
+
+# Temporary video render and review outputs
+production/build/
+production/outputs/
+review/
+**/contact-sheets/
+**/_storyboard_frames/
+**/_incident_dense_frames/
+**/render-parts/
+**/temp/
+**/*_REVIEW.zip
+
 # Frontend generated/local files
 node_modules/
 dist/
@@ -80,3 +91,78 @@ __pycache__/
 
 # Local firmware secrets
 SmartT_Core_Demo/Secrets.h
+
+# BEGIN SMARTT REPO HYGIENE
+
+# Node / frontend dependencies and generated deployment output
+**/node_modules/
+**/.vercel/
+**/.vite/
+**/dist/
+**/coverage/
+
+# STM32 / embedded build outputs
+**/Debug/
+**/Release/
+**/build/
+**/Build/
+*.o
+*.obj
+*.d
+*.su
+*.cyclo
+*.elf
+*.axf
+*.map
+*.list
+*.hex
+*.bin
+
+# Python local/runtime artifacts
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets / machine-local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime databases / collected data / trained models
+*.db
+*.sqlite
+*.sqlite3
+backend/data/*
+!backend/data/.gitkeep
+backend/models/*
+!backend/models/.gitkeep
+
+# Heavy local production media: keep on disk/Drive, not in source Git history
+production/**/*.mp4
+production/**/*.webm
+production/**/*.wav
+
+# Local audit and packaged copies
+_audit/
+*.zip
+*.rar
+*.7z
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/*.log
+
+# END SMARTT REPO HYGIENE
+

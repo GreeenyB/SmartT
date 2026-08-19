@@ -1,0 +1,276 @@
+{
+  "id": "smartt_cursor_full_production",
+  "generated_at": "2026-08-17T14:24:04.171Z",
+  "fps": 25,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "final_structure": {
+    "website": {
+      "startFrame": 0,
+      "endFrame": 1068,
+      "frames": 1069,
+      "startSeconds": 0,
+      "durationSeconds": 42.76
+    },
+    "dashboard": {
+      "startFrame": 1069,
+      "endFrame": 2016,
+      "frames": 948,
+      "startSeconds": 42.76,
+      "durationSeconds": 37.92
+    },
+    "incident": {
+      "startFrame": 2017,
+      "endFrame": 2768,
+      "frames": 752,
+      "startSeconds": 80.68,
+      "durationSeconds": 30.08
+    },
+    "totalFrames": 2769,
+    "totalSeconds": 110.76
+  },
+  "cursor_engine": {
+    "architecture": "deterministic source-state replay + locked camera transform + synthetic final-screen-space cursor overlay",
+    "cursor_size_px": 26,
+    "style": "near-white professional arrow, dark navy-charcoal edge, subtle shadow",
+    "easing": "easeInOutCubic",
+    "fade_in_seconds": 0.12,
+    "fade_out_seconds": 0.16,
+    "click": "no ring, no halo, no tutorial highlight"
+  },
+  "actions": [
+    {
+      "id": "dashboard_open_live_map",
+      "absolute_start_context": 45.24,
+      "page_state": "Overview",
+      "semantic_target": "Live Map sidebar nav",
+      "selector": "aside a[href=\"/live-map\"]",
+      "source_target_position": {
+        "x": 125.5,
+        "y": 171
+      },
+      "camera_transform": {
+        "scale": 1.14,
+        "center": {
+          "x": 900,
+          "y": 540
+        }
+      },
+      "final_screen_target_position": {
+        "x": 77.07,
+        "y": 119.34
+      },
+      "cursor_show_time": 45.24,
+      "movement_start": 45.24,
+      "movement_duration": 0.64,
+      "easing": "easeInOutCubic",
+      "arrival_time": 45.88,
+      "click_time": 46.04,
+      "post_click_hold": 0.24,
+      "next_action": "dashboard_select_vehicle",
+      "keep_visible_vs_fade_out_decision": "fade-out through route establish",
+      "cursor_hide_time": 46.36,
+      "expected_resulting_state": "Live Map route visible"
+    },
+    {
+      "id": "dashboard_select_vehicle_to_detail",
+      "absolute_start_context": 53.04,
+      "page_state": "Live Map / Vehicle Summary",
+      "semantic_target": "53C-982.57 vehicle row, then Open vehicle detail",
+      "selector": "button:has-text(\"53C-982.57\") + role=link[name=\"Open vehicle detail\"]",
+      "source_target_position": {
+        "x": 1642.63,
+        "y": 615.23
+      },
+      "camera_transform": {
+        "scale": 1.52,
+        "center": {
+          "x": 1288,
+          "y": 520
+        }
+      },
+      "final_screen_target_position": {
+        "x": 1321.67,
+        "y": 662.06
+      },
+      "cursor_show_time": 53.04,
+      "movement_start": 53.16,
+      "movement_duration": 0.72,
+      "easing": "easeInOutCubic",
+      "arrival_time": 53.88,
+      "click_time": 54.12,
+      "post_click_hold": 4.04,
+      "next_action": "dashboard_open_fuel_analytics",
+      "keep_visible_vs_fade_out_decision": "keep visible for nearby detail action, then fade-out on route cut",
+      "cursor_hide_time": 58.32,
+      "expected_resulting_state": "Vehicle Detail route visible"
+    },
+    {
+      "id": "dashboard_open_fuel_analytics",
+      "absolute_start_context": 63.4,
+      "page_state": "Vehicle Detail",
+      "semantic_target": "Fuel Analytics sidebar nav",
+      "selector": "aside a[href=\"/fuel\"]",
+      "source_target_position": {
+        "x": 125.5,
+        "y": 259
+      },
+      "camera_transform": {
+        "scale": 1.18,
+        "center": {
+          "x": 1086,
+          "y": 547
+        }
+      },
+      "final_screen_target_position": {
+        "x": 125.5,
+        "y": 259
+      },
+      "cursor_show_time": 63.4,
+      "movement_start": 63.56,
+      "movement_duration": 0.6,
+      "easing": "easeInOutCubic",
+      "arrival_time": 64.16,
+      "click_time": 64.36,
+      "post_click_hold": 0.64,
+      "next_action": "dashboard_open_reports",
+      "keep_visible_vs_fade_out_decision": "fade-out during analytics explanation",
+      "cursor_hide_time": 65.16,
+      "expected_resulting_state": "Fuel Analytics route visible"
+    },
+    {
+      "id": "dashboard_open_reports",
+      "absolute_start_context": 72.48,
+      "page_state": "Fuel Analytics",
+      "semantic_target": "Analytics & Reports sidebar nav",
+      "selector": "aside a[href=\"/reports\"]",
+      "source_target_position": {
+        "x": 125.5,
+        "y": 347
+      },
+      "camera_transform": {
+        "scale": 1.42,
+        "center": {
+          "x": 1225,
+          "y": 490
+        }
+      },
+      "final_screen_target_position": {
+        "x": 125.5,
+        "y": 347
+      },
+      "cursor_show_time": 72.48,
+      "movement_start": 72.64,
+      "movement_duration": 0.6,
+      "easing": "easeInOutCubic",
+      "arrival_time": 73.24,
+      "click_time": 73.44,
+      "post_click_hold": 0.44,
+      "next_action": "dashboard_return_overview",
+      "keep_visible_vs_fade_out_decision": "fade-out during Reports narration",
+      "cursor_hide_time": 74.04,
+      "expected_resulting_state": "Reports route visible"
+    },
+    {
+      "id": "dashboard_return_overview",
+      "absolute_start_context": 79.68,
+      "page_state": "Reports",
+      "semantic_target": "Overview sidebar nav",
+      "selector": "aside a[href=\"/\"]",
+      "source_target_position": {
+        "x": 125.5,
+        "y": 127
+      },
+      "camera_transform": {
+        "scale": 1,
+        "center": {
+          "x": 960,
+          "y": 540
+        }
+      },
+      "final_screen_target_position": {
+        "x": 125.5,
+        "y": 127
+      },
+      "cursor_show_time": 79.68,
+      "movement_start": 79.84,
+      "movement_duration": 0.64,
+      "easing": "easeInOutCubic",
+      "arrival_time": 80.48,
+      "click_time": 80.64,
+      "post_click_hold": 0.32,
+      "next_action": "incident_notification_open",
+      "keep_visible_vs_fade_out_decision": "fade-out before incident onset",
+      "cursor_hide_time": 81.12,
+      "expected_resulting_state": "Overview route visible before Incident"
+    },
+    {
+      "id": "incident_notification_open",
+      "absolute_start_context": 85.72,
+      "page_state": "Incident Notify",
+      "semantic_target": "Notification bell -> hero notification",
+      "selector": "[data-demo-target=\"notification-bell\"]",
+      "source_target_position": {
+        "x": 1711.77,
+        "y": 31.5
+      },
+      "camera_transform": {
+        "scale": 1.6087703703703704,
+        "center": {
+          "x": 1174.7306666666666,
+          "y": 336.2459259259259
+        }
+      },
+      "final_screen_target_position": {
+        "x": 1823.97,
+        "y": 49.73
+      },
+      "cursor_show_time": 85.72,
+      "movement_start": 85.76,
+      "movement_duration": 0.56,
+      "easing": "easeInOutCubic",
+      "arrival_time": 86.32,
+      "click_time": 86.52,
+      "post_click_hold": 2,
+      "next_action": "incident_mark_verified",
+      "keep_visible_vs_fade_out_decision": "keep visible through both real notification interactions, then fade as Alerts establishes",
+      "cursor_hide_time": 88.68,
+      "expected_resulting_state": "Bell dropdown opens at locked timing, then Alerts route opens with controlled incident selected"
+    },
+    {
+      "id": "incident_mark_verified",
+      "absolute_start_context": 102.48,
+      "page_state": "Evidence / Verify",
+      "semantic_target": "Mark verified",
+      "selector": "[data-demo-target=\"alert-mark-verified\"]",
+      "source_target_position": {
+        "x": 1453.91,
+        "y": 539.8
+      },
+      "camera_transform": {
+        "scale": 2.3,
+        "center": {
+          "x": 1503,
+          "y": 405
+        }
+      },
+      "final_screen_target_position": {
+        "x": 847.98,
+        "y": 850.03
+      },
+      "cursor_show_time": 102.48,
+      "movement_start": 102.64,
+      "movement_duration": 0.68,
+      "easing": "easeInOutCubic",
+      "arrival_time": 103.32,
+      "click_time": 103.44,
+      "post_click_hold": 0.48,
+      "next_action": null,
+      "keep_visible_vs_fade_out_decision": "fade-out after verified state holds",
+      "cursor_hide_time": 104.08,
+      "expected_resulting_state": "Verified button state visible"
+    }
+  ]
+}

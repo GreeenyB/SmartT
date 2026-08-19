@@ -1,0 +1,33 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+ScaledBorderAndShadow: yes
+WrapStyle: 2
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: NARRATION,Inter Medium,32,&H00FAF8F6,&H000000FF,&H002B2015,&H00000000,0,0,0,0,100,100,0,0,1,1.0,0.4,2,300,300,26,1
+Style: DISCLOSURE,Inter,22,&H00FAF8F6,&H000000FF,&H002B2015,&H00000000,0,0,0,0,100,100,0,0,1,0.8,0.3,8,90,90,54,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:05.00,NARRATION,,0,0,0,,{\fad(80,80)}Fuel data becomes useful when it explains an operational event.
+Dialogue: 0,0:00:05.80,0:00:11.80,NARRATION,,0,0,0,,{\fad(80,80)}That requires linking each reading to vehicle state,\Nmovement, time, and location.
+Dialogue: 0,0:00:13.00,0:00:18.30,NARRATION,,0,0,0,,{\fad(80,80)}SmartT keeps that context intact from the vehicle to the operator.
+Dialogue: 0,0:00:18.30,0:00:24.40,NARRATION,,0,0,0,,{\fad(80,80)}Signals are captured at the source, transmitted as telemetry,\Nand processed for operational review.
+Dialogue: 0,0:00:25.20,0:00:31.80,NARRATION,,0,0,0,,{\fad(80,80)}Operators can move from fleet-wide patterns\Nto a specific vehicle, location, or event.
+Dialogue: 0,0:00:31.80,0:00:38.50,NARRATION,,0,0,0,,{\fad(80,80)}Desktop and mobile views keep that workflow\Nconsistent across operations.
+Dialogue: 0,0:00:43.00,0:00:46.00,NARRATION,,0,0,0,,{\fad(80,80)}The overview summarizes fleet status.
+Dialogue: 0,0:00:46.50,0:00:52.00,NARRATION,,0,0,0,,{\fad(80,80)}Live Map adds location context,\Nnarrowing the fleet to vehicles in view.
+Dialogue: 0,0:00:52.00,0:00:58.40,NARRATION,,0,0,0,,{\fad(80,80)}Selecting a vehicle reveals its route, fuel level,\Nspeed, ignition, and latest telemetry.
+Dialogue: 0,0:00:58.50,0:01:03.80,NARRATION,,0,0,0,,{\fad(80,80)}Vehicle Detail brings fuel state, route,\Nand telemetry together in one view.
+Dialogue: 0,0:01:04.80,0:01:12.30,NARRATION,,0,0,0,,{\fad(80,80)}Over the last seven days, Fuel Analytics shows consumption,\Nsuspected loss, efficiency, and loss by depot.
+Dialogue: 0,0:01:12.80,0:01:20.00,NARRATION,,0,0,0,,{\fad(80,80)}Reports summarize trends, costs, anomalies,\Ndepot comparisons, and exportable results.
+Dialogue: 0,0:01:20.90,0:01:23.40,NARRATION,,0,0,0,,{\fad(80,80)}Now, incident handling begins.
+Dialogue: 0,0:01:23.60,0:01:28.30,NARRATION,,0,0,0,,{\fad(80,80)}Suspected fuel loss rises to 58 liters,\Ntriggering an alert.
+Dialogue: 0,0:01:29.00,0:01:36.60,NARRATION,,0,0,0,,{\fad(80,80)}The incident view brings together vehicle identity,\Nfuel levels, ignition, speed, and GPS location.
+Dialogue: 0,0:01:37.00,0:01:42.30,NARRATION,,0,0,0,,{\fad(80,80)}The map and event-day fuel trend provide\Nthe supporting evidence.
+Dialogue: 0,0:01:42.60,0:01:45.80,NARRATION,,0,0,0,,{\fad(80,80)}After review, the operator verifies the event.
+Dialogue: 0,0:01:45.80,0:01:50.50,NARRATION,,0,0,0,,{\fad(80,80)}With the event verified, SmartT returns\Nto the fleet overview.
+Dialogue: 1,0:01:20.90,0:01:23.90,DISCLOSURE,,0,0,0,,Controlled telemetry replay · simulated fleet data

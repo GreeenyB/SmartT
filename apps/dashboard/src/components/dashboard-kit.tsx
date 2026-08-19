@@ -18,6 +18,7 @@ import type { ReactNode } from "react";
 import { Circle, CircleDot, Pause, Square, WifiOff, Wrench } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import type { DemoTarget } from "@/demo/demo-targets";
 import {
   statusLabel,
   type AlertSeverity,
@@ -62,6 +63,7 @@ export function Panel({
   children,
   className,
   bodyClassName,
+  demoTarget,
 }: {
   title?: string;
   subtitle?: string;
@@ -69,9 +71,10 @@ export function Panel({
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
+  demoTarget?: DemoTarget | undefined;
 }) {
   return (
-    <section className={cn("panel flex flex-col", className)}>
+    <section className={cn("panel flex flex-col", className)} data-demo-target={demoTarget}>
       {title ? (
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-surface-2/40 px-5 py-4">
           <div className="min-w-0">
@@ -134,15 +137,19 @@ export function KpiCard({
   tone = "neutral",
   spark,
   icon,
+  demoTarget,
+  demoEmphasis,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   unit?: string;
   delta?: string;
   deltaLabel?: string;
   tone?: "good" | "bad" | "warn" | "neutral";
   spark?: number[];
   icon?: ReactNode;
+  demoTarget?: DemoTarget | undefined;
+  demoEmphasis?: "strong" | "subtle" | undefined;
 }) {
   const strokeVar =
     tone === "bad"
@@ -155,7 +162,14 @@ export function KpiCard({
   const sparkId = label.replace(/[^a-z0-9]/gi, "");
 
   return (
-    <div className="panel panel-hover relative overflow-hidden p-5">
+    <div
+      className={cn(
+        "panel panel-hover relative overflow-hidden p-5",
+        demoEmphasis === "strong" && "demo-incident-emphasis",
+        demoEmphasis === "subtle" && "demo-incident-emphasis-subtle",
+      )}
+      data-demo-target={demoTarget}
+    >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <p className="min-w-0 text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">{label}</p>
         {icon ? (
