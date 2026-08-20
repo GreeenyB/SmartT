@@ -44,8 +44,8 @@ export function HeroSection() {
             transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="lead mt-9 max-w-[34ch]"
           >
-            SmartT is a developing fuel-monitoring and fleet-telemetry system that turns noisy
-            vehicle signals into clear operational context.
+            SmartT is a fuel-monitoring and fleet-telemetry system that turns noisy vehicle signals
+            into clear operational context.
           </motion.p>
           <motion.a
             href="#problem"

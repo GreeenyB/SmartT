@@ -28,10 +28,7 @@ const pipeline = [
 
 export function TechnologySection() {
   return (
-    <section
-      id="technology"
-      className="scroll-mt-24 border-y border-white/10 bg-foreground text-background"
-    >
+    <section id="technology" className="tech-surface scroll-mt-24 border-y border-white/10">
       <div className="mx-auto max-w-[1600px] px-8 py-28 md:px-14 md:py-36">
         <Reveal>
           <p className="section-label section-label--inverse">Technology · Processing pipeline</p>
@@ -47,7 +44,7 @@ export function TechnologySection() {
           <Reveal delay={0.2}>
             <p className="max-w-[42ch] text-base leading-[1.75] text-white/60 md:text-lg">
               What happens to a single fuel reading between the sender and an event in the console —
-              described without publishing calibration values or decision thresholds.
+              described at system level, without exposing calibration values or decision thresholds.
             </p>
           </Reveal>
         </div>

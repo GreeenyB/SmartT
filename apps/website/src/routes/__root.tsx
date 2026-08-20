@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "SmartT is a developing fuel-monitoring and fleet-telemetry system that turns noisy vehicle signals into clear operational context.",
+          "SmartT is a fuel-monitoring and fleet-telemetry system that turns noisy vehicle signals into clear operational context.",
       },
       { name: "author", content: "SmartT Team" },
       {
@@ -90,7 +90,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         property: "og:description",
-        content: "A developing fuel-monitoring and fleet-telemetry system by Team BKUIT.",
+        content:
+          "Fuel monitoring and fleet telemetry by Team BKUIT — turning noisy vehicle signals into clear operational context.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -100,7 +101,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         name: "twitter:description",
-        content: "A developing fuel-monitoring and fleet-telemetry system by Team BKUIT.",
+        content:
+          "Fuel monitoring and fleet telemetry by Team BKUIT — turning noisy vehicle signals into clear operational context.",
       },
     ],
     links: [

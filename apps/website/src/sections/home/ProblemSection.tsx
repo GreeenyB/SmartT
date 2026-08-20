@@ -23,7 +23,7 @@ const problems = [
 
 export function ProblemSection() {
   return (
-    <section id="problem" className="scroll-mt-24 border-t border-border bg-secondary/40">
+    <section id="problem" className="section-cool scroll-mt-24 border-t border-border">
       <div className="mx-auto max-w-[1600px] px-8 py-28 md:px-14 md:py-36">
         <div className="section-head">
           <Reveal>
