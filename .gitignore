@@ -166,3 +166,6 @@ desktop.ini
 
 # END SMARTT REPO HYGIENE
 
+# --- SmartT video production workspace ---
+/VIDEO/*
+!/VIDEO/README.md
