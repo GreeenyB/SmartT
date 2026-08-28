@@ -222,6 +222,59 @@ def generate(config: SyntheticConfig = SyntheticConfig()) -> list[dict[str, obje
     return rows
 
 
+def generate_stress(config: SyntheticConfig = SyntheticConfig(experiments_per_class=30, fault_experiments=0, seed=SEED + 99)) -> list[dict[str, object]]:
+    """Deliberately shifted evaluation-only signals; never include these in training.
+
+    The base experiments retain valid row-level truth. Deterministic perturbations
+    then add plausible overlap: downward-biased slosh, staged/mixed drains, slow
+    noisy refuel, spikes/drift/offset, stale GPS speed, jitter, and packet loss.
+    """
+    rows = generate(config)
+    by_experiment: dict[str, list[dict[str, object]]] = {}
+    for row in rows:
+        by_experiment.setdefault(str(row["experiment_id"]), []).append(row)
+    result: list[dict[str, object]] = []
+    for index, (experiment_id, values) in enumerate(sorted(by_experiment.items())):
+        mode = index % 15
+        label = str(values[0]["scenario_label"])
+        for position, row in enumerate(values):
+            timestamp = float(row["timestamp_s"])
+            row["experiment_id"] = f"STRESS-{experiment_id}"
+            row["ground_truth_subtype"] = f"STRESS_{mode:02d}_{row['ground_truth_subtype']}"
+            fuel = float(row["filtered_fuel_percent"])
+            if mode == 0 and label == "SLOSHING":  # downward-biased slosh
+                fuel -= .035 * max(0.0, timestamp - float(row["behavior_start_s"]))
+            elif mode == 1 and label == "DRAIN":  # simultaneous slosh
+                fuel += 2.4 * math.sin(timestamp * 1.7)
+            elif mode == 2 and label == "DRAIN":  # intermittent/staged drain
+                fuel += 1.8 if int(timestamp * 1.3) % 3 == 0 else 0.0
+            elif mode == 3 and label == "REFUEL":  # slow noisy refuel
+                fuel += 1.1 * math.sin(timestamp * 2.4)
+            elif mode == 4:  # sharp benign spike
+                fuel += 8.0 if position == len(values) // 2 else 0.0
+            elif mode == 5:  # sender drift
+                fuel += .025 * timestamp
+            elif mode == 6:  # calibration offset
+                fuel += 4.0
+            elif mode == 7:  # recovery mixed with noise
+                fuel += .9 * math.sin(timestamp * 3.1)
+            row["filtered_fuel_percent"] = round(fuel, 6)
+            if mode in {8, 9}:
+                row["gps_data_fresh"] = 1
+                row["gps_speed_fresh"] = 0
+                row["gps_stationary"] = 0
+                row["gps_moving"] = 0
+            if mode in {10, 11} and position % 7 == 0:
+                row["raw_fuel_percent"] = ""
+            if mode == 12:
+                row["timestamp_s"] = round(timestamp + (.11 if position % 2 else -.08), 3)
+            # Packet loss is represented by omitted telemetry, not imputed values.
+            if mode in {13, 14} and position % (9 if mode == 13 else 5) == 0 and position > 2:
+                continue
+            result.append(row)
+    return result
+
+
 def write_csv(rows: Iterable[dict[str, object]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:

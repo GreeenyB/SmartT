@@ -8,8 +8,8 @@ from typing import Any
 
 import numpy as np
 
-from ml.config import MIN_WINDOW_COVERAGE, MODEL_PATH, ROLLING_STRIDE_SECONDS
-from ml.features.window_features import FEATURE_NAMES, feature_vector, resample_window
+from ml.config import MIN_WINDOW_COVERAGE, MODEL_PATH, SAMPLE_JITTER_TOLERANCE_SECONDS, SAMPLE_PERIOD_SECONDS
+from ml.features.window_features import FEATURE_NAMES, expected_sample_count, feature_vector, resample_window
 
 
 def _value(payload: dict[str, Any], *names: str, default: Any = None) -> Any:
@@ -52,7 +52,7 @@ class ShadowInference:
         self.model_path = Path(model_path)
         self.bundle: dict[str, Any] | None = None
         self.error: str | None = None
-        self.buffers: dict[str, deque[dict[str, object]]] = defaultdict(lambda: deque(maxlen=480))
+        self.buffers: dict[str, deque[dict[str, object]]] = defaultdict(lambda: deque(maxlen=240))
         self.lock = RLock()
         if enabled:
             self._load()
@@ -111,14 +111,24 @@ class ShadowInference:
             if self.bundle is None:
                 return {**self.status(), "prediction": None, "drain_probability": None, "anomaly_score": None}
             window_seconds = float(self.bundle.get("window_seconds", 16.0))
+            sample_period_s = float(self.bundle.get("sample_period_s", SAMPLE_PERIOD_SECONDS))
+            min_coverage = float(self.bundle.get("min_coverage", MIN_WINDOW_COVERAGE))
             newest = float(row["timestamp_s"])
-            selected = [item for item in buffer if newest - float(item["timestamp_s"]) <= window_seconds]
-            coverage = len(selected) / max(1.0, window_seconds / 0.25 + 1.0)
-            if newest - float(selected[0]["timestamp_s"]) < window_seconds or coverage < MIN_WINDOW_COVERAGE:
+            window_start = newest - window_seconds
+            selected = [item for item in buffer if float(item["timestamp_s"]) >= window_start - sample_period_s]
+            if not selected:
                 return {**self.status(), "warming_up": True, "prediction": None,
-                        "drain_probability": None, "anomaly_score": None, "data_quality": {"coverage": coverage}}
-            resampled = resample_window(selected)
-            vector = feature_vector(resampled, 0.25)
+                        "drain_probability": None, "anomaly_score": None,
+                        "data_quality": {"coverage": 0.0, "expected_samples": expected_sample_count(window_seconds, sample_period_s)}}
+            complete_duration = float(selected[0]["timestamp_s"]) <= window_start + SAMPLE_JITTER_TOLERANCE_SECONDS
+            prepared = resample_window(selected, sample_period_s, window_start_s=window_start, window_end_s=newest)
+            vector = feature_vector(prepared, sample_period_s)
+            coverage = float(vector["sample_coverage"])
+            if not complete_duration or coverage < min_coverage:
+                return {**self.status(), "warming_up": True, "prediction": None,
+                        "drain_probability": None, "anomaly_score": None,
+                        "data_quality": {"coverage": coverage, "expected_samples": expected_sample_count(window_seconds, sample_period_s),
+                                         "observed_samples": int(round(coverage * len(prepared))), "complete_duration": complete_duration}}
             x = np.array([[vector[name] for name in FEATURE_NAMES]], dtype=np.float64)
             classifier = self.bundle["classifier"]
             probabilities = classifier.predict_proba(x)[0]
@@ -135,4 +145,6 @@ class ShadowInference:
                 "ml_raw_probability": float(np.max(probabilities)), "probabilities": dict(zip(classes, map(float, probabilities))),
                 "drain_probability": drain_probability,
                 "anomaly_score": anomaly_score,
+                "data_quality": {"coverage": coverage, "expected_samples": expected_sample_count(window_seconds, sample_period_s),
+                                 "observed_samples": int(round(coverage * len(prepared))), "complete_duration": True},
             }

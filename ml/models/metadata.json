@@ -38,8 +38,9 @@
     "raw_missing_ratio"
   ],
   "window_seconds": 16.0,
+  "sample_period_s": 0.5,
   "min_coverage": 0.85,
-  "abstain_threshold": 0.85,
-  "model_version": "smartt-rolling-synthetic-20260829",
+  "abstain_threshold": 0.0,
+  "model_version": "smartt-server-cadence-synthetic-20260829",
   "training_status": "EXPERIMENTAL_SYNTHETIC_SHADOW_ONLY"
 }

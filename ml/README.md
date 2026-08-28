@@ -1,67 +1,45 @@
 # SmartT ML Workspace
 
-This workspace measures whether classical ML adds useful evidence to SmartT. It does not replace the deterministic ESP32 detector. All included evaluation results are **EXPERIMENTAL / SYNTHETIC**, not tank or vehicle validation.
+SmartT ML is experimental, synthetic-only, and server shadow-only. It classifies fuel behavior (`NORMAL`, `SLOSHING`, `REFUEL`, `DRAIN`) but never creates or modifies the authoritative ESP32 theft alert.
 
-## What is implemented
+## Live temporal contract
 
-- Configurable 250 ms synthetic time series with 496 independent experiments by default: 120 each of NORMAL, SLOSHING, REFUEL, and DRAIN, plus 16 sensor-fault gating experiments.
-- Randomized vehicle profiles, duration, level, noise, drift, slosh, drain/refuel rate and magnitude, recovery, missing samples, ignition, motion, and GPS availability/freshness.
-- Simulator-defined ground truth. The detector never labels training data.
-- Fixed 16-second windows and 33 independent/core features from fuel behavior, signal quality, ignition, and GPS context.
-- Stratified group split (70/15/15 by `experiment_id`) so overlapping windows never cross splits.
-- A small three-configuration Random Forest comparison and benign-only Isolation Forest.
-- Experiment-level rules/RF/anomaly/shadow-hybrid metrics, calibration error, detection delay, model size, and inference latency.
-- Optional local-server shadow inference, disabled by default.
+`LocalServerClient` posts one sample every 500 ms. Training, offline evaluation, and `ShadowInference` therefore use a 500 ms feature grid. The default 16-second candidate window has 33 inclusive expected samples; it requires the entire 16 seconds and at least 85% valid samples (29/33) before inference. Normal packet jitter is tolerated. Large gaps lower coverage and raw-data quality rather than being represented as perfect interpolation.
 
-## Reproduce from the repository root
+The benchmark evaluates 8, 12, and 16 second windows on training/validation only, then stores the selected window in the model bundle. Runtime reads that exact window/cadence contract from the bundle.
+
+## Features and runtime parity
+
+There are 34 ordered model features in `ml/models/feature_schema.json`: fuel dynamics, raw-vs-filter disagreement, ignition, GPS context/freshness, sensor quality, sample coverage, and raw missingness. `resample_window` and `feature_vector` are shared by offline evaluation and the live server. `gps_stationary`/`gps_moving` require fresh **GPS speed**, not merely fresh location. Missing raw observations remain missing after preparation and contribute to `raw_missing_ratio`.
+
+## Evaluation semantics
+
+Rows are grouped by experiment ID before split (70/15/15). Windows are queried chronologically without knowing an event onset in advance. A `STEADY`/`ACTIVE_EVENT` window requires at least 80% behavior dominance; `TRANSITION`, `PRE_EVENT`, `ACTIVE_EVENT`, and `RECOVERY` roles are reported explicitly.
+
+The benchmark reports both raw classifier quality and the deployed output after validation-selected `UNKNOWN` abstention. It also reports continuous DRAIN detection delay and benign false-DRAIN episodes. Model selection compares Dummy, Logistic Regression, a depth-3 tree, and Random Forest using validation behavior; similarly performing simpler models are preferred.
+
+Behavior recognition and theft policy are intentionally separate. `EventDetector.cpp` is host-compiled over synthetic time series for a binary parked-theft policy benchmark. An ignition-on or moving DRAIN is not counted as a policy miss.
+
+## Reproduce
 
 ```sh
 python -m venv .venv
-.venv/bin/python -m pip install -r ml/requirements.txt
+.venv/bin/python -m pip install -r ml/requirements-benchmark.txt
 .venv/bin/python -m unittest discover -s ml/tests -v
-.venv/bin/python -m ml.tests.http_api_smoke
 g++ -std=c++17 -Iml/tests/arduino_stub -ISmartT_Core_Demo \
   SmartT_Core_Demo/EventDetector.cpp ml/tests/firmware_event_detector_test.cpp \
   -o /tmp/smartt_event_detector_test && /tmp/smartt_event_detector_test
 .venv/bin/python -m ml.training.pipeline
 ```
 
-The seed is `20260829`. Generated CSVs and `*.joblib` are intentionally ignored; the machine-readable metadata, feature schema, split manifest, metrics, and Markdown report are tracked. Use `--experiments-per-class` only for quick development runs; published metrics use the default 120.
+The canonical run generates 120 experiments for each behavior plus 16 fault experiments, then evaluates five fixed synthetic seeds. The final report distinguishes in-distribution from a separate OOD/stress set; no stress samples are used for training.
 
-Outputs:
+## Physical data path
 
-- `ml/data/synthetic/smartt_synthetic.csv` — generated sample rows (ignored)
-- `ml/data/processed/window_features.csv` — generated feature windows (ignored)
-- `ml/models/smartt_shadow.joblib` — local model bundle (ignored)
-- `ml/models/feature_schema.json` and `metadata.json` — schema and provenance
-- `ml/reports/splits.json`, `metrics.json`, and `ML_EVALUATION.md` — split and evaluation record
+Use `ml.data.real.record_experiment` to record BASELINE → EVENT → RECOVERY. At completion it atomically writes a finalized file with every row carrying identical event markers, duration, and completion state. An incomplete non-NORMAL run is saved separately and rejected by `ml.data.schema.load_csv`.
 
-## Feature and leakage discipline
+The firmware defaults to `SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL 0`. For a potentiometer on A1, set that macro to `1` and upload firmware, or use A0 as the simulated main source. Before recording, verify current telemetry includes `fuel_raw_adc_a0`, `fuel_raw_adc_a1`, `fuel_volts_a0`, `fuel_volts_a1`, `fuel_percent_raw`, `fuel_percent_filtered`, `gps_data_fresh`, and `gps_speed_fresh`.
 
-The exact ordered feature list is in `ml/models/feature_schema.json`. It includes window trends, robust dispersion, direction/recovery behavior, raw-filter disagreement, ignition ratios, GPS statistics/freshness, and sensor data quality. It excludes ground truth, subtype, rule prediction, detector state, current event, alert, and existing confidence. `vehicle_id` and `experiment_id` are retained as metadata but are not model inputs.
+## Boundaries
 
-The model classifies behavior (`NORMAL`, `SLOSHING`, `REFUEL`, `DRAIN`). That differs from the production decision “should this become a theft alert?” An ignition-ON or GPS-moving DRAIN may be real loss behavior for ML evaluation while the deterministic safety gates intentionally refuse to create a theft alert.
-
-## Host reference versus firmware
-
-`DetectorReference` mirrors the firmware median + EMA + rate, stability/slosh calculation, warm-up, ignition/GPS gates, parked baseline, candidates, recovery, confirmation, and alert hold. It operates on calibrated percentage/time samples with normal Python arithmetic. It does not emulate ADS1115/I2C acquisition, Arduino `String`, `millis()` rollover, OLED/Wi-Fi scheduling, or exact C++ floating-point behavior. The firmware remains the source of truth; the host model is a regression oracle kept deliberately small.
-
-## Safe shadow operation
-
-Train the bundle, then opt in:
-
-```sh
-SMARTT_ENABLE_ML=1 .venv/bin/python server/app.py
-```
-
-The server resamples its approximately 500 ms telemetry buffer to the model's 250 ms feature grid. Until 80% of a 16-second window is present it reports warming up. Shadow outputs are nullable additive telemetry columns and never modify `event_type`, `current_event`, `alert`, `rule_result`, or event-saving logic. Missing scikit-learn/model files or corrupt artifacts cannot block ingestion.
-
-## Status boundaries
-
-IMPLEMENTED / VERIFIED: deterministic invariant guards, host scenarios, reproducible generation, leakage checks, grouped splits, RF/anomaly evaluation, additive migration, and disabled/missing-model fallback.
-
-EXPERIMENTAL / SYNTHETIC: all model scores, feature importance, calibration measurements, and comparison claims.
-
-NOT YET VALIDATED: real sender/tank accuracy, water-tank slosh/drain behavior, vehicle vibration/temperature, real false-alert rate, model probability calibration, and cross-vehicle generalization.
-
-FUTURE: collect independently labelled potentiometer/tank experiments, retrain by grouped experiments, preserve vehicle IDs for per-vehicle studies, and consider learned nonlinear tank calibration. Deep learning is not currently justified; reconsider a 1D CNN only if a substantial real grouped dataset exposes temporal confusions that engineered features cannot resolve.
+No tank or vehicle performance, field false-alert rate, probability calibration, or cross-vehicle claim has been validated. There is no evidence from this classical, engineered-feature benchmark that CNN/LSTM/TinyML is justified. Physical, independently labelled experiments are the next gate.

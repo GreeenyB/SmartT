@@ -38,6 +38,8 @@ def normalize_row(source: dict[str, Any]) -> dict[str, object]:
         raise ValueError("timestamp_s is required")
     start = number(source.get("behavior_start_s"), -1.0)
     end = number(source.get("behavior_end_s"), -1.0)
+    duration = number(source.get("experiment_duration_s"), -1.0)
+    complete = boolean(source.get("experiment_complete"), 1)
     if scenario != "NORMAL" and start >= 0 and end >= 0 and end <= start:
         raise ValueError("behavior_end_s must be after behavior_start_s")
     phase = str(source.get("phase") or ("EVENT" if scenario == "NORMAL" else "BASELINE")).upper()
@@ -65,7 +67,9 @@ def normalize_row(source: dict[str, Any]) -> dict[str, object]:
         "gps_speed_fresh": boolean(source.get("gps_speed_fresh", source.get("gps_fresh"))),
         "gps_stationary": boolean(source.get("gps_stationary")), "gps_moving": boolean(source.get("gps_moving")),
         "sensor_valid": boolean(source.get("sensor_valid", source.get("sensor_healthy", 1)), 1),
-        "behavior_start_s": start, "behavior_end_s": end, "scenario_label": scenario,
+        "behavior_start_s": start, "behavior_end_s": end,
+        "experiment_duration_s": duration, "experiment_complete": complete,
+        "scenario_label": scenario,
         "ground_truth_label": scenario, "current_behavior": current, "phase": phase,
         "ground_truth_subtype": str(source.get("ground_truth_subtype") or source.get("subtype") or "UNSPECIFIED"),
         "notes": str(source.get("notes") or ""),
@@ -81,6 +85,29 @@ def normalize_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str, object]]:
         experiment.sort(key=lambda row: float(row["timestamp_s"]))
         if any(float(b["timestamp_s"]) <= float(a["timestamp_s"]) for a, b in zip(experiment, experiment[1:])):
             raise ValueError(f"timestamps must increase: {experiment[0]['experiment_id']}")
+        scenario = str(experiment[0]["scenario_label"])
+        markers = {(float(row["behavior_start_s"]), float(row["behavior_end_s"]),
+                    float(row["experiment_duration_s"]), int(row["experiment_complete"])) for row in experiment}
+        if len(markers) != 1:
+            raise ValueError(f"experiment metadata must be finalized consistently: {experiment[0]['experiment_id']}")
+        start, end, duration, complete = next(iter(markers))
+        observed_duration = float(experiment[-1]["timestamp_s"])
+        # Legacy synthetic rows omit finalization metadata. They are normalized
+        # only when their event markers are internally valid; physical data must
+        # explicitly carry completion state.
+        if duration < 0:
+            duration = observed_duration
+            for row in experiment:
+                row["experiment_duration_s"] = duration
+        if scenario != "NORMAL":
+            if not complete:
+                raise ValueError(f"incomplete non-NORMAL experiment: {experiment[0]['experiment_id']}")
+            if start < 0 or end < 0:
+                raise ValueError(f"missing behavior markers: {experiment[0]['experiment_id']}")
+            if end <= start:
+                raise ValueError(f"behavior_end_s must be after behavior_start_s: {experiment[0]['experiment_id']}")
+            if end > duration + 1e-9:
+                raise ValueError(f"behavior markers outside experiment duration: {experiment[0]['experiment_id']}")
     return result
 
 

@@ -28,7 +28,8 @@
     "gps_speed_max_kmh",
     "gps_speed_std_kmh",
     "gps_available_ratio",
-    "gps_fresh_ratio",
+    "gps_data_fresh_ratio",
+    "gps_speed_fresh_ratio",
     "gps_stationary_ratio",
     "gps_moving_ratio",
     "sensor_valid_ratio",
@@ -36,11 +37,15 @@
   ],
   "forbidden_inputs": [
     "alert",
+    "anomaly_confidence",
     "confidence",
     "current_event",
     "detector_state",
     "ground_truth_label",
+    "ground_truth_subtype",
     "rule_prediction"
   ],
-  "window_seconds": 16.0
+  "window_seconds": 16.0,
+  "sample_period_s": 0.5,
+  "min_coverage": 0.85
 }

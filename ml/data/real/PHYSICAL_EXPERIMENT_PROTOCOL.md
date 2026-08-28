@@ -9,7 +9,12 @@ Assign one unique `experiment_id` before touching the signal. Choose ground trut
 ## Collection sequence
 
 1. Start the normal firmware and local server; verify `/api/health` and live telemetry.
-2. Verify the actual source before recording. `Config.h` currently defaults to `#define SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL 0`; an A1 potentiometer does not become the detector/training fuel source unless that configuration is intentionally changed and firmware telemetry confirms the selected source. Leave the selected source stable for at least 10 seconds.
+2. Verify the actual source before recording. `Config.h` currently defaults to `#define SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL 0`.
+
+   - **Option A — A1 potentiometer:** wire the potentiometer to A1, set `SMARTT_USE_A1_BACKUP_AS_MAIN_FUEL` to `1`, upload firmware, then verify that turning A1 changes `fuel_percent_raw`/`fuel_percent_filtered` while `fuel_raw_adc_a1` and `fuel_volts_a1` move.
+   - **Option B — unchanged firmware:** use A0 as the simulated main source and verify A0 fields move.
+
+   Do not rotate an A1 potentiometer while firmware still uses A0 as its main fuel source. Leave the selected source stable for at least 10 seconds.
 3. Start the recorder with the independently chosen label. It creates a new file and refuses to overwrite an existing experiment:
 
    ```sh
@@ -22,7 +27,7 @@ Assign one unique `experiment_id` before touching the signal. Choose ground trut
    ```
 
 4. Press Enter to mark **BEHAVIOR START**, perform exactly the action, press Enter again for **BEHAVIOR END**, then collect at least 10 seconds of recovery and press Ctrl-C.
-5. Inspect the end summary and CSV. It records `timestamp_iso`, relative `timestamp_s`, `phase` (BASELINE/EVENT/RECOVERY), `current_behavior`, exact A0/A1 ADC/voltage fields, and separate GPS data/speed freshness. A non-NORMAL file without ordered markers is explicitly incomplete and must not enter training.
+5. Inspect the end summary and CSV. It records `timestamp_iso`, relative `timestamp_s`, `phase` (BASELINE/EVENT/RECOVERY), `current_behavior`, exact A0/A1 ADC/voltage fields, and separate GPS data/speed freshness. Every finalized row receives the same `behavior_start_s`, `behavior_end_s`, `experiment_duration_s`, and `experiment_complete` values. A non-NORMAL file without ordered markers is saved as `.incomplete.csv`, is explicitly incomplete, and is rejected by the canonical loader.
 6. Use new IDs for repetitions. Keep whole experiments together in every train/validation/test split.
 
 Recommended stages: (1) stable/noise/refuel/drain with the existing 10K potentiometer on ADS1115 A1; (2) stable, shake, slosh, tilt, refill, slow/fast drain, and mixed slosh+drain with the existing sender and water tank; (3) only after those checks, stationary vehicle trials.
