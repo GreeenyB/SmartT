@@ -1,66 +1,99 @@
-import { ArrowDownRight } from "lucide-react";
+import { Item, Reveal, Sequence } from "@/components/shared/Reveal";
+import { SectionMark } from "@/components/shared/SectionMark";
 
-import { Reveal } from "@/components/shared/Reveal";
+type Member = {
+  name: string;
+  org: string;
+  major: string;
+  lead?: boolean;
+};
 
-const disciplines = [
-  { label: "Embedded systems", detail: "Vehicle-side sensing" },
-  { label: "Software", detail: "Dashboard and mobile review" },
-  { label: "Product", detail: "Fleet workflow design" },
-  { label: "Business", detail: "Operational validation" },
+/**
+ * Roster, universities and majors are taken verbatim from the team
+ * registration sheet. No invented job titles.
+ */
+const team: Member[] = [
+  { name: "Nguyễn Hữu Phước", org: "HCMUT", major: "Computer Science", lead: true },
+  { name: "Nguyễn Anh Nhân", org: "HCMUT", major: "Industrial Management" },
+  { name: "Lê Nguyễn Thành Danh", org: "UIT", major: "Computer Engineering" },
+  { name: "Trần Minh Nhật", org: "UIT", major: "Computer Engineering" },
+  { name: "Lê Nguyễn Khương Duy", org: "RMIT", major: "Software Engineering" },
+  { name: "Trương Quốc Trí", org: "RMIT", major: "Software Engineering" },
+];
+
+const advisors = [
+  {
+    name: "Nguyễn Ngọc Bình Phương",
+    org: "HCMUT",
+    title: "Industrial Management Lecturer",
+  },
+  { name: "Nguyễn Hữu Thuận", org: "Bosch Vietnam", title: "Senior Embedded Engineer" },
+  { name: "Khương Anh Dũng", org: "Bosch Vietnam", title: "Head of R&D" },
 ];
 
 export function AboutSection() {
   return (
-    <section
-      id="about"
-      className="mx-auto max-w-[1600px] scroll-mt-24 px-8 py-28 md:px-14 md:py-36"
-    >
-      <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-24">
-        <div>
-          <Reveal>
-            <p className="section-label">About</p>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <h2 className="section-title section-title--sm">Built by Team BKUIT.</h2>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <p className="lead mt-7 max-w-[42ch]">
-              SmartT is a five-person university innovation project developed in Ho Chi Minh City
-              for BKI 2026, combining embedded engineering, software, product thinking and business
-              research around one fleet-operations problem.
-            </p>
-          </Reveal>
-          <Reveal delay={0.3}>
-            <a
-              href="#contact"
-              className="mt-9 inline-flex items-center gap-2 border-b border-foreground/25 pb-1 text-[0.78rem] tracking-[0.2em] transition-colors hover:border-foreground"
-            >
-              START A CONVERSATION <ArrowDownRight className="h-4 w-4" />
-            </a>
-          </Reveal>
-        </div>
-        <Reveal delay={0.15}>
-          <div className="about-context">
-            <figure className="about-context__media" aria-label="Fleet depot scale">
-              <img
-                src="/smartt-photos/fleet-scale-aerial-depot.jpg"
-                alt="Aerial view of a large logistics depot with rows of trucks."
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>Deployment context — depot-scale fleets</figcaption>
-            </figure>
-            <div className="about-context__disciplines">
-              {disciplines.map(({ label, detail }, index) => (
-                <div key={label} className="about-context__discipline">
-                  <span>0{index + 1}</span>
-                  <strong>{label}</strong>
-                  <small>{detail}</small>
-                </div>
-              ))}
-            </div>
+    <section id="about" className="surface-stone scroll-mt-24">
+      <div className="mx-auto max-w-[1600px] px-8 py-24 md:px-14 md:py-32">
+        <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-24">
+          <div className="lg:sticky lg:top-32">
+            <Reveal>
+              <SectionMark label="Team" />
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h2 className="section-title section-title--sm">
+                Six students,
+                <br />
+                three universities.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.16}>
+              <p className="lead mt-7 max-w-[40ch]">
+                Team BKUIT brings together six students from HCMUT, UIT and RMIT across Computer
+                Science, Computer Engineering, Software Engineering and Industrial Management.
+              </p>
+            </Reveal>
           </div>
-        </Reveal>
+
+          <div>
+            {/* A roster is a list, so it reads down quickly — short beats,
+                small travel, no per-row drama. */}
+            <Sequence className="roster" as="ul" step={0.055}>
+              {team.map((member) => (
+                <Item
+                  key={member.name}
+                  as="li"
+                  className={`roster__item ${member.lead ? "roster__item--lead" : ""}`}
+                >
+                  <strong>
+                    {member.name}
+                    {member.lead && <span className="roster__lead">Team lead</span>}
+                  </strong>
+                  <span className="roster__meta">
+                    <span className="roster__org">{member.org}</span>
+                    <span className="roster__sep" aria-hidden="true" />
+                    <span>{member.major}</span>
+                  </span>
+                </Item>
+              ))}
+            </Sequence>
+
+            <Reveal delay={0.1}>
+              <div className="advisors">
+                <p className="mono text-muted-foreground">Advisors</p>
+                <ul>
+                  {advisors.map((advisor) => (
+                    <li key={advisor.name}>
+                      <strong>{advisor.name}</strong>
+                      <small>{advisor.title}</small>
+                      <span className="advisors__org">{advisor.org}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          </div>
+        </div>
       </div>
     </section>
   );

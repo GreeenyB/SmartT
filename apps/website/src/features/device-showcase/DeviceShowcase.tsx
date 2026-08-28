@@ -85,8 +85,8 @@ export function SmartTDeviceShowcase() {
           <span>Desktop console</span>
           <h2>Fuel and fleet context in one operations workspace.</h2>
           <p>
-            Fleet fuel efficiency against baseline, suspected fuel loss, idle waste and open alerts
-            — reviewed across 28 telemetry units.
+            Fleet fuel efficiency, suspected fuel loss, idle waste and open alerts — shown here with
+            representative data across 28 telemetry units.
           </p>
         </div>
         <RenderedLaptop />
@@ -95,10 +95,10 @@ export function SmartTDeviceShowcase() {
       <section className="showcase-section showcase-section--mobile">
         <div className="showcase-heading">
           <span>Mobile application</span>
-          <h2>The same console, carried into the field.</h2>
+          <h2>The same operational context, carried into the field.</h2>
           <p>
-            Live map with selected-vehicle telemetry, vehicle tank history, and the evidence behind
-            a critical fuel-loss event.
+            Live map, vehicle tank history and example alert evidence — all shown with demonstration
+            data.
           </p>
         </div>
         <div className="phone-gallery">

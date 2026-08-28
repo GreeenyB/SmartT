@@ -32,6 +32,8 @@
   --color-brand-teal: var(--brand-teal);
   --font-display: "Outfit", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
 }
 
 :root {
@@ -107,8 +109,10 @@
 }
 
 @utility nav-link {
-  font-size: 0.875rem;
-  letter-spacing: 0.01em;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   font-weight: 500;
   color: var(--color-foreground);
   transition: opacity 0.2s;
@@ -225,12 +229,15 @@
 
 .site-header__contact {
   margin-left: 0.25rem;
-  padding: 0.7rem 1.15rem;
-  border-radius: 999px;
+  padding: 0.62rem 1.05rem;
+  border-radius: 3px;
   background: var(--brand-navy);
   color: oklch(0.99 0 0);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
   transition:
     transform 180ms ease,
     background 180ms ease;
@@ -271,148 +278,6 @@
   font-size: 1.5rem;
 }
 
-.signal-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--card);
-}
-
-.signal-card__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.1rem 1.4rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--color-muted-foreground);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.signal-card__head span:first-child {
-  color: var(--color-foreground);
-}
-
-.signal-card__plot {
-  position: relative;
-  padding: 1.6rem 1.4rem 1.2rem;
-}
-
-.signal-card__plot svg {
-  width: 100%;
-  height: 15rem;
-  overflow: visible;
-}
-
-.signal-card__grid {
-  stroke: var(--border);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.signal-card__raw,
-.signal-card__stable {
-  fill: none;
-  vector-effect: non-scaling-stroke;
-  stroke-linejoin: round;
-}
-
-.signal-card__raw {
-  stroke: color-mix(in oklab, var(--foreground) 22%, transparent);
-  stroke-width: 1;
-}
-
-.signal-card__stable {
-  stroke: var(--brand-teal);
-  stroke-width: 2;
-}
-
-.signal-card__dot {
-  fill: var(--card);
-  stroke: var(--brand-teal);
-  stroke-width: 2;
-  vector-effect: non-scaling-stroke;
-}
-
-.signal-card__dot--alert {
-  stroke: oklch(0.6 0.19 25);
-}
-
-.signal-card__tag {
-  position: absolute;
-  transform: translate(-50%, -100%);
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--card);
-  color: var(--color-muted-foreground);
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.signal-card__tag--alert {
-  color: oklch(0.55 0.19 25);
-}
-
-.signal-card__legend {
-  display: flex;
-  gap: 1.5rem;
-  padding: 0 1.4rem 1.3rem;
-  color: var(--color-muted-foreground);
-  font-size: 0.72rem;
-}
-
-.signal-card__legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.signal-card__legend-item::before {
-  content: "";
-  width: 1.4rem;
-  height: 0;
-  border-top: 1px solid color-mix(in oklab, var(--foreground) 30%, transparent);
-}
-
-.signal-card__legend-item--stable::before {
-  border-top: 2px solid var(--brand-teal);
-}
-
-.signal-card__readouts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  border-top: 1px solid var(--border);
-  background: var(--border);
-}
-
-.signal-card__readouts > div {
-  padding: 1.1rem 1.4rem;
-  background: var(--card);
-}
-
-.signal-card__readouts dt {
-  color: var(--color-muted-foreground);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.signal-card__readouts dd {
-  margin-top: 0.4rem;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-}
 
 .eyebrow {
   color: var(--color-muted-foreground);
@@ -715,81 +580,6 @@
   line-height: 1.7;
 }
 
-.about-context {
-  display: grid;
-  gap: 1px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--border);
-}
-
-.about-context__media {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: var(--muted);
-}
-
-.about-context__media img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  object-position: 52% 46%;
-}
-
-.about-context__media figcaption {
-  position: absolute;
-  right: 0.9rem;
-  bottom: 0.9rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  background: color-mix(in oklab, var(--foreground) 78%, transparent);
-  color: rgba(255, 255, 255, 0.86);
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.about-context__disciplines {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--border);
-}
-
-.about-context__discipline {
-  min-height: 9rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1.35rem;
-  background: var(--background);
-}
-
-.about-context__discipline > span {
-  color: var(--color-muted-foreground);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-}
-
-.about-context__discipline strong {
-  margin-top: auto;
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 400;
-}
-
-.about-context__discipline small {
-  margin-top: 0.45rem;
-  color: var(--color-muted-foreground);
-  font-size: 0.82rem;
-  line-height: 1.35;
-}
 
 @media (min-width: 768px) {
   .site-header__bar {
@@ -812,13 +602,6 @@
     display: none;
   }
 
-  .signal-card__plot svg {
-    height: 11rem;
-  }
-
-  .signal-card__readouts {
-    grid-template-columns: 1fr;
-  }
 
   .fuel-context__media {
     min-height: 15rem;
@@ -830,13 +613,6 @@
     aspect-ratio: 16 / 9;
   }
 
-  .about-context__media {
-    aspect-ratio: 3 / 2;
-  }
-
-  .about-context__disciplines {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -906,7 +682,9 @@
 .tech-surface {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  /* `clip` still contains the background wash but, unlike `hidden`, it does not
+     become a scroll container — which the sticky slosh chapter depends on. */
+  overflow: clip;
   background: var(--gradient-deep);
   color: oklch(0.98 0.005 240);
 }
@@ -984,76 +762,6 @@
   background-image: var(--gradient-tint);
 }
 
-.product-showcase {
-  display: grid;
-  gap: 1.25rem;
-  margin-top: 4rem;
-}
-
-@media (min-width: 900px) {
-  .product-showcase {
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr);
-  }
-}
-
-.product-showcase__media {
-  position: relative;
-  display: flex;
-  min-height: 22rem;
-  height: 100%;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--card);
-}
-
-.product-showcase__media--wide {
-  min-height: 26rem;
-}
-
-.product-showcase__media img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.02);
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.product-showcase__media:hover img {
-  transform: scale(1.06);
-}
-
-.product-showcase__media figcaption {
-  position: relative;
-  padding: clamp(1.4rem, 2.4vw, 2rem);
-  background: linear-gradient(
-    to top,
-    oklch(0.17 0.03 250 / 0.92) 12%,
-    oklch(0.17 0.03 250 / 0.55) 62%,
-    transparent 100%
-  );
-  color: oklch(0.99 0 0);
-}
-
-.product-showcase__media figcaption p {
-  max-width: 42ch;
-  margin-top: 0.7rem;
-  color: oklch(0.99 0 0 / 0.82);
-  font-size: 0.98rem;
-  line-height: 1.7;
-}
-
-.product-showcase__media .eyebrow--accent {
-  color: oklch(0.85 0.11 195);
-}
-
-.product-showcase__media--wide img {
-  object-position: 50% 72%;
-}
 
 .product-traits {
   display: grid;
@@ -1118,4 +826,2660 @@
 
 .btn-brand:hover {
   box-shadow: 0 18px 34px -14px color-mix(in oklab, var(--brand-teal) 80%, transparent);
+}
+
+/* ---- Hardware prototype panel (Product) ---- */
+.hardware-panel {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 4rem;
+}
+
+@media (min-width: 900px) {
+  .hardware-panel {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.85fr);
+    align-items: stretch;
+  }
+}
+
+.hardware-panel > * {
+  height: 100%;
+}
+
+.hardware-panel__figure {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.hardware-panel__figure img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: oklch(0.985 0.002 250);
+}
+
+.hardware-panel__figure figcaption {
+  border-top: 1px solid var(--border);
+  padding: 1.4rem 1.6rem 1.6rem;
+}
+
+.hardware-panel__figure figcaption p {
+  max-width: 46ch;
+  margin-top: 0.65rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.hardware-panel__figure .eyebrow--accent {
+  color: var(--brand-teal);
+}
+
+.hardware-panel__spec {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--border);
+}
+
+.hardware-panel__spec > div {
+  flex: 1;
+  padding: 1.5rem 1.6rem;
+  background: var(--card);
+}
+
+.hardware-panel__spec dt {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.hardware-panel__spec dd {
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ---- Technology explainer figure ---- */
+.tech-figure {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 4rem;
+}
+
+@media (min-width: 900px) {
+  .tech-figure {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+  }
+}
+
+.tech-figure__media {
+  overflow: hidden;
+  border: 1px solid oklch(1 0 0 / 0.14);
+  border-radius: 14px;
+  background: oklch(0.99 0 0);
+  padding: 0.75rem;
+}
+
+.tech-figure__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tech-figure__copy h3 {
+  margin-top: 1rem;
+  max-width: 20ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.3vw, 2rem);
+  font-weight: 400;
+  line-height: 1.2;
+  color: oklch(0.99 0 0);
+}
+
+.tech-figure__copy p {
+  max-width: 48ch;
+  margin-top: 1.1rem;
+  color: oklch(1 0 0 / 0.62);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.tech-figure__note {
+  margin-top: 1.4rem !important;
+  border-left: 2px solid var(--brand-teal);
+  padding-left: 1rem;
+  font-size: 0.85rem !important;
+  color: oklch(1 0 0 / 0.48) !important;
+}
+
+/* ---- Roadmap ---- */
+.roadmap {
+  display: grid;
+  gap: 1px;
+  margin-top: 3.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--border);
+  list-style: none;
+}
+
+@media (min-width: 900px) {
+  .roadmap {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.roadmap > * {
+  height: 100%;
+}
+
+.roadmap__item {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  padding: 2.1rem 1.9rem 2.25rem;
+  background: var(--card);
+}
+
+.roadmap__horizon {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand-teal);
+}
+
+.roadmap__item h3 {
+  margin-top: 1.4rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.roadmap__item p {
+  margin-top: 0.85rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.roadmap__focus {
+  margin-top: auto;
+  padding-top: 1.6rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: var(--color-foreground);
+}
+
+/* ---- Team roster + advisors ---- */
+.roster {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--border);
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.roster__item {
+  display: flex;
+  flex-direction: column;
+  padding: 1.4rem 1.6rem 1.55rem;
+  background: var(--card);
+}
+
+.roster__index {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--color-muted-foreground);
+}
+
+.roster__item strong {
+  margin-top: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.roster__item small {
+  margin-top: 0.35rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.85rem;
+}
+
+.advisors {
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  padding: 1.6rem;
+}
+
+.advisors ul {
+  display: grid;
+  gap: 1.1rem;
+  margin-top: 1.2rem;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .advisors ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.advisors li {
+  display: flex;
+  flex-direction: column;
+  border-left: 2px solid var(--brand-teal);
+  padding-left: 0.9rem;
+}
+
+.advisors strong {
+  font-size: 0.98rem;
+  font-weight: 500;
+}
+
+.advisors small {
+  margin-top: 0.3rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* ========================================================================== */
+/*  SmartT art direction — "instrument plate"                                 */
+/*  Motifs: graticule ticks, mono microtype, hairline plates, signal rails.   */
+/*  Restrained by rule: no glow, no glass, no oversized decoration.           */
+/* ========================================================================== */
+
+:root {
+  --hairline: color-mix(in oklab, var(--foreground) 13%, transparent);
+  --hairline-strong: color-mix(in oklab, var(--foreground) 26%, transparent);
+  --hairline-inv: oklch(1 0 0 / 0.16);
+  --hairline-inv-strong: oklch(1 0 0 / 0.34);
+  --tick-gap: 9px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Graticule ---------------------------------------------------------- */
+
+.tick {
+  height: 9px;
+  flex: 1;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--hairline) 0 1px,
+    transparent 1px var(--tick-gap)
+  );
+  background-position: 0 100%;
+  background-repeat: repeat-x;
+  background-size: 100% 5px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.tick--inverse {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--hairline-inv) 0 1px,
+    transparent 1px var(--tick-gap)
+  );
+  border-bottom-color: var(--hairline-inv);
+}
+
+/* ---- Section mark (index · label · graticule) --------------------------- */
+
+.mark {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.mark__index {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--brand-teal);
+  font-variant-numeric: tabular-nums;
+}
+
+
+.mark__label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.mark--inverse .mark__label {
+  color: oklch(1 0 0 / 0.55);
+}
+
+.mark--inverse .mark__index {
+  color: #5cd6e4;
+}
+
+/* ---- Plates ------------------------------------------------------------- */
+
+.plate {
+  position: relative;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  background: var(--card);
+}
+
+.plate--inverse {
+  border-color: var(--hairline-inv);
+  background: oklch(1 0 0 / 0.035);
+}
+
+.plate__corner {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 0 solid var(--hairline-strong);
+  pointer-events: none;
+}
+
+.plate__corner--tl {
+  top: -1px;
+  left: -1px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+.plate__corner--tr {
+  top: -1px;
+  right: -1px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+.plate__corner--bl {
+  bottom: -1px;
+  left: -1px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+.plate__corner--br {
+  bottom: -1px;
+  right: -1px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+.plate--inverse .plate__corner {
+  border-color: var(--hairline-inv-strong);
+}
+
+/* ---- Ledger rows (replaces repeated card grids) -------------------------- */
+
+.ledger {
+  list-style: none;
+  margin-top: 3.25rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.ledger__row {
+  display: grid;
+  gap: 0.65rem 2.5rem;
+  padding: 1.9rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+@media (min-width: 860px) {
+  .ledger__row {
+    grid-template-columns: 3.5rem minmax(0, 19rem) minmax(0, 1fr);
+    align-items: baseline;
+  }
+}
+
+.ledger__row h3 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.ledger__row p {
+  max-width: 62ch;
+  color: var(--color-muted-foreground);
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.ledger__key {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--color-muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Signal rail (vertical, used for architecture layers) ---------------- */
+
+.rail {
+  position: relative;
+  padding-left: 2.4rem;
+}
+
+.rail::before {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  left: 5px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--hairline) 0%,
+    var(--hairline) 92%,
+    transparent 100%
+  );
+}
+
+.rail__node {
+  position: relative;
+  padding: 0 0 2.75rem;
+}
+
+.rail__node:last-child {
+  padding-bottom: 0;
+}
+
+.rail__node::before {
+  content: "";
+  position: absolute;
+  top: 0.55rem;
+  left: -2.4rem;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: var(--background);
+}
+
+.rail__node::after {
+  content: "";
+  position: absolute;
+  top: calc(0.55rem + 4px);
+  left: calc(-2.4rem + 4px);
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--brand-teal);
+}
+
+/* ---- Flow rail (horizontal pipeline, inverse surface) -------------------- */
+
+.flow {
+  margin-top: 4rem;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--hairline-inv);
+}
+
+@media (min-width: 900px) {
+  .flow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.flow__step {
+  position: relative;
+  padding: 2.1rem 2rem 2.4rem 0;
+  border-bottom: 1px solid var(--hairline-inv);
+}
+
+@media (min-width: 900px) {
+  .flow__step {
+    border-bottom: 0;
+    border-right: 1px solid var(--hairline-inv);
+    padding-left: 1.9rem;
+  }
+
+  .flow__step:first-child {
+    padding-left: 0;
+  }
+
+  .flow__step:last-child {
+    border-right: 0;
+  }
+}
+
+.flow__step::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 2.5rem;
+  height: 1px;
+  background: var(--brand-teal);
+}
+
+@media (min-width: 900px) {
+  .flow__step:not(:first-child)::before {
+    left: 1.9rem;
+  }
+}
+
+.flow__index {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: oklch(1 0 0 / 0.42);
+  font-variant-numeric: tabular-nums;
+}
+
+.flow__step h3 {
+  margin-top: 2.4rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.flow__step p {
+  max-width: 34ch;
+  margin-top: 0.8rem;
+  color: oklch(1 0 0 / 0.58);
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+
+/* ---- Status chips (current vs planned) ---------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.28rem 0.6rem 0.3rem;
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.chip::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.chip--live {
+  border-color: color-mix(in oklab, var(--brand-teal) 55%, transparent);
+  color: color-mix(in oklab, var(--brand-teal) 82%, var(--foreground));
+}
+
+.chip--planned::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+/* ---- Roadmap timeline (replaces card grid) ------------------------------- */
+
+.timeline {
+  list-style: none;
+  margin-top: 3.5rem;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+@media (min-width: 960px) {
+  .timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.timeline__stage {
+  position: relative;
+  padding: 2.2rem 2.25rem 2.4rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+@media (min-width: 960px) {
+  .timeline__stage {
+    border-bottom: 0;
+    border-right: 1px solid var(--hairline);
+    padding-left: 2.25rem;
+  }
+
+  .timeline__stage:first-child {
+    padding-left: 0;
+  }
+
+  .timeline__stage:last-child {
+    border-right: 0;
+  }
+}
+
+.timeline__stage::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--brand-teal);
+}
+
+@media (min-width: 960px) {
+  .timeline__stage:not(:first-child)::before {
+    left: 2.25rem;
+  }
+}
+
+.timeline__stage--planned::before {
+  background: var(--background);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+
+.timeline__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.timeline__horizon {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-foreground);
+}
+
+.timeline__stage h3 {
+  margin-top: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.timeline__stage p {
+  max-width: 38ch;
+  margin-top: 0.85rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+
+.timeline__focus {
+  display: block;
+  margin-top: 1.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+/* ---- Hero readout strip -------------------------------------------------- */
+
+.readout {
+  margin-top: 3.25rem;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+@media (min-width: 640px) {
+  .readout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.readout__cell {
+  padding: 1.1rem 1.4rem 1.2rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+@media (min-width: 640px) {
+  .readout__cell {
+    border-bottom: 0;
+    border-right: 1px solid var(--hairline);
+    padding-left: 1.4rem;
+  }
+
+  .readout__cell:first-child {
+    padding-left: 0;
+  }
+
+  .readout__cell:last-child {
+    border-right: 0;
+  }
+}
+
+.readout__cell dt {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.readout__cell dd {
+  margin-top: 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-foreground);
+}
+
+/* ---- Team roster refinement ---------------------------------------------- */
+
+.roster {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
+  gap: 0;
+}
+
+@media (min-width: 640px) {
+  .roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+}
+
+.roster__item {
+  padding: 1.35rem 0 1.4rem;
+  border-bottom: 1px solid var(--hairline);
+  background: transparent;
+}
+
+.roster__item strong {
+  margin-top: 0.6rem;
+  font-size: 1.12rem;
+}
+
+.roster__lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-teal);
+  vertical-align: 0.18em;
+}
+
+.roster__meta {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.84rem;
+}
+
+.roster__org {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--color-foreground);
+}
+
+.roster__sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--hairline-strong);
+}
+
+.advisors {
+  margin-top: 3rem;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
+  padding: 1.75rem 0 0;
+}
+
+.advisors ul {
+  gap: 1.4rem 2.5rem;
+}
+
+.advisors li {
+  border-left: 0;
+  padding-left: 0;
+  border-top: 1px solid var(--hairline);
+  padding-top: 0.9rem;
+}
+
+.advisors strong {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* ---- Evidence figure (shared editorial split) ---------------------------- */
+
+.evidence {
+  margin-top: 4rem;
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .evidence {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+
+  .evidence--reverse .evidence__media {
+    order: 2;
+  }
+}
+
+.evidence__media {
+  position: relative;
+  min-height: 18rem;
+  overflow: hidden;
+  background: var(--muted);
+}
+
+.evidence__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 72%;
+}
+
+.evidence__stamp {
+  position: absolute;
+  left: 0.9rem;
+  bottom: 0.9rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 3px;
+  background: oklch(0.18 0.02 250 / 0.78);
+  color: oklch(0.99 0 0 / 0.86);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.evidence__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.85rem, 3.4vw, 3rem);
+  border-top: 1px solid var(--hairline);
+  background: var(--card);
+}
+
+@media (min-width: 900px) {
+  .evidence__copy {
+    border-top: 0;
+    border-left: 1px solid var(--hairline);
+  }
+
+  .evidence--reverse .evidence__copy {
+    border-left: 0;
+    border-right: 1px solid var(--hairline);
+  }
+}
+
+.evidence__copy h3 {
+  max-width: 22ch;
+  margin-top: 1.1rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.1vw, 2.15rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.evidence__copy p {
+  max-width: 44ch;
+  margin-top: 1.15rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.97rem;
+  line-height: 1.8;
+}
+
+/* ---- Contact close (deep surface, continues into footer) ----------------- */
+
+.contact-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--gradient-deep);
+  background-image: var(--gradient-deep);
+  color: oklch(0.98 0.005 240);
+}
+
+.contact-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    62% 60% at 90% 0%,
+    color-mix(in oklab, var(--brand-teal) 22%, transparent) 0%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.contact-lines {
+  list-style: none;
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--hairline-inv);
+}
+
+.contact-lines > div {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--hairline-inv);
+}
+
+@media (min-width: 560px) {
+  .contact-lines > div {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: 1.5rem;
+  }
+}
+
+.contact-lines dt,
+.contact-lines .contact-lines__key {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.5);
+}
+
+.contact-lines__value {
+  font-size: 1rem;
+  color: oklch(0.99 0 0 / 0.92);
+  font-variant-numeric: tabular-nums;
+}
+
+.contact-lines__value a:hover {
+  color: #7ee0ea;
+}
+
+.contact-lines__note {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.4);
+}
+
+.site-footer::after {
+  display: none;
+}
+
+/* ---- Spec ledger (hardware) ---------------------------------------------- */
+
+.hardware-panel__spec {
+  height: auto;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
+  gap: 0;
+}
+
+.hardware-panel__spec > div {
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--hairline);
+  background: transparent;
+  padding: 1.4rem 0;
+}
+
+.hardware-panel__spec dt {
+  font-family: var(--font-mono);
+}
+
+.hardware-panel__figure {
+  border-radius: 4px;
+  border-color: var(--hairline);
+}
+
+.hardware-panel__figure figcaption {
+  border-top-color: var(--hairline);
+}
+
+/* ---- Traits as inline column rules --------------------------------------- */
+
+.product-traits {
+  border: 0;
+  border-radius: 0;
+  border-top: 1px solid var(--hairline);
+  background: transparent;
+  gap: 0;
+  margin-top: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  .product-traits {
+    column-gap: 2.5rem;
+  }
+}
+
+.product-traits__item {
+  padding: 1.9rem 0 2rem;
+  border-bottom: 1px solid var(--hairline);
+  background: transparent;
+}
+
+.product-traits__item h3 {
+  margin-top: 1.3rem;
+  font-size: 1.2rem;
+}
+
+/* ---- Tech figure / deployment on deep surface ---------------------------- */
+
+.tech-figure__media {
+  border-radius: 4px;
+  border-color: var(--hairline-inv);
+  background: oklch(0.99 0 0);
+}
+
+.deployment {
+  border-radius: 4px;
+  border-color: var(--hairline-inv);
+  background: var(--hairline-inv);
+}
+
+.pipeline-grid {
+  display: none;
+}
+
+/* ---- Rounding + surface discipline --------------------------------------- */
+
+.problem-grid,
+.fuel-context,
+.roadmap {
+  border-radius: 4px;
+}
+
+.section-tinted {
+  background-image: none;
+}
+
+.section-cool {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--brand-wash) 32%, var(--background)) 0%,
+    var(--background) 58%
+  );
+}
+
+.hero-banner,
+.evidence__media,
+.hero-banner img {
+  border-radius: 4px;
+}
+
+@media (min-width: 1024px) {
+  .hero-banner {
+    border-radius: 4px 0 0 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .evidence__media {
+    min-height: 14rem;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+/* ---- Section mark alignment fine-tuning --------------------------------- */
+
+.mark .tick {
+  align-self: flex-end;
+  margin-bottom: 0.15rem;
+}
+
+@media (max-width: 640px) {
+  .mark {
+    align-items: center;
+  }
+
+  .mark__label {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+  }
+
+  .mark .tick {
+    min-width: 1.5rem;
+    align-self: center;
+    margin-bottom: 0;
+  }
+}
+
+/* ========================================================================== */
+/*  Rhythm pass — final refinement                                            */
+/*                                                                            */
+/*  The instrument-plate language stays, but it no longer speaks in one voice. */
+/*  Long graticule rules are reserved for the two places where a measured      */
+/*  channel is the actual subject (hero, signal pipeline). Elsewhere the page  */
+/*  changes register: surface value, offset blocks, gauge glyphs and index     */
+/*  plates carry the structure instead of yet another hairline.                */
+/* ========================================================================== */
+
+:root {
+  /* four distinct light values so consecutive sections never share a tone */
+  --surface-stone: oklch(0.965 0.009 78);
+  --surface-stone-edge: oklch(0.925 0.012 78);
+  --surface-slate: oklch(0.925 0.014 232);
+  --surface-slate-deep: oklch(0.885 0.019 230);
+
+  --block: color-mix(in oklab, var(--foreground) 4%, transparent);
+  --block-strong: color-mix(in oklab, var(--foreground) 7%, transparent);
+  --block-inv: oklch(1 0 0 / 0.05);
+  --block-inv-strong: oklch(1 0 0 / 0.09);
+}
+
+/* ---- Surfaces ------------------------------------------------------------ */
+
+.surface-stone {
+  position: relative;
+  background: var(--surface-stone);
+}
+
+.surface-slate {
+  position: relative;
+  background:
+    radial-gradient(90% 70% at 88% 4%, oklch(1 0 0 / 0.55) 0%, transparent 58%),
+    linear-gradient(176deg, var(--surface-slate) 0%, var(--surface-slate-deep) 100%);
+}
+
+.section-cool {
+  background-image: linear-gradient(
+    178deg,
+    color-mix(in oklab, var(--brand-wash) 42%, var(--background)) 0%,
+    var(--background) 74%
+  );
+}
+
+/* ---- Hero readout: one quiet plate instead of three ruled columns -------- */
+
+.readout {
+  margin-top: 3.5rem;
+  border-top: 0;
+  border-radius: 4px;
+  background: var(--block);
+  overflow: hidden;
+}
+
+.readout__cell {
+  padding: 1.35rem 1.5rem 1.45rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--foreground) 7%, transparent);
+}
+
+.readout__cell:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .readout__cell,
+  .readout__cell:first-child,
+  .readout__cell:last-child {
+    padding: 1.5rem 1.6rem 1.65rem;
+    border-bottom: 0;
+    border-right: 1px solid color-mix(in oklab, var(--foreground) 7%, transparent);
+  }
+
+  .readout__cell:last-child {
+    border-right: 0;
+  }
+}
+
+/* ---- Problem: offset blocks, no ruled ledger ---------------------------- */
+
+.ledger {
+  margin-top: 3.5rem;
+  border-top: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ledger__row {
+  position: relative;
+  display: grid;
+  gap: 0.55rem 2.25rem;
+  padding: 1.75rem 1.85rem 1.9rem;
+  border-bottom: 0;
+  border-radius: 4px;
+  background: var(--block);
+}
+
+.ledger__row:nth-child(2) {
+  background: var(--block-strong);
+}
+
+@media (min-width: 860px) {
+  .ledger__row {
+    grid-template-columns: 2.75rem minmax(0, 17rem) minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .ledger__row:nth-child(2) {
+    margin-left: 1.5rem;
+  }
+
+  .ledger__row:nth-child(3) {
+    margin-left: 3rem;
+  }
+}
+
+.ledger__row::before {
+  content: "";
+  position: absolute;
+  top: 1.85rem;
+  left: 0;
+  width: 2px;
+  height: 1.1rem;
+  background: var(--brand-teal);
+}
+
+/* ---- Hardware spec: stacked blocks -------------------------------------- */
+
+.hardware-panel__spec {
+  border-top: 0;
+  gap: 0.7rem;
+}
+
+.hardware-panel__spec > div {
+  border-bottom: 0;
+  border-radius: 4px;
+  background: var(--block);
+  padding: 1.35rem 1.5rem 1.5rem;
+}
+
+.hardware-panel__spec > div:nth-child(2) {
+  background: var(--block-strong);
+}
+
+/* ---- Product traits: staggered plates ----------------------------------- */
+
+.product-traits {
+  border-top: 0;
+  gap: 0.75rem;
+  margin-top: 3.25rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .product-traits {
+    column-gap: 0.75rem;
+  }
+}
+
+.product-traits__item {
+  border-bottom: 0;
+  border-radius: 4px;
+  background: var(--block);
+  padding: 1.75rem 1.7rem 1.9rem;
+}
+
+@media (min-width: 768px) {
+  .product-traits__item {
+    min-height: 100%;
+  }
+
+  .product-traits > *:nth-child(2) {
+    margin-top: 1.75rem;
+  }
+
+  .product-traits > *:nth-child(3) {
+    margin-top: 3.5rem;
+  }
+}
+
+.product-traits__item svg {
+  color: var(--brand-teal);
+}
+
+.product-note {
+  border-left: 0;
+  padding-left: 0;
+  margin-top: 2.5rem;
+  color: var(--color-muted-foreground);
+}
+
+.product-note::before {
+  content: "NOTE";
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: var(--brand-teal);
+}
+
+/* ---- Roadmap: progression carried by surface value ---------------------- */
+
+.horizons {
+  list-style: none;
+  margin-top: 3.5rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 1000px) {
+  .horizons {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+  }
+}
+
+.horizon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.6rem 1.6rem 1.75rem;
+  border-radius: 4px;
+  background: oklch(1 0 0 / 0.5);
+  border: 1px solid oklch(1 0 0 / 0.55);
+}
+
+.horizon--s2 {
+  background: oklch(1 0 0 / 0.38);
+}
+.horizon--s3 {
+  background: oklch(0.99 0.004 250 / 0.26);
+}
+.horizon--s4 {
+  background: color-mix(in oklab, var(--surface-slate-deep) 65%, transparent);
+  border-color: oklch(1 0 0 / 0.4);
+}
+
+.horizon__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.horizon__stamp {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.horizon__fill {
+  display: flex;
+  gap: 3px;
+  margin-top: 1.4rem;
+}
+
+.horizon__fill i {
+  height: 3px;
+  flex: 1;
+  border-radius: 1px;
+  background: color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+
+.horizon__fill i.is-on {
+  background: var(--brand-teal);
+}
+
+.horizon h3 {
+  margin-top: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-weight: 400;
+  line-height: 1.28;
+  letter-spacing: -0.015em;
+}
+
+.horizon ul {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.6rem;
+  list-style: none;
+}
+
+.horizon li {
+  position: relative;
+  padding-left: 0.95rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.horizon li::before {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: color-mix(in oklab, var(--foreground) 28%, transparent);
+}
+
+.horizon__note {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.chip {
+  border-color: color-mix(in oklab, var(--foreground) 18%, transparent);
+  background: oklch(1 0 0 / 0.4);
+}
+
+/* ---- Team: tinted roster rows ------------------------------------------- */
+
+.roster {
+  border-top: 0;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 0.5rem;
+  }
+}
+
+.roster__item {
+  padding: 1.25rem 1.4rem 1.35rem;
+  border-bottom: 0;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--foreground) 3.5%, transparent);
+}
+
+.roster__item--lead {
+  background: color-mix(in oklab, var(--brand-teal) 12%, transparent);
+}
+
+.roster__role {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+  color: var(--color-foreground);
+}
+
+.roster__meta {
+  margin-top: 0.55rem;
+  font-size: 0.82rem;
+}
+
+.advisors {
+  margin-top: 2.75rem;
+  border-top: 0;
+  padding-top: 0;
+}
+
+.advisors ul {
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.advisors li {
+  border-top: 0;
+  padding: 1.15rem 1.3rem 1.25rem;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--foreground) 3.5%, transparent);
+}
+
+.advisors small {
+  margin-top: 0.4rem;
+  line-height: 1.55;
+}
+
+.advisors__org {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-teal);
+  margin-bottom: 0.55rem;
+}
+
+/* ---- Technology figure: now a native vector ----------------------------- */
+
+.tech-figure {
+  margin-top: 4.5rem;
+}
+
+@media (min-width: 900px) {
+  .tech-figure {
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    gap: 2.5rem;
+    align-items: center;
+  }
+}
+
+.tech-figure__media {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.tech-figure__note {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.tech-figure__note::before {
+  content: "STATUS";
+  display: block;
+  margin-bottom: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: #5cd6e4;
+}
+
+/* ---- Deployment split: blocks, not a ruled grid ------------------------- */
+
+.deployment {
+  margin-top: 2.5rem;
+  gap: 0.75rem;
+  border: 0;
+  background: transparent;
+}
+
+.deployment__media {
+  border-radius: 4px;
+  border: 1px solid var(--hairline-inv);
+}
+
+.deployment__copy {
+  gap: 0.75rem;
+  background: transparent;
+}
+
+.deployment__copy > div {
+  border-radius: 4px;
+  background: var(--block-inv);
+}
+
+.deployment__copy > div:first-child {
+  background: var(--block-inv-strong);
+}
+
+/* ---- Contact: alternating blocks --------------------------------------- */
+
+.contact-lines {
+  border-top: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.contact-lines > div {
+  border-bottom: 0;
+  border-radius: 4px;
+  background: var(--block-inv);
+  padding: 1.05rem 1.25rem 1.15rem;
+}
+
+.contact-lines > div:nth-child(even) {
+  background: var(--block-inv-strong);
+}
+
+@media (min-width: 560px) {
+  .contact-lines > div {
+    grid-template-columns: 8rem minmax(0, 1fr);
+    padding: 1.1rem 1.35rem 1.2rem;
+  }
+}
+
+/* ---- Footer: one tick is enough --------------------------------------- */
+
+.site-footer .tick {
+  display: none;
+}
+
+.site-footer__rule {
+  height: 1px;
+  background: linear-gradient(90deg, oklch(1 0 0 / 0.28), oklch(1 0 0 / 0.04));
+}
+
+/* =========================================================================
+   GLOBAL VISUAL PASS — section grammar & chapter composition
+   -------------------------------------------------------------------------
+   One grammar for chapter identity (accent rule + mono label, no numbering).
+   Inside each chapter, composition follows its own content: premise sequence,
+   signal rail, hardware plate, pipeline rail, time ledger, roster list.
+   Cards / tinted plates / segmented gauges are removed; rhythm comes from
+   typography, proportion and negative space instead.
+   ========================================================================= */
+
+/* ---- Chapter identity: one form everywhere ------------------------------ */
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.mark__rule {
+  display: block;
+  flex: none;
+  width: 1.65rem;
+  height: 1px;
+  background: var(--brand-teal);
+}
+
+.mark__label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--foreground) 62%, transparent);
+}
+
+.mark--inverse .mark__rule {
+  background: #5cd6e4;
+}
+
+.mark--inverse .mark__label {
+  color: oklch(1 0 0 / 0.6);
+}
+
+/* ---- Problem: a premise sequence, not a stack of plates ----------------- */
+
+.premise {
+  margin-top: clamp(3rem, 5vw, 5rem);
+  display: grid;
+  gap: clamp(2.5rem, 3.5vw, 3.25rem);
+  max-width: 78rem;
+}
+
+/* Asymmetric but measured: three observations step down and to the right on
+   a 12-column field, so the reading path is a diagonal rather than a stack
+   with a hole in it. */
+@media (min-width: 900px) {
+  .premise {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 2.5vw, 2.5rem);
+    row-gap: clamp(2.5rem, 3.5vw, 3.5rem);
+  }
+
+  .premise__item:nth-child(1) {
+    grid-column: 1 / span 5;
+  }
+
+  .premise__item:nth-child(2) {
+    grid-column: 7 / span 5;
+    margin-top: 2.25rem;
+  }
+
+  .premise__item:nth-child(3) {
+    grid-column: 4 / span 6;
+    margin-top: 0.5rem;
+  }
+}
+
+.premise__key {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand-teal);
+}
+
+.premise__item h3 {
+  margin-top: 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.premise__item p {
+  margin-top: 0.95rem;
+  max-width: 46ch;
+  color: var(--color-muted-foreground);
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+/* ---- Evidence: image carries the weight, copy sits beside it ------------ */
+
+.evidence {
+  margin-top: clamp(4rem, 7vw, 7rem);
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  gap: clamp(1.75rem, 3vw, 3.5rem);
+}
+
+@media (min-width: 900px) {
+  .evidence {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+    align-items: end;
+  }
+}
+
+.evidence__media {
+  border-radius: 3px;
+  min-height: 22rem;
+}
+
+.evidence__copy {
+  padding: 0 0 0.35rem;
+  border: 0 !important;
+  background: none;
+  justify-content: flex-end;
+}
+
+/* ---- Product: one plate for the artefact, plain type around it ---------- */
+
+.hardware-panel {
+  margin-top: clamp(3.5rem, 6vw, 6rem);
+}
+
+@media (min-width: 900px) {
+  .hardware-panel {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.55fr);
+    align-items: start;
+    column-gap: clamp(2.5rem, 5vw, 5rem);
+  }
+}
+
+.hardware-panel__figure {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+}
+
+.hardware-panel__figure img {
+  border-radius: 3px;
+}
+
+.hardware-panel__figure figcaption {
+  padding: 1.1rem 0 0;
+  border: 0;
+  background: none;
+  max-width: 46ch;
+}
+
+.hardware-panel__spec {
+  display: grid;
+  gap: 1.9rem;
+  border-top: 1px solid var(--hairline);
+  padding-top: 1.6rem;
+}
+
+.hardware-panel__spec > div,
+.hardware-panel__spec > div:nth-child(2) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.hardware-panel__spec dt {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.hardware-panel__spec dd {
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-foreground);
+}
+
+.product-traits {
+  margin-top: clamp(3.5rem, 6vw, 5.5rem);
+  display: grid;
+  gap: 2.5rem clamp(2.5rem, 5vw, 5rem);
+  border-top: 1px solid var(--hairline);
+  padding-top: 2.25rem;
+}
+
+@media (min-width: 768px) {
+  .product-traits {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .product-traits > *:nth-child(2),
+  .product-traits > *:nth-child(3) {
+    margin-top: 0;
+  }
+}
+
+.product-traits__item {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.product-traits__item h3 {
+  margin-top: 0;
+  font-family: var(--font-display);
+  font-size: 1.18rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.product-traits__item p {
+  margin-top: 0.7rem;
+  max-width: 34ch;
+  color: var(--color-muted-foreground);
+  font-size: 0.93rem;
+  line-height: 1.75;
+}
+
+.product-note {
+  max-width: 44ch;
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+/* ---- Roadmap: a time ledger read top to bottom -------------------------- */
+
+.horizons {
+  list-style: none;
+  margin-top: clamp(3.5rem, 6vw, 5.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.horizon {
+  display: grid;
+  gap: 1rem clamp(2.5rem, 6vw, 6rem);
+  padding: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: none !important;
+}
+
+.horizon:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.horizon:last-child {
+  padding-bottom: 0;
+}
+
+@media (min-width: 900px) {
+  .horizon {
+    grid-template-columns: minmax(0, 0.32fr) minmax(0, 0.68fr);
+    align-items: start;
+  }
+}
+
+.horizon__when {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.horizon__stamp {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: var(--color-foreground);
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.horizon__note {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.horizon__body h3 {
+  margin: 0;
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.5vw, 1.35rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.horizon__body ul {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.65rem;
+  max-width: 52ch;
+}
+
+.horizon__body li {
+  padding-left: 0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-muted-foreground);
+}
+
+.horizon__body li::before {
+  display: none;
+}
+
+/* ---- Team: a roster, read as a list ------------------------------------- */
+
+.roster {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+@media (min-width: 640px) {
+  .roster {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+  }
+}
+
+.roster__item,
+.roster__item--lead {
+  display: grid;
+  gap: 0.35rem 2.5rem;
+  padding: 1.35rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  border-radius: 0;
+  background: none;
+}
+
+@media (min-width: 700px) {
+  .roster__item,
+  .roster__item--lead {
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.34fr) minmax(0, 0.24fr);
+    align-items: baseline;
+  }
+}
+
+.roster__index {
+  display: none;
+}
+
+.roster__item strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.roster__item--lead strong {
+  color: var(--color-foreground);
+}
+
+.roster__lead {
+  margin-left: 0.6rem;
+  color: var(--brand-teal);
+}
+
+.roster__role {
+  margin-top: 0;
+  color: var(--color-muted-foreground);
+  font-size: 0.9rem;
+}
+
+.roster__meta {
+  margin-top: 0;
+  justify-content: flex-start;
+}
+
+.advisors {
+  margin-top: clamp(2.75rem, 5vw, 4rem);
+}
+
+.advisors ul {
+  display: grid;
+  gap: 0;
+  margin-top: 0.85rem;
+}
+
+.advisors li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1.1rem;
+  padding: 0.95rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  border-radius: 0;
+  background: none;
+}
+
+.advisors__org {
+  order: 3;
+  margin: 0;
+  margin-left: auto;
+}
+
+.advisors strong {
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.advisors small {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+/* ---- Chapter rhythm: sections should not all breathe identically -------- */
+
+#solution .rail {
+  padding-top: 0.35rem;
+}
+
+#technology .flow {
+  margin-top: clamp(4rem, 7vw, 6.5rem);
+}
+
+#problem .section-title,
+#product .section-title,
+#platform .section-title {
+  margin-top: 1.75rem;
+}
+
+/* Roadmap: replace full-bleed row rules with a short index rule at the stamp */
+.horizon {
+  border-top: 0;
+  position: relative;
+  padding-top: 3.25rem;
+}
+
+.horizon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4.5rem;
+  height: 1px;
+  background: var(--hairline-strong);
+}
+
+.horizon:first-child::before {
+  display: none;
+}
+
+/* Team roster: tighter measure so rows read as a list, not a table */
+@media (min-width: 700px) {
+  .roster__item,
+  .roster__item--lead {
+    grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.36fr) minmax(0, 0.24fr);
+    column-gap: 1.75rem;
+  }
+}
+
+.roster__meta {
+  font-size: 0.78rem;
+  color: var(--color-muted-foreground);
+}
+
+/* Contact: hairline data rows instead of stacked plates */
+.contact-lines {
+  gap: 0;
+}
+
+.contact-lines > div,
+.contact-lines > div:nth-child(even) {
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  padding: 1rem 0 1.05rem;
+}
+
+.contact-lines > div:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 560px) {
+  .contact-lines > div {
+    padding: 1rem 0 1.05rem;
+  }
+}
+
+/* Roster meta on a single line */
+.roster__meta {
+  white-space: nowrap;
+}
+
+/* Advisors: org sits under the role, not flushed to the row edge */
+.advisors__org {
+  order: 0;
+  margin-left: 0;
+  display: block;
+}
+
+/* ==========================================================================
+   Harmony pass: dissolve the boxed readout, lift roster/advisor rows and keep
+   every chapter heading on the same grammar. Later layer than the plate
+   experiments above, so it wins without editing that history.
+   ========================================================================== */
+
+/* ---- Hero readout: three quiet columns on the page, not a grey plate ----- */
+
+.readout {
+  margin-top: clamp(3.5rem, 6vw, 5.5rem);
+  background: none;
+  border-radius: 0;
+  border-top: 1px solid var(--hairline);
+  overflow: visible;
+  column-gap: clamp(1.75rem, 4vw, 4rem);
+}
+
+.readout__cell {
+  position: relative;
+  padding: 1.6rem 0 0;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 1.6rem;
+}
+
+.readout__cell:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .readout__cell,
+  .readout__cell:first-child,
+  .readout__cell:last-child {
+    padding: 1.75rem 0 0;
+    border: 0;
+  }
+
+  /* stagger so the row breathes with the hero instead of sitting square */
+  .readout__cell:nth-child(2) {
+    padding-top: 2.6rem;
+  }
+
+  .readout__cell:nth-child(3) {
+    padding-top: 3.45rem;
+  }
+}
+
+.readout__cell dt {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+}
+
+.readout__cell dd {
+  margin-top: 0.85rem;
+  max-width: 34ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: color-mix(in oklab, var(--foreground) 78%, transparent);
+}
+
+.readout__index {
+  position: absolute;
+  top: 1.6rem;
+  right: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+
+@media (max-width: 639px) {
+  .readout__index {
+    display: none;
+  }
+}
+
+/* ---- Team roster: name left, school and major as one quiet meta line ----- */
+
+@media (min-width: 700px) {
+  .roster__item,
+  .roster__item--lead {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 2rem;
+    padding: 1.45rem 0;
+  }
+}
+
+.roster__item strong {
+  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+}
+
+.roster__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.roster__org {
+  color: color-mix(in oklab, var(--brand-teal) 88%, var(--foreground));
+}
+
+.roster__sep {
+  display: block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--foreground) 25%, transparent);
+}
+
+.roster__lead {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  vertical-align: 0.18em;
+}
+
+.roster__item {
+  transition:
+    background-color 0.35s ease,
+    padding-left 0.35s ease;
+}
+
+@media (min-width: 700px) {
+  .roster__item:hover {
+    background: color-mix(in oklab, var(--foreground) 3%, transparent);
+    padding-left: 0.9rem;
+  }
+}
+
+/* ---- Advisors: name, then title, school as a trailing mono stamp --------- */
+
+.advisors li {
+  gap: 0.3rem 1rem;
+}
+
+.advisors small {
+  font-size: 0.85rem;
+}
+
+.advisors__org {
+  order: 3;
+  margin-left: auto;
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--foreground) 45%, transparent);
+}
+
+@media (max-width: 559px) {
+  .advisors__org {
+    margin-left: 0;
+    order: 0;
+    flex-basis: 100%;
+  }
+}
+
+/* ---- Chapter headings: one shared entrance across every section ---------- */
+
+.section-title {
+  text-wrap: balance;
+}
+
+#problem .section-title,
+#product .section-title,
+#platform .section-title,
+#solution .section-title,
+#technology .section-title,
+#roadmap .section-title,
+#about .section-title,
+#contact .section-title {
+  margin-top: 1.75rem;
+}
+
+.mark {
+  transition: opacity 0.4s ease;
+}
+
+/* ---- Advisors: three tidy stacks, school stamp on top ------------------- */
+
+.advisors ul {
+  display: grid;
+  gap: 0 2rem;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--hairline);
+  margin-top: 1.1rem;
+}
+
+@media (min-width: 700px) {
+  .advisors ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.advisors li {
+  display: block;
+  padding: 1.35rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+@media (min-width: 700px) {
+  .advisors li {
+    border-bottom: 0;
+  }
+}
+
+.advisors__org {
+  order: 0;
+  margin: 0 0 0.55rem;
+  display: block;
+  color: color-mix(in oklab, var(--brand-teal) 85%, var(--foreground));
+}
+
+.advisors strong {
+  display: block;
+}
+
+.advisors small {
+  display: block;
+  margin-top: 0.3rem;
+}
+
+/* ---- Hero eyebrow: a live signal, not a chapter mark -------------------- */
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--foreground) 62%, transparent);
+}
+
+.hero-eyebrow__dot {
+  position: relative;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-teal);
+}
+
+.hero-eyebrow__dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--brand-teal);
+  opacity: 0.55;
+  animation: hero-eyebrow-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes hero-eyebrow-ping {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.65;
+  }
+  70%,
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow__dot::after {
+    animation: none;
+    opacity: 0.3;
+  }
+}
+
+/* ========================================================================== */
+/*  Motion system — CSS side                                                   */
+/*  The React layer (Reveal / MediaReveal) supplies transforms and clip paths; */
+/*  these rules give it the surfaces it animates against.                      */
+/* ========================================================================== */
+
+/* MediaReveal drives --media-scale from 1.07 -> 1 while the frame unmasks.
+   Registering the property keeps the interpolation numeric and smooth. */
+@property --media-scale {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+/* The frame only contributes the mask + compositing hints. Layout, radius,
+   object-fit and object-position stay owned by each figure's own rules so the
+   intended crop of every photograph survives the reveal. */
+.media-frame {
+  isolation: isolate;
+  will-change: clip-path, opacity;
+}
+
+/* :where() keeps this at zero specificity: it adds the overscale without ever
+   overriding a figure's own sizing or fit. */
+.media-frame :where(img, video) {
+  transform: scale(var(--media-scale, 1));
+  transform-origin: center;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Hairline that measures itself out (shared `Rule` component). */
+.premise__rule,
+.rule-line {
+  display: block;
+  height: 1px;
+  margin-top: 1.35rem;
+  background: color-mix(in oklab, var(--brand-teal) 55%, transparent);
+  transform-origin: left center;
+}
+
+/* Inside the premise the hairline is a tick, not a divider: short, quiet and
+   sitting above the key rather than cutting the column in half. */
+.premise__rule {
+  width: 2.5rem;
+  margin: 0 0 1.15rem;
+  background: color-mix(in oklab, var(--brand-teal) 70%, transparent);
+}
+
+/* ---- Finished motion integration: traced rail, flow ticks, horizon rules -- */
+
+/* Architecture rail: the animated trace replaces the static hairline. */
+.rail--traced::before {
+  content: none;
+}
+
+.rail--traced .rail__trace {
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  left: 5px;
+  width: 1px;
+  display: block;
+  transform-origin: top center;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--brand-teal) 45%, transparent) 0%,
+    var(--hairline-strong) 22%,
+    var(--hairline) 92%,
+    transparent 100%
+  );
+}
+
+/* Technology pipeline: the accent tick animates in place of the static one. */
+.flow--signal .flow__step::before {
+  content: none;
+}
+
+.flow--signal .flow__tick {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  display: block;
+  width: 2.5rem;
+  height: 1px;
+  background: var(--brand-teal);
+  transform-origin: left center;
+}
+
+@media (min-width: 900px) {
+  .flow--signal .flow__step:not(:first-child) .flow__tick {
+    left: 1.9rem;
+  }
+}
+
+/* Roadmap: each horizon draws its own rule instead of a static border. */
+/* The animated rule replaces the static index hairline: one short line per
+   horizon, drawn as the row arrives. */
+.horizons--timed .horizon {
+  border-top: 0;
+  padding-top: 2.6rem;
+}
+
+.horizons--timed .horizon::before {
+  display: none;
+}
+
+.horizons--timed .horizon__rule {
+  display: block;
+  height: 1px;
+  width: 4.5rem;
+  margin-bottom: 1.6rem;
+  background: var(--hairline-strong);
+  transform-origin: left center;
+}
+
+@media (min-width: 900px) {
+  .horizons--timed .horizon__rule {
+    grid-column: 1 / -1;
+  }
+}
+
+.horizons--timed .horizon:first-child {
+  padding-top: 0;
+}
+
+.horizons--timed .horizon:first-child .horizon__rule {
+  display: none;
+}
+
+
+
+/* Hero cue: the underline retracts and the arrow steps out on hover. */
+.hero-cue {
+  position: relative;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--foreground) 78%, transparent);
+  transition: color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-cue:hover {
+  color: var(--foreground);
+}
+
+.hero-cue__icon {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-cue:hover .hero-cue__icon {
+  transform: translate(2px, 2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-frame img,
+  .media-frame video {
+    transform: none;
+  }
+
+  .hero-cue__icon,
+  .hero-cue {
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }

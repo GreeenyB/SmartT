@@ -4,28 +4,33 @@ const links = [
   { label: "Product", href: "#product" },
   { label: "Platform", href: "#platform" },
   { label: "Technology", href: "#technology" },
-  { label: "About", href: "#about" },
+  { label: "Team", href: "#about" },
 ];
 
 export function SiteFooter() {
   return (
     <footer className="site-footer">
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-10 px-8 py-14 md:flex-row md:items-end md:justify-between md:px-14">
-        <div>
-          <BrandLogo inverse />
-          <p className="mt-5 max-w-sm text-sm text-white/65">
-            Fuel monitoring and fleet telemetry developed by Team BKUIT in Ho Chi Minh City.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-8 text-sm text-white/65">
-          {links.map((item) => (
-            <a key={item.href} href={item.href} className="transition-colors hover:text-white">
-              {item.label}
-            </a>
-          ))}
-        </div>
-        <div className="text-xs text-white/50">
-          © {new Date().getFullYear()} SmartT · Team BKUIT
+      <div className="mx-auto max-w-[1600px] px-8 pt-14 pb-12 md:px-14">
+        <div className="site-footer__rule" aria-hidden="true" />
+        <div className="mt-10 flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+          <div>
+            <BrandLogo inverse />
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/60">
+              Fuel monitoring and fleet telemetry developed in Ho Chi Minh City by Team BKUIT.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-8">
+            {links.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="mono text-white/60 transition-colors hover:text-white"
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+          <div className="mono text-white/40">© {new Date().getFullYear()} SmartT</div>
         </div>
       </div>
     </footer>

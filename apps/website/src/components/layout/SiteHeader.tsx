@@ -7,7 +7,8 @@ const navigation = [
   { label: "Product", href: "#product" },
   { label: "Platform", href: "#platform" },
   { label: "Technology", href: "#technology" },
-  { label: "About", href: "#about" },
+  { label: "Roadmap", href: "#roadmap" },
+  { label: "Team", href: "#about" },
 ];
 
 export function SiteHeader() {

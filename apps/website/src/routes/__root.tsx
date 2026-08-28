@@ -77,32 +77,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SmartT — Fuel Intelligence Built on Trustworthy Signals" },
+      { title: "SmartT — Fuel Monitoring & Fleet Telemetry" },
       {
         name: "description",
         content:
-          "SmartT is a fuel-monitoring and fleet-telemetry system that turns noisy vehicle signals into clear operational context.",
+          "SmartT combines fuel-level sensing with vehicle motion and operating context to support clearer fuel-event review.",
       },
-      { name: "author", content: "SmartT Team" },
+      { name: "author", content: "Team BKUIT" },
       {
         property: "og:title",
-        content: "SmartT — Fuel Intelligence Built on Trustworthy Signals",
+        content: "SmartT — Fuel Monitoring & Fleet Telemetry",
       },
       {
         property: "og:description",
         content:
-          "Fuel monitoring and fleet telemetry by Team BKUIT — turning noisy vehicle signals into clear operational context.",
+          "Fuel monitoring and fleet telemetry by Team BKUIT, with vehicle context carried from sensing to review.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       {
         name: "twitter:title",
-        content: "SmartT — Fuel Intelligence Built on Trustworthy Signals",
+        content: "SmartT — Fuel Monitoring & Fleet Telemetry",
       },
       {
         name: "twitter:description",
         content:
-          "Fuel monitoring and fleet telemetry by Team BKUIT — turning noisy vehicle signals into clear operational context.",
+          "Fuel monitoring and fleet telemetry by Team BKUIT, with vehicle context carried from sensing to review.",
       },
     ],
     links: [

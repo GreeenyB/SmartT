@@ -1,48 +1,57 @@
-import { ArrowUpRight } from "lucide-react";
-
 import { Reveal } from "@/components/shared/Reveal";
+import { SectionMark } from "@/components/shared/SectionMark";
 
 export function ContactSection() {
   return (
     <section id="contact" className="contact-surface scroll-mt-24">
-      <div className="mx-auto max-w-[1600px] px-8 py-28 md:px-14 md:py-36">
+      <div className="mx-auto max-w-[1600px] px-8 py-24 md:px-14 md:py-32">
         <Reveal>
-          <p className="section-label">Contact</p>
+          <SectionMark label="Contact" inverse />
         </Reveal>
-        <div className="mt-6 grid gap-10 lg:grid-cols-[1.2fr_.8fr] lg:items-start">
-          <Reveal delay={0.1}>
-            <h2 className="section-title section-title--flush mt-2 max-w-[16ch] text-[clamp(2.75rem,5.4vw,5rem)]">
+        <div className="mt-8 grid gap-12 lg:grid-cols-[1.1fr_.9fr] lg:items-start lg:gap-24">
+          <Reveal delay={0.08}>
+            <h2 className="section-title section-title--flush max-w-[16ch] text-[clamp(2.5rem,4.8vw,4.4rem)] text-white">
               Let&apos;s make fuel
               <br />
               data easier to trust.
             </h2>
           </Reveal>
-          <Reveal delay={0.2}>
+          <Reveal delay={0.16}>
             <div>
-              <p className="lead max-w-[40ch]">
+              <p className="max-w-[40ch] text-base leading-[1.8] text-white/60">
                 We welcome conversations around vehicle integration, field validation and product
                 development.
               </p>
-              <dl className="mt-8 grid gap-4 text-sm">
+              <dl className="contact-lines">
                 <div>
-                  <dt className="eyebrow">Email</dt>
-                  <dd className="mt-1 font-medium">contact@smartt.example</dd>
+                  <dt>Team</dt>
+                  <dd className="contact-lines__value">BKUIT · SmartT</dd>
                 </div>
                 <div>
-                  <dt className="eyebrow">Phone</dt>
-                  <dd className="mt-1 font-medium">+84 777 730 635</dd>
+                  <dt>Team lead</dt>
+                  <dd className="contact-lines__value">Nguyễn Hữu Phước</dd>
                 </div>
                 <div>
-                  <dt className="eyebrow">Location</dt>
-                  <dd className="mt-1 font-medium">Ho Chi Minh City, Vietnam</dd>
+                  <dt>Email</dt>
+                  <dd className="contact-lines__value">
+                    <a href="mailto:phuoc.nguyenhuu@hcmut.edu.vn" className="hover:underline">
+                      phuoc.nguyenhuu@hcmut.edu.vn
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Phone</dt>
+                  <dd className="contact-lines__value">
+                    <a href="tel:+84814255365" className="hover:underline">
+                      +84 814 255 365
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Location</dt>
+                  <dd className="contact-lines__value">Ho Chi Minh City, Vietnam</dd>
                 </div>
               </dl>
-              <a
-                href="#about"
-                className="btn-brand mt-8 inline-flex items-center gap-3 rounded-full px-6 py-3 text-sm font-medium transition-transform hover:-translate-y-0.5"
-              >
-                Meet Team BKUIT <ArrowUpRight className="h-4 w-4" />
-              </a>
             </div>
           </Reveal>
         </div>

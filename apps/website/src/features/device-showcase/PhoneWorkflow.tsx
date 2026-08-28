@@ -194,7 +194,7 @@ export function VehicleTimelinePhoneScreen() {
           <div className="sm-panel__head">
             <div>
               <h4>Tank level over the last 24 hours</h4>
-              <p>Step changes mark refueling or sudden drops</p>
+              <p>Step changes mark refuelling or sudden drops</p>
             </div>
           </div>
           <div className="sm-chart">
@@ -213,7 +213,7 @@ export function VehicleTimelinePhoneScreen() {
               <span>20:00</span>
             </div>
           </div>
-          <p className="sm-chart__note">Refueling event · 266 L added at 08:12</p>
+          <p className="sm-chart__note">Refuelling event · 266 L added at 08:12</p>
         </section>
 
         <section className="sm-metrics">

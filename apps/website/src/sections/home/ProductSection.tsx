@@ -1,99 +1,104 @@
-import { Cpu, Radio, ShieldCheck } from "lucide-react";
-
-import { Reveal } from "@/components/shared/Reveal";
+import { Item, MediaReveal, Reveal, Sequence } from "@/components/shared/Reveal";
+import { SectionMark } from "@/components/shared/SectionMark";
 
 const traits = [
   {
-    icon: Cpu,
     title: "Vehicle-side unit",
-    body: "An edge controller that samples the fuel sender together with ignition and motion context.",
+    body: "An ESP32-based edge controller that reads the fuel-level probe alongside ignition and motion context.",
   },
   {
-    icon: Radio,
-    title: "Resilient link",
-    body: "Telemetry is buffered locally and synchronised when connectivity allows, so gaps don't erase history.",
+    title: "Telemetry link",
+    body: "Telemetry records move from the vehicle-side unit to the SmartT service with report timing preserved for review.",
   },
   {
-    icon: ShieldCheck,
-    title: "Evidence first",
-    body: "Every event keeps the surrounding signal window, so a flagged drop can always be reviewed in context.",
+    title: "Contextual review",
+    body: "Fuel events are reviewed alongside surrounding vehicle context rather than as isolated level changes.",
+  },
+];
+
+const buildNotes = [
+  {
+    label: "Sensing inputs",
+    body: "Ultrasonic fuel-level probe with ignition and motion context, read together rather than in isolation.",
+  },
+  {
+    label: "Edge controller",
+    body: "ESP32-class microcontroller handling data acquisition and the uplink to the SmartT service.",
+  },
+  {
+    label: "Build status",
+    body: "Working bench prototype. Enclosure, wiring harness and component mix are being refined ahead of vehicle integration.",
   },
 ];
 
 export function ProductSection() {
   return (
-    <section
-      id="product"
-      className="section-tinted scroll-mt-24 border-t border-border bg-background"
-    >
-      <div className="mx-auto max-w-[1600px] px-8 pt-28 pb-24 md:px-14 md:pt-36">
-        <Reveal>
-          <p className="section-label">Product</p>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <h2 className="section-title">
-            One connected system,
-            <br />
-            built around the vehicle.
-          </h2>
-        </Reveal>
-        <Reveal delay={0.2}>
-          <p className="lead mt-7 max-w-[46ch]">
-            SmartT is an edge-to-interface system: vehicle-side sensing, signal-aware event logic,
-            and focused software for reviewing what happened.
-          </p>
-        </Reveal>
-        <div className="product-showcase">
-          <Reveal delay={0.12}>
-            <figure className="product-showcase__media product-showcase__media--wide">
-              <img
-                src="/smartt-photos/fuel-context-truck-petrol-station.jpg"
-                alt="A truck refuelling at a petrol station, the moment SmartT records as a refill event."
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>
-                <span className="eyebrow eyebrow--accent">In the field</span>
-                <p>
-                  Sensing starts at the vehicle: refills, idling and drops are captured where they
-                  happen, not reconstructed afterwards.
-                </p>
-              </figcaption>
-            </figure>
-          </Reveal>
-
-          <Reveal delay={0.2}>
-            <figure className="product-showcase__media product-showcase__media--tall">
-              <img
-                src="/smartt-photos/fleet-scale-aerial-depot.jpg"
-                alt="Aerial view of a depot with a fleet of trucks parked in rows."
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>
-                <span className="eyebrow eyebrow--accent">At fleet scale</span>
-                <p>One consistent record per vehicle, from a single truck to a full depot.</p>
-              </figcaption>
-            </figure>
-          </Reveal>
-        </div>
-
-        <div className="product-traits">
-          {traits.map((trait, index) => (
-            <Reveal key={trait.title} delay={0.1 + index * 0.08}>
-              <article className="product-traits__item">
-                <trait.icon className="h-5 w-5" strokeWidth={1.5} />
-                <h3>{trait.title}</h3>
-                <p>{trait.body}</p>
-              </article>
+    <section id="product" className="scroll-mt-24 border-t border-border bg-background">
+      <div className="mx-auto max-w-[1600px] px-8 pt-24 pb-20 md:px-14 md:pt-32">
+        <div className="grid gap-8 lg:grid-cols-[1.05fr_.95fr] lg:items-end lg:gap-20">
+          <div>
+            <Reveal>
+              <SectionMark label="Product" />
             </Reveal>
-          ))}
+            <Reveal delay={0.08}>
+              <h2 className="section-title">
+                One connected system,
+                <br />
+                built around the vehicle.
+              </h2>
+            </Reveal>
+          </div>
+          <Reveal delay={0.16}>
+            <p className="lead max-w-[44ch]">
+              SmartT connects vehicle-side sensing, contextual signal processing and focused
+              software for reviewing fuel events.
+            </p>
+          </Reveal>
         </div>
 
-        <Reveal delay={0.15}>
+        <div className="hardware-panel">
+          {/* The artefact gets the page's most physical reveal: the plate
+              unmasks upward while the photograph releases its overscale. */}
+          <MediaReveal as="figure" className="hardware-panel__figure media-frame">
+            <img
+              src="/prototype/edge-device-annotated.png"
+              alt="Annotated photograph of the SmartT edge device prototype showing the microcontroller board, wiring and ultrasonic fuel-level sensor."
+              width={800}
+              height={450}
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>
+              <span className="mono text-brand-teal">Prototype · as assembled</span>
+              <p>
+                The current vehicle-side unit prototype, photographed as assembled — not a render.
+              </p>
+            </figcaption>
+          </MediaReveal>
+
+          <Sequence className="hardware-panel__spec" as="dl" step={0.1} delay={0.2}>
+            {buildNotes.map((note) => (
+              <Item key={note.label}>
+                <dt>{note.label}</dt>
+                <dd>{note.body}</dd>
+              </Item>
+            ))}
+          </Sequence>
+        </div>
+
+        <Sequence className="product-traits" step={0.1}>
+          {traits.map((trait) => (
+            <Item key={trait.title} variant="settle" as="article" className="product-traits__item">
+              <h3>{trait.title}</h3>
+              <p>{trait.body}</p>
+            </Item>
+          ))}
+        </Sequence>
+
+        <Reveal delay={0.08}>
           <p className="product-note">
-            Enclosure, interfaces and component mix continue to be refined against real vehicle
-            installations.
+            The current build is a bench prototype; vehicle integration and field validation come
+            next.
           </p>
         </Reveal>
       </div>

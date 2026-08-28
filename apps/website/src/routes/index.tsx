@@ -9,26 +9,27 @@ import { HeroSection } from "@/sections/home/HeroSection";
 import { PlatformSection } from "@/sections/home/PlatformSection";
 import { ProblemSection } from "@/sections/home/ProblemSection";
 import { ProductSection } from "@/sections/home/ProductSection";
+import { RoadmapSection } from "@/sections/home/RoadmapSection";
 import { SolutionSection } from "@/sections/home/SolutionSection";
 import { TechnologySection } from "@/sections/home/TechnologySection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SmartT — Fuel Intelligence Built on Trustworthy Signals" },
+      { title: "SmartT — Fuel Monitoring & Fleet Telemetry" },
       {
         name: "description",
         content:
-          "SmartT is a fuel-monitoring and fleet-telemetry system that turns noisy vehicle signals into clear operational context.",
+          "SmartT combines fuel-level sensing with vehicle motion and operating context to support clearer fuel-event review.",
       },
       {
         property: "og:title",
-        content: "SmartT — Fuel Intelligence Built on Trustworthy Signals",
+        content: "SmartT — Fuel Monitoring & Fleet Telemetry",
       },
       {
         property: "og:description",
         content:
-          "Fuel monitoring and fleet telemetry by Team BKUIT — turning noisy vehicle signals into clear operational context.",
+          "Fuel monitoring and fleet telemetry by Team BKUIT, with vehicle context carried from sensing to review.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -55,6 +56,7 @@ function HomePage() {
         <ProductSection />
         <PlatformSection />
         <TechnologySection />
+        <RoadmapSection />
         <AboutSection />
         <ContactSection />
       </main>

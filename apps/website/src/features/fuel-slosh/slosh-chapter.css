@@ -1,0 +1,372 @@
+/* -------------------------------------------------------------------------- */
+/*  Fuel-slosh chapter — a scroll-driven instrument, not a section.            */
+/*  Drawn with the site's hairlines, mono microtype and brand accent so it     */
+/*  reads as the same brand in a different register.                          */
+/* -------------------------------------------------------------------------- */
+
+.slosh-stage {
+  --slosh-line: oklch(1 0 0 / 0.13);
+  --slosh-ink: oklch(1 0 0 / 0.58);
+  --slosh-accent: oklch(0.82 0.13 195);
+  --slosh-raw: oklch(0.78 0.14 62);
+
+  position: relative;
+  margin-top: clamp(4rem, 8vw, 7rem);
+}
+
+/* The sequence plays itself while in view, so the chapter is an ordinary
+   block: no sticky stage, no scroll hijack, no 320vh of empty scroll. */
+.slosh-stage__sticky {
+  display: block;
+}
+
+.slosh-panel {
+  width: 100%;
+  border-top: 1px solid var(--slosh-line);
+  border-bottom: 1px solid var(--slosh-line);
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0;
+}
+
+/* ---- head ---------------------------------------------------------------- */
+
+.slosh-panel__head {
+  display: grid;
+  gap: 1.75rem;
+}
+
+@media (min-width: 1000px) {
+  .slosh-panel__head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 3rem;
+  }
+}
+
+.slosh-panel__mark {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--slosh-accent);
+}
+
+.slosh-panel__head h3 {
+  margin-top: 0.9rem;
+  max-width: 22ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2.35rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: oklch(0.99 0 0);
+}
+
+.slosh-readout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 2.25rem;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .slosh-readout {
+    grid-template-columns: repeat(4, auto);
+  }
+}
+
+.slosh-readout dt {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.38);
+}
+
+.slosh-readout dd {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: oklch(1 0 0 / 0.82);
+}
+
+.slosh-readout__raw {
+  color: var(--slosh-raw);
+}
+
+.slosh-readout__stable {
+  color: var(--slosh-accent);
+}
+
+.slosh-readout__state {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.16em;
+}
+
+.slosh-readout__state.is-transient {
+  color: oklch(1 0 0 / 0.45);
+}
+
+.slosh-readout__state.is-change {
+  color: var(--slosh-accent);
+}
+
+/* ---- instrument ---------------------------------------------------------- */
+
+.slosh-panel__body {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+  margin-top: clamp(1.75rem, 4vw, 3rem);
+  padding-top: clamp(1.5rem, 3vw, 2.25rem);
+  border-top: 1px solid var(--slosh-line);
+}
+
+@media (min-width: 900px) {
+  .slosh-panel__body {
+    grid-template-columns: minmax(0, 0.3fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+.slosh-tank,
+.slosh-trace {
+  margin: 0;
+}
+
+.slosh-tank svg,
+.slosh-trace svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.slosh-tank__void {
+  fill: oklch(1 0 0 / 0.02);
+}
+
+.slosh-tank__fluid {
+  fill: oklch(0.6 0.1 205 / 0.22);
+}
+
+.slosh-tank__surface {
+  fill: none;
+  stroke: var(--slosh-accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.slosh-tank__mean {
+  stroke: oklch(1 0 0 / 0.3);
+  stroke-width: 1;
+  stroke-dasharray: 6 6;
+}
+
+.slosh-tank__shell {
+  fill: none;
+  stroke: oklch(1 0 0 / 0.28);
+  stroke-width: 1.1;
+}
+
+.slosh-tank__probe {
+  fill: oklch(0.3 0.03 250);
+  stroke: oklch(1 0 0 / 0.32);
+  stroke-width: 1;
+}
+
+.slosh-tank__beam {
+  stroke: var(--slosh-raw);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.slosh-tank__hit {
+  fill: var(--slosh-raw);
+}
+
+.slosh-tank__tag,
+.slosh-trace__tick,
+.slosh-trace__key text,
+.slosh-trace__event text {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  fill: oklch(1 0 0 / 0.4);
+}
+
+/* ---- traces -------------------------------------------------------------- */
+
+.slosh-trace__grid {
+  stroke: oklch(1 0 0 / 0.08);
+  stroke-width: 1;
+}
+
+.slosh-trace__raw {
+  fill: none;
+  stroke: var(--slosh-raw);
+  stroke-width: 1.1;
+  opacity: 0.75;
+}
+
+.slosh-trace__stable {
+  fill: none;
+  stroke: var(--slosh-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.slosh-trace__head {
+  stroke: oklch(1 0 0 / 0.35);
+  stroke-width: 1;
+}
+
+.slosh-trace__dot--raw {
+  fill: var(--slosh-raw);
+}
+
+.slosh-trace__dot--stable {
+  fill: var(--slosh-accent);
+}
+
+.slosh-trace__event {
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slosh-trace__event.is-on {
+  opacity: 1;
+}
+
+.slosh-trace__event line {
+  stroke: var(--slosh-accent);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+}
+
+.slosh-trace__event text {
+  fill: var(--slosh-accent);
+}
+
+/* ---- beats --------------------------------------------------------------- */
+
+.slosh-beats {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+  margin: clamp(1.75rem, 3.5vw, 2.75rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 800px) {
+  .slosh-beats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.slosh-beats__rule {
+  display: block;
+  height: 1px;
+  background: oklch(1 0 0 / 0.14);
+  overflow: hidden;
+}
+
+.slosh-beats__fill {
+  display: block;
+  height: 100%;
+  background: var(--slosh-accent);
+  transform-origin: left center;
+  transition: transform 0.25s linear;
+}
+
+.slosh-beats__label {
+  display: block;
+  margin-top: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.42);
+  transition: color 0.4s ease;
+}
+
+.slosh-beats__item p {
+  margin: 0.6rem 0 0;
+  max-width: 40ch;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: oklch(1 0 0 / 0.34);
+  transition: color 0.4s ease;
+}
+
+.slosh-beats__item.is-active .slosh-beats__label {
+  color: var(--slosh-accent);
+}
+
+.slosh-beats__item.is-active p {
+  color: oklch(1 0 0 / 0.66);
+}
+
+.slosh-note {
+  margin: clamp(1.5rem, 3vw, 2.25rem) 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.32);
+}
+
+/* ---- foot: caption + subtle replay -------------------------------------- */
+
+.slosh-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.slosh-replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  padding: 0;
+  background: none;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.3);
+  cursor: pointer;
+  opacity: 0.45;
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slosh-replay.is-ready {
+  opacity: 1;
+  color: var(--slosh-accent);
+}
+
+.slosh-replay:hover,
+.slosh-replay:focus-visible {
+  opacity: 1;
+  color: var(--slosh-accent);
+  outline: none;
+}
+
+.slosh-replay__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slosh-beats__fill,
+  .slosh-trace__event,
+  .slosh-replay {
+    transition: none;
+  }
+}
