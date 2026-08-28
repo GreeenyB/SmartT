@@ -44,6 +44,17 @@ python server/app.py
 
 The server defaults to `http://localhost:8000` and exposes `/api/health`, `/api/latest`, `/api/history`, `/api/events`, and `/api/ingest`.
 
+Run deterministic regressions and the synthetic ML experiment:
+
+```sh
+python -m venv .venv
+.venv/bin/python -m pip install -r ml/requirements.txt
+.venv/bin/python -m unittest discover -s ml/tests -v
+.venv/bin/python -m ml.training.pipeline
+```
+
+ML results are synthetic-only and optional. Firmware rules remain authoritative; see `ml/README.md`.
+
 ## Firmware
 
 Open `SmartT_Core_Demo/SmartT_Core_Demo.ino` in Arduino IDE with the ESP32 Dev Module board selected. Hardware wiring and bring-up are documented in `docs/HARDWARE.md`.
@@ -70,6 +81,7 @@ Full video production notes and hashes are in `docs/VIDEO_PRODUCTION.md`.
 cd apps/website && npm run build
 cd apps/dashboard && npm run build
 python -m py_compile server/app.py
+.venv/bin/python -m unittest discover -s ml/tests -v
 node scripts/production/render-smartt-film.mjs --preflight
 ```
 

@@ -47,4 +47,15 @@ const uint32_t REFUEL_CONFIRM_MS = 1800;
 - Refuel candidates update the baseline after confirmation.
 - Missing or invalid sensor readings become sensor faults, not theft.
 
-Do not introduce ML, GPS, 4G, or CAN dependencies until the core fuel signal and event logic are stable.
+## Verified Safety Invariants
+
+- A new `FUEL_THEFT_ANOMALY` can only be confirmed from an ignition-OFF drop candidate. Ignition-ON drops are `FAST_DROP_IGN_ON` with no theft alert, with guards at candidate creation, candidate update, and confirmation.
+- A theft alert already confirmed while ignition was OFF remains visible for its configured hold if ignition turns on. This preserves the evidence of the already-confirmed event but cannot create another alert while on.
+- Sensor faults clear unconfirmed/held detector evidence and cannot become theft.
+- Fresh GPS speed at or above the moving threshold suppresses parked-theft confirmation immediately, including during the debounced motion-confirm interval. Stale or unavailable GPS falls back to ignition and fuel behavior instead of breaking monitoring.
+- Parked baseline maintenance can make only small upward stable corrections; it never follows downward loss. Confirmed refuel and completed alert hold remain the explicit large baseline-reset paths.
+- Sloshing suppression requires meaningful recovery from the candidate's worst drop. A sustained negative loss can re-enter confirmation from `DETECTOR_SLOSHING`.
+
+The host reference in `ml/simulation/detector_reference.py` mirrors these transitions for regression testing. It consumes calibrated percent samples rather than compiling Arduino ADC/library code; the differences are documented in `ml/README.md`.
+
+Keep ML outside the firmware and optional; GPS must remain a graceful-degradation context signal. Do not add 4G, CAN, or new hardware dependencies to this MVP detector.

@@ -25,6 +25,7 @@ private:
   uint32_t candidateStartMs_ = 0;
 
   uint32_t alertHoldUntilMs_ = 0;
+  bool theftConfirmedWhileIgnitionOff_ = false;
   uint8_t confidence_ = 0;
   uint32_t lastStableUpdateMs_ = 0;
   uint32_t testHoldUntilMs_ = 0;

@@ -1,0 +1,13 @@
+experiment_id,theft_alert_expected,implementation
+DRAIN-0007,0,production EventDetector.cpp host invariant suite
+DRAIN-0015,1,production EventDetector.cpp host invariant suite
+DRAIN-0016,1,production EventDetector.cpp host invariant suite
+NORMAL-0000,0,production EventDetector.cpp host invariant suite
+NORMAL-0001,0,production EventDetector.cpp host invariant suite
+NORMAL-0006,0,production EventDetector.cpp host invariant suite
+REFUEL-0008,0,production EventDetector.cpp host invariant suite
+REFUEL-0014,0,production EventDetector.cpp host invariant suite
+REFUEL-0018,0,production EventDetector.cpp host invariant suite
+SLOSHING-0008,0,production EventDetector.cpp host invariant suite
+SLOSHING-0009,0,production EventDetector.cpp host invariant suite
+SLOSHING-0016,0,production EventDetector.cpp host invariant suite

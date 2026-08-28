@@ -5,6 +5,7 @@ import json
 import mimetypes
 import os
 import sqlite3
+import sys
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -19,6 +20,24 @@ DATA_DIR = SERVER_DIR / "data"
 DB_PATH = DATA_DIR / "smartt.db"
 DEFAULT_HOST = os.environ.get("SMARTT_HOST", "0.0.0.0")
 DEFAULT_PORT = int(os.environ.get("SMARTT_PORT", "8000"))
+ML_MODEL_PATH = Path(os.environ.get("SMARTT_ML_MODEL_PATH", REPO_DIR / "ml" / "models" / "smartt_shadow.joblib"))
+_ml_shadow: Any = None
+
+
+def ml_enabled() -> bool:
+    return os.environ.get("SMARTT_ENABLE_ML", "0").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def get_ml_shadow() -> Any:
+    global _ml_shadow
+    if not ml_enabled():
+        return None
+    if _ml_shadow is None:
+        if str(REPO_DIR) not in sys.path:
+            sys.path.insert(0, str(REPO_DIR))
+        from ml.inference import ShadowInference
+        _ml_shadow = ShadowInference(True, ML_MODEL_PATH)
+    return _ml_shadow
 
 
 def utc_now() -> str:
@@ -62,6 +81,15 @@ def init_db() -> None:
             )
             """
         )
+        telemetry_columns = {row[1] for row in conn.execute("PRAGMA table_info(telemetry)")}
+        for column, definition in {
+            "ml_prediction": "TEXT",
+            "ml_drain_probability": "REAL",
+            "anomaly_score": "REAL",
+            "model_version": "TEXT",
+        }.items():
+            if column not in telemetry_columns:
+                conn.execute(f"ALTER TABLE telemetry ADD COLUMN {column} {definition}")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS events (
@@ -214,6 +242,23 @@ def ingest_payload(data: dict[str, Any]) -> dict[str, Any]:
     event_label = str(get_value(data, "event_label", "eventLabel", default=friendly_event_label(event_type)))
     raw_json = json.dumps(data, separators=(",", ":"), sort_keys=True)
     ignition = bool_value(get_value(data, "ignition", "ignitionOn", "ignition_on", default=False))
+    ml_result: dict[str, Any] | None = None
+    if ml_enabled():
+        try:
+            shadow = get_ml_shadow()
+            ml_result = shadow.observe(vehicle_id, data, created_at) if shadow is not None else None
+        except Exception as exc:
+            # Shadow inference must never block or alter deterministic ingestion.
+            ml_result = {
+                "enabled": True,
+                "available": False,
+                "mode": "SHADOW_ONLY",
+                "error": f"{type(exc).__name__}: {exc}",
+                "prediction": None,
+                "drain_probability": None,
+                "anomaly_score": None,
+                "model_version": None,
+            }
 
     with connect_db() as conn:
         conn.execute(
@@ -223,8 +268,9 @@ def ingest_payload(data: dict[str, Any]) -> dict[str, Any]:
                 fuel_rate_percent_per_sec, ignition, gps_lat, gps_lon, gps_fix,
                 gps_state, gps_motion_state, speed_kmh, detector_state,
                 current_event, confidence, signal_stability, sloshing_score,
-                source_type, rule_result, raw_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                source_type, rule_result, raw_json, ml_prediction,
+                ml_drain_probability, anomaly_score, model_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 created_at,
@@ -248,6 +294,10 @@ def ingest_payload(data: dict[str, Any]) -> dict[str, Any]:
                 get_value(data, "source_type", "sourceType", "data_source", default="ANALOG_ADS1115"),
                 get_value(data, "rule_result", "ruleResult", default="--"),
                 raw_json,
+                ml_result.get("prediction") if ml_result else None,
+                ml_result.get("drain_probability") if ml_result else None,
+                ml_result.get("anomaly_score") if ml_result else None,
+                ml_result.get("model_version") if ml_result else None,
             ),
         )
 
@@ -282,7 +332,10 @@ def ingest_payload(data: dict[str, Any]) -> dict[str, Any]:
             event_saved = True
         conn.commit()
 
-    return {"ok": True, "event_saved": event_saved, "created_at": created_at, "vehicle_id": vehicle_id}
+    result = {"ok": True, "event_saved": event_saved, "created_at": created_at, "vehicle_id": vehicle_id}
+    if ml_enabled():
+        result["ml_shadow"] = ml_result
+    return result
 
 
 class SmartTHandler(SimpleHTTPRequestHandler):
@@ -339,12 +392,18 @@ class SmartTHandler(SimpleHTTPRequestHandler):
         path = parsed.path
 
         if path == "/api/health":
-            self.send_json({
+            payload = {
                 "ok": True,
                 "server_time": utc_now(),
                 "dashboard_source": str(UI_DIR),
                 "database": str(DB_PATH),
-            })
+            }
+            if ml_enabled():
+                try:
+                    payload["ml_shadow"] = get_ml_shadow().status()
+                except Exception as exc:
+                    payload["ml_shadow"] = {"enabled": True, "available": False, "mode": "SHADOW_ONLY", "error": str(exc)}
+            self.send_json(payload)
             return
         if path == "/api/latest":
             self.send_json(latest_row(params) or {})

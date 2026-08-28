@@ -1,0 +1,127 @@
+{
+  "dataset": {
+    "rows": 22139,
+    "experiments": 82,
+    "feature_windows": 8269,
+    "split_counts": {
+      "train": 56,
+      "validation": 12,
+      "test": 12
+    }
+  },
+  "steady": {
+    "confusion_matrix": [
+      [
+        770,
+        56,
+        3,
+        11
+      ],
+      [
+        34,
+        210,
+        0,
+        0
+      ],
+      [
+        26,
+        0,
+        23,
+        0
+      ],
+      [
+        15,
+        0,
+        0,
+        40
+      ]
+    ],
+    "labels": [
+      "NORMAL",
+      "SLOSHING",
+      "REFUEL",
+      "DRAIN"
+    ],
+    "per_class": {
+      "NORMAL": {
+        "precision": 0.9112426035502958,
+        "recall": 0.9166666666666666,
+        "f1-score": 0.913946587537092,
+        "support": 840.0
+      },
+      "SLOSHING": {
+        "precision": 0.7894736842105263,
+        "recall": 0.860655737704918,
+        "f1-score": 0.8235294117647058,
+        "support": 244.0
+      },
+      "REFUEL": {
+        "precision": 0.8846153846153846,
+        "recall": 0.46938775510204084,
+        "f1-score": 0.6133333333333333,
+        "support": 49.0
+      },
+      "DRAIN": {
+        "precision": 0.7843137254901961,
+        "recall": 0.7272727272727273,
+        "f1-score": 0.7547169811320755,
+        "support": 55.0
+      }
+    },
+    "macro_f1": 0.7763815784418016,
+    "drain_recall": 0.7272727272727273,
+    "missed_drain_rate": 0.2727272727272727,
+    "false_theft_rate": 0.009708737864077669,
+    "normal_to_drain_rate": 0.013095238095238096,
+    "sloshing_to_drain_rate": 0.0,
+    "refuel_to_drain_rate": 0.0,
+    "count": 1188
+  },
+  "transition_window_count": 0,
+  "model_comparison": [
+    {
+      "model": "Dummy",
+      "validation_macro_f1": 0.1994395142456796,
+      "test_macro_f1": 0.20710059171597633
+    },
+    {
+      "model": "Logistic Regression",
+      "validation_macro_f1": 0.8857505746908063,
+      "test_macro_f1": 0.8077863745367996
+    },
+    {
+      "model": "Decision Tree depth=3",
+      "validation_macro_f1": 0.8816123617324757,
+      "test_macro_f1": 0.8146066419635503
+    },
+    {
+      "model": "Random Forest",
+      "validation_macro_f1": 0.8717755083663365,
+      "test_macro_f1": 0.7763815784418016
+    }
+  ],
+  "rolling": {
+    "drain_experiments": 3,
+    "recognized_during_active": 2,
+    "miss_rate": 0.3333333333333333,
+    "median_delay_s": 8.529499999999999,
+    "p90_delay_s": 8.7243,
+    "benign_experiments": 9,
+    "benign_with_transient_drain_fraction": 0.0,
+    "transient_drain_windows": 0,
+    "false_drain_episodes": 0,
+    "longest_consecutive_drain_windows": 0
+  },
+  "anomaly": {
+    "roc_auc": 0.8024231725908689,
+    "pr_auc": 0.200085559404742,
+    "benign_false_positive_rate_at_90pct_score": 0.07766990291262135
+  },
+  "abstain_threshold": 0.85,
+  "environment": {
+    "python": "3.12.3",
+    "numpy": "2.5.2",
+    "scikit_learn": "1.9.0",
+    "joblib": "1.5.3"
+  }
+}

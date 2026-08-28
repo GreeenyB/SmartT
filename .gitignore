@@ -89,6 +89,12 @@ __pycache__/
 *.pyc
 *.py[cod]
 
+# Reproducible ML outputs (schemas, metadata, and reports remain tracked)
+ml/data/synthetic/*.csv
+ml/data/processed/*.csv
+ml/data/real/*.csv
+ml/models/*.joblib
+
 # Local firmware secrets
 SmartT_Core_Demo/Secrets.h
 

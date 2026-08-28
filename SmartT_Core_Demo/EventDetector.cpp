@@ -32,6 +32,7 @@ void EventDetector::begin(DashboardState& state, uint32_t now) {
   parkedBaselinePct_ = state.fuel.filteredPercent;
   lastStableUpdateMs_ = now;
   confidence_ = 0;
+  theftConfirmedWhileIgnitionOff_ = false;
   setCurrentEvent(state, "BOOT", "NONE", "Boot", 0.0f, 0, now);
   maybeLogCurrentEvent(state);
   exportDetectorToState(state);
@@ -55,6 +56,8 @@ void EventDetector::update(DashboardState& state, uint32_t now) {
   if (!state.sensor.adsReady) {
     state.sensor.healthy = false;
     confidence_ = 0;
+    theftConfirmedWhileIgnitionOff_ = false;
+    clearDropCandidate();
     setDetectorState(DETECTOR_SENSOR_FAULT, now);
     setCurrentEvent(state, "ADS1115_MISSING", "NONE", "Sensor availability", 0.0f, 0, now);
     exportDetectorToState(state);
@@ -64,6 +67,8 @@ void EventDetector::update(DashboardState& state, uint32_t now) {
 
   if (!state.sensor.healthy) {
     confidence_ = 0;
+    theftConfirmedWhileIgnitionOff_ = false;
+    clearDropCandidate();
     setDetectorState(DETECTOR_SENSOR_FAULT, now);
     setCurrentEvent(state, "SENSOR_FAULT", "NONE", "Sensor range check", 0.0f, 0, now);
     exportDetectorToState(state);
@@ -190,15 +195,18 @@ void EventDetector::updateIgnitionTransition(DashboardState& state, uint32_t now
     lastIgnitionOn_ = state.vehicle.ignitionOn;
     ignitionChangedMs_ = now;
     parkedBaselineReady_ = false;
-    candidateStartMs_ = 0;
-    candidateDropPct_ = 0.0f;
-    candidateWorstDropPct_ = 0.0f;
-    confidence_ = 0;
 
     if (state.vehicle.ignitionOn) {
       testAlertHoldUntilMs_ = 0;
-      setDetectorState(DETECTOR_NORMAL_ON, now);
+      // A theft alert already confirmed while OFF remains visible for its
+      // configured hold. All unconfirmed candidates are cancelled on ON.
+      if (!(state_ == DETECTOR_THEFT_ALERT &&
+            theftConfirmedWhileIgnitionOff_ && now < alertHoldUntilMs_)) {
+        clearDropCandidate();
+        setDetectorState(DETECTOR_NORMAL_ON, now);
+      }
     } else {
+      clearDropCandidate();
       setDetectorState(DETECTOR_OFF_SETTLING, now);
     }
   }
@@ -217,7 +225,8 @@ void EventDetector::maybeUpdateStableBaseline(const DashboardState& state, uint3
     return;
   }
 
-  if (fabs(fuel - parkedBaselinePct_) > BASELINE_MAX_DRIFT_UPDATE_PCT) {
+  float baselineDelta = fuel - parkedBaselinePct_;
+  if (baselineDelta < 0.0f || baselineDelta > BASELINE_MAX_DRIFT_UPDATE_PCT) {
     return;
   }
 
@@ -275,6 +284,16 @@ void EventDetector::clearDropCandidate() {
 }
 
 void EventDetector::startDropCandidate(DashboardState& state, uint32_t now, float fuel, float dropPct) {
+  // Theft candidates are only meaningful for a parked, ignition-OFF vehicle.
+  // Keep this guard even though callers also enforce the context.
+  if (state.vehicle.ignitionOn) {
+    clearDropCandidate();
+    setDetectorState(DETECTOR_NORMAL_ON, now);
+    setCurrentEvent(state, "FAST_DROP_IGN_ON", "NONE", "Rapid drop while on",
+                    -dropPct, 0, now);
+    return;
+  }
+
   candidateStartMs_ = now;
   candidateStartFuelPct_ = fuel;
   candidateDropPct_ = dropPct;
@@ -286,6 +305,17 @@ void EventDetector::startDropCandidate(DashboardState& state, uint32_t now, floa
 
 void EventDetector::updateDropCandidate(DashboardState& state, uint32_t now, float fuel) {
   float drop = parkedBaselinePct_ - fuel;
+
+  // Defense in depth: even an unexpected transition can never promote an
+  // ignition-ON candidate into a new theft alert.
+  if (state.vehicle.ignitionOn) {
+    clearDropCandidate();
+    setDetectorState(DETECTOR_NORMAL_ON, now);
+    setCurrentEvent(state, "FAST_DROP_IGN_ON", "NONE", "Rapid drop while on",
+                    -drop, 0, now);
+    return;
+  }
+
   candidateDropPct_ = drop;
   if (drop > candidateWorstDropPct_) {
     candidateWorstDropPct_ = drop;
@@ -295,19 +325,15 @@ void EventDetector::updateDropCandidate(DashboardState& state, uint32_t now, flo
   setCurrentEvent(state, "FUEL_DROP_CANDIDATE", "NONE", "Stationary drop confirming",
                   -drop, candidateConfidence, now);
 
-  DetectorState recoveredState = state.vehicle.ignitionOn ? DETECTOR_NORMAL_ON : DETECTOR_PARKED_MONITORING;
-
-  if (fuel >= parkedBaselinePct_ - THEFT_CANCEL_RECOVERY_PCT ||
-      state.fuel.ratePercentPerSec > THEFT_MAX_RECOVERY_RATE_PCT_PER_SEC) {
+  if (fuel >= parkedBaselinePct_ - THEFT_CANCEL_RECOVERY_PCT) {
     clearDropCandidate();
-    setDetectorState(recoveredState, now);
-    setCurrentEvent(state, state.vehicle.ignitionOn ? "NORMAL" : "PARKED_MONITORING",
-                    "NONE", "Drop recovered", 0.0f, 0, now);
+    setDetectorState(DETECTOR_PARKED_MONITORING, now);
+    setCurrentEvent(state, "PARKED_MONITORING", "NONE", "Drop recovered", 0.0f, 0, now);
     return;
   }
 
   if (state.fuel.sloshingScore >= SLOSHING_SCORE_SUPPRESS_THEFT &&
-      drop < candidateWorstDropPct_ + THEFT_CANCEL_RECOVERY_PCT) {
+      drop <= candidateWorstDropPct_ - THEFT_CANCEL_RECOVERY_PCT) {
     clearDropCandidate();
     confidence_ = computeSloshingConfidence(state);
     setDetectorState(DETECTOR_SLOSHING, now);
@@ -318,7 +344,7 @@ void EventDetector::updateDropCandidate(DashboardState& state, uint32_t now, flo
 
   if (!gpsAllowsParkedTheftDecision(state)) {
     clearDropCandidate();
-    setDetectorState(recoveredState, now);
+    setDetectorState(DETECTOR_PARKED_MONITORING, now);
     setCurrentEvent(state, "FUEL_DROP_WHILE_MOVING", "NONE", "GPS motion context",
                     -drop, 0, now);
     return;
@@ -328,9 +354,10 @@ void EventDetector::updateDropCandidate(DashboardState& state, uint32_t now, flo
   bool sustainedDrop = drop >= THEFT_MIN_TOTAL_DROP_PCT;
   bool notRecovering = state.fuel.ratePercentPerSec <= THEFT_MAX_RECOVERY_RATE_PCT_PER_SEC;
 
-  if (confirmedDuration && sustainedDrop && notRecovering) {
+  if (!state.vehicle.ignitionOn && confirmedDuration && sustainedDrop && notRecovering) {
     confidence_ = computeTheftConfidence(state, drop, state.fuel.ratePercentPerSec);
     alertHoldUntilMs_ = now + THEFT_ALERT_HOLD_MS;
+    theftConfirmedWhileIgnitionOff_ = true;
     setDetectorState(DETECTOR_THEFT_ALERT, now);
     setCurrentEvent(state, "SUSPICIOUS_DROP", "FUEL_THEFT_ANOMALY",
                     "Stationary drop confirmed", -drop, confidence_, now);
@@ -338,9 +365,18 @@ void EventDetector::updateDropCandidate(DashboardState& state, uint32_t now, flo
 }
 
 void EventDetector::updateTheftAlert(DashboardState& state, uint32_t now, float fuel) {
+  if (!theftConfirmedWhileIgnitionOff_) {
+    clearDropCandidate();
+    setDetectorState(state.vehicle.ignitionOn ? DETECTOR_NORMAL_ON : DETECTOR_PARKED_MONITORING, now);
+    setCurrentEvent(state, state.vehicle.ignitionOn ? "NORMAL" : "PARKED_MONITORING",
+                    "NONE", "Invalid alert context cleared", 0.0f, 0, now);
+    return;
+  }
+
   setCurrentEvent(state, "SUSPICIOUS_DROP", "FUEL_THEFT_ANOMALY",
                   "Stationary drop confirmed", -candidateDropPct_, confidence_, now);
   if (now >= alertHoldUntilMs_) {
+    theftConfirmedWhileIgnitionOff_ = false;
     parkedBaselinePct_ = fuel;
     parkedBaselineReady_ = !state.vehicle.ignitionOn;
     lastStableUpdateMs_ = now;
@@ -356,6 +392,12 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
   state.fuel.deltaPercent = fuel - parkedBaselinePct_;
   state.fuel.deltaLiters = state.fuel.deltaPercent * state.tankCapacityLiters / 100.0f;
 
+  // Preserve only an alert that was actually confirmed while ignition was OFF.
+  if (state_ == DETECTOR_THEFT_ALERT) {
+    updateTheftAlert(state, now, fuel);
+    return;
+  }
+
   if (state_ == DETECTOR_REFUEL_CANDIDATE) {
     updateRefuelCandidate(state, now, fuel);
     return;
@@ -365,12 +407,10 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
     parkedBaselineReady_ = false;
 
     if (state_ == DETECTOR_DROP_CANDIDATE) {
-      updateDropCandidate(state, now, fuel);
-      return;
-    }
-
-    if (state_ == DETECTOR_THEFT_ALERT) {
-      updateTheftAlert(state, now, fuel);
+      clearDropCandidate();
+      setDetectorState(DETECTOR_NORMAL_ON, now);
+      setCurrentEvent(state, "FAST_DROP_IGN_ON", "NONE", "Rapid drop while on",
+                      state.fuel.deltaPercent, 0, now);
       return;
     }
 
@@ -397,19 +437,8 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
     setDetectorState(DETECTOR_NORMAL_ON, now);
     if (state.fuel.ratePercentPerSec <= THEFT_MIN_RATE_PCT_PER_SEC) {
       float drop = parkedBaselinePct_ - fuel;
-      if (drop >= THEFT_MIN_TOTAL_DROP_PCT) {
-        if (!gpsAllowsParkedTheftDecision(state)) {
-          setCurrentEvent(state, "FUEL_DROP_WHILE_MOVING", "NONE", "GPS motion context",
-                          -drop, 0, now);
-          return;
-        }
-
-        startDropCandidate(state, now, fuel, drop);
-        return;
-      }
-
       setCurrentEvent(state, "FAST_DROP_IGN_ON", "NONE", "Rapid drop while on",
-                      state.fuel.deltaPercent, 0, now);
+                      drop > 0.0f ? -drop : state.fuel.deltaPercent, 0, now);
     } else {
       setCurrentEvent(state, "NORMAL", "NONE", "Stable trend", state.fuel.deltaPercent, 0, now);
     }
@@ -431,7 +460,11 @@ void EventDetector::updateFuelStateMachine(DashboardState& state, uint32_t now) 
       break;
 
     case DETECTOR_SLOSHING:
-      if (state.fuel.sloshingScore <= SLOSHING_SCORE_CLEAR) {
+      if (parkedBaselinePct_ - fuel >= THEFT_MIN_TOTAL_DROP_PCT &&
+          state.fuel.ratePercentPerSec <= THEFT_MIN_RATE_PCT_PER_SEC &&
+          gpsAllowsParkedTheftDecision(state)) {
+        startDropCandidate(state, now, fuel, parkedBaselinePct_ - fuel);
+      } else if (state.fuel.sloshingScore <= SLOSHING_SCORE_CLEAR) {
         setDetectorState(DETECTOR_PARKED_MONITORING, now);
         setCurrentEvent(state, "PARKED_MONITORING", "NONE", "Signal settled",
                         state.fuel.deltaPercent, 0, now);
@@ -518,7 +551,9 @@ void EventDetector::applyTestButtonOverride(DashboardState& state, uint32_t now)
   } else if (now < testAlertHoldUntilMs_ &&
              !state.vehicle.ignitionOn &&
              state.currentEvent.alert == "NONE") {
-    setCurrentEvent(state, "SUSPICIOUS_DROP", "FUEL_THEFT_ANOMALY", "Manual hold",
+    // A manual demo must remain distinguishable from detector-confirmed theft
+    // throughout its visible hold; physical experiment logs use this identity.
+    setCurrentEvent(state, "TEST_BUTTON", "FUEL_THEFT_TEST", "Manual hold",
                     state.fuel.deltaPercent, 100, now);
   }
 }
@@ -545,7 +580,9 @@ bool EventDetector::gpsAllowsParkedTheftDecision(DashboardState& state) {
 
   state.gps.usedInDecision = true;
 
-  if (state.gps.moving) {
+  // Suppress immediately on fresh high speed; the debounced `moving` flag is
+  // still useful for stable UI context but must not leave a confirmation gap.
+  if (state.gps.moving || state.gps.speedKmh >= GPS_MOVING_KMH) {
     state.gps.decisionContext = "GPS_MOVING_SUPPRESSES_PARKED_THEFT";
     return false;
   }
