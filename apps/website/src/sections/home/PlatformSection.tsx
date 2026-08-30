@@ -22,7 +22,7 @@ export function PlatformSection() {
           <Reveal delay={0.16}>
             <p className="lead max-w-[44ch]">
               The desktop console brings fleet context together for review. Mobile views keep
-              status, fuel trends and incident evidence accessible in the field.
+              status, fuel trends and alert evidence accessible in the field.
             </p>
           </Reveal>
         </div>

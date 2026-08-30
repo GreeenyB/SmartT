@@ -86,7 +86,7 @@ export function SmartTDeviceShowcase() {
           <h2>Fuel and fleet context in one operations workspace.</h2>
           <p>
             Fleet fuel efficiency, suspected fuel loss, idle waste and open alerts — shown here with
-            representative data across 28 telemetry units.
+            demonstration data for a 28-vehicle fleet.
           </p>
         </div>
         <RenderedLaptop />
@@ -97,7 +97,7 @@ export function SmartTDeviceShowcase() {
           <span>Mobile application</span>
           <h2>The same operational context, carried into the field.</h2>
           <p>
-            Live map, vehicle tank history and example alert evidence — all shown with demonstration
+            Live map, vehicle tank history and example alert evidence — shown with demonstration
             data.
           </p>
         </div>

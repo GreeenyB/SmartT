@@ -94,7 +94,7 @@ export const BEATS = [
     to: 0.34,
     label: "Braking",
     state: "TRANSIENT",
-    text: "Braking tilts the fuel surface, so the probe sees a transient change even though fuel quantity is unchanged.",
+    text: "Braking tilts the fuel surface, so the probe reading shifts even though the fuel quantity is unchanged.",
   },
   {
     id: "corner",
@@ -102,7 +102,7 @@ export const BEATS = [
     to: 0.63,
     label: "Cornering",
     state: "TRANSIENT",
-    text: "The raw reading follows the moving surface while the motion-aware level remains steady.",
+    text: "The raw reading follows the moving surface while the motion-aware level stays steady.",
   },
   {
     id: "drop",
@@ -110,7 +110,7 @@ export const BEATS = [
     to: 1.01,
     label: "Vehicle at rest",
     state: "LEVEL CHANGE",
-    text: "With motion settled, a sustained level change becomes a stronger event candidate.",
+    text: "With motion settled, a sustained level change becomes a stronger candidate for review.",
   },
 ] as const;
 

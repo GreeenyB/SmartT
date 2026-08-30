@@ -1,9 +1,14 @@
 import { Reveal } from "@/components/shared/Reveal";
+import { SurfaceFade } from "@/components/shared/SurfaceFade";
 import { SectionMark } from "@/components/shared/SectionMark";
 
 export function ContactSection() {
   return (
-    <section id="contact" className="contact-surface scroll-mt-24">
+    <section
+      id="contact"
+      className="contact-surface surface-blend surface-blend--deep scroll-mt-24"
+    >
+      <SurfaceFade side="top" from="var(--surface-stone)" />
       <div className="mx-auto max-w-[1600px] px-8 py-24 md:px-14 md:py-32">
         <Reveal>
           <SectionMark label="Contact" inverse />
@@ -19,13 +24,13 @@ export function ContactSection() {
           <Reveal delay={0.16}>
             <div>
               <p className="max-w-[40ch] text-base leading-[1.8] text-white/60">
-                We welcome conversations around vehicle integration, field validation and product
+                We welcome conversations about vehicle integration, field validation and product
                 development.
               </p>
               <dl className="contact-lines">
                 <div>
                   <dt>Team</dt>
-                  <dd className="contact-lines__value">BKUIT · SmartT</dd>
+                  <dd className="contact-lines__value">BKUIT</dd>
                 </div>
                 <div>
                   <dt>Team lead</dt>

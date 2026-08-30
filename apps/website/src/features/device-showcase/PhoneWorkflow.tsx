@@ -68,7 +68,7 @@ export function FleetMapPhoneScreen() {
             </span>
           </div>
         </div>
-        <p className="sm-map-top__meta">28 of 28 vehicles shown · simulated GPS snapshot</p>
+        <p className="sm-map-top__meta">28 of 28 vehicles shown — demonstration GPS snapshot</p>
         <div className="sm-filter-row">
           {MAP_STATUS_FILTERS.map((filter, index) => (
             <span key={filter} className={`sm-filter ${index === 0 ? "is-active" : ""}`}>
@@ -82,7 +82,7 @@ export function FleetMapPhoneScreen() {
         <img
           className="sm-map__tiles"
           src="/dashboard/map-fleet.webp"
-          alt="SmartT live map showing 28 tracked vehicles across Vietnam"
+          alt="SmartT demonstration map showing 28 vehicles across Vietnam"
           loading="lazy"
           decoding="async"
         />
@@ -155,13 +155,13 @@ const TELEMETRY_ROWS = [
   ["Ignition", "On"],
   ["Odometer", "381,120 km"],
   ["Engine hours", "2,511 h"],
-  ["Fuel sensor", "Reporting normally"],
+  ["Fuel-level probe", "Reporting normally"],
   ["Telemetry link", "Online"],
 ];
 
 const EVENT_HISTORY = [
   {
-    type: "Fuel Anomaly — Overconsumption",
+    type: "Fuel anomaly — overconsumption",
     body: "Consumption ran at 33.4 L/100km against a 29.8 L/100km baseline for the shift.",
     when: "09 Aug 18:26 · Long An Depot Yard",
     status: "New",
@@ -213,7 +213,7 @@ export function VehicleTimelinePhoneScreen() {
               <span>20:00</span>
             </div>
           </div>
-          <p className="sm-chart__note">Refuelling event · 266 L added at 08:12</p>
+          <p className="sm-chart__note">Refuelling: 266 L added at 08:12</p>
         </section>
 
         <section className="sm-metrics">
@@ -236,7 +236,7 @@ export function VehicleTimelinePhoneScreen() {
             <strong>
               0.0 <em>L</em>
             </strong>
-            <small>0 events · last 7 days</small>
+            <small>0 events in the last 7 days</small>
           </div>
         </section>
 
@@ -261,7 +261,7 @@ export function VehicleTimelinePhoneScreen() {
           <div className="sm-panel__head">
             <div>
               <h4>Event history</h4>
-              <p>5 events · last 7 days</p>
+              <p>5 events in the last 7 days</p>
             </div>
           </div>
           <ul className="sm-events">
@@ -319,7 +319,7 @@ export function IncidentEvidencePhoneScreen() {
           </span>
         </div>
         <span className="sm-tag sm-tag--critical">Critical</span>
-        <h3>Suspected Fuel Loss</h3>
+        <h3>Suspected fuel loss</h3>
         <p className="sm-ahead__meta">EV-9731 · 07 Aug 14:00 · 63F-431.20 · Mai Van Tien</p>
         <p className="sm-ahead__body">
           Tank level fell 58 L in under 9 minutes while the engine was off and the vehicle
@@ -341,7 +341,7 @@ export function IncidentEvidencePhoneScreen() {
           <div className="sm-panel__head">
             <div>
               <h4>Event-day fuel trend</h4>
-              <p>63F-431.20 · 07 Aug evidence window</p>
+              <p>63F-431.20 — 07 Aug evidence window</p>
             </div>
           </div>
           <div className="sm-chart sm-chart--alert">
@@ -372,7 +372,7 @@ export function IncidentEvidencePhoneScreen() {
           />
           <figcaption>
             <MapPin className="sm-icon sm-icon--xs" />
-            Can Tho Depot Yard · GPS position at detection time
+            Can Tho Depot Yard — GPS position at detection time
           </figcaption>
         </figure>
 

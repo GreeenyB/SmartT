@@ -1,4 +1,5 @@
 import { Item, Reveal, Sequence } from "@/components/shared/Reveal";
+import { SurfaceFade } from "@/components/shared/SurfaceFade";
 import { SectionMark } from "@/components/shared/SectionMark";
 
 type Member = {
@@ -25,7 +26,7 @@ const advisors = [
   {
     name: "Nguyễn Ngọc Bình Phương",
     org: "HCMUT",
-    title: "Industrial Management Lecturer",
+    title: "Lecturer in Industrial Management",
   },
   { name: "Nguyễn Hữu Thuận", org: "Bosch Vietnam", title: "Senior Embedded Engineer" },
   { name: "Khương Anh Dũng", org: "Bosch Vietnam", title: "Head of R&D" },
@@ -33,7 +34,8 @@ const advisors = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="surface-stone scroll-mt-24">
+    <section id="about" className="surface-stone surface-blend scroll-mt-24">
+      <SurfaceFade side="top" from="var(--surface-slate-deep)" />
       <div className="mx-auto max-w-[1600px] px-8 py-24 md:px-14 md:py-32">
         <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-24">
           <div className="lg:sticky lg:top-32">
@@ -49,7 +51,7 @@ export function AboutSection() {
             </Reveal>
             <Reveal delay={0.16}>
               <p className="lead mt-7 max-w-[40ch]">
-                Team BKUIT brings together six students from HCMUT, UIT and RMIT across Computer
+                Team BKUIT brings together students from HCMUT, UIT and RMIT across Computer
                 Science, Computer Engineering, Software Engineering and Industrial Management.
               </p>
             </Reveal>

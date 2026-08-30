@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "SmartT combines fuel-level sensing with vehicle motion and operating context to support clearer fuel-event review.",
+          "SmartT combines fuel-level sensing, vehicle motion and operating context for clearer fuel-event review.",
       },
       { name: "author", content: "Team BKUIT" },
       {
@@ -91,7 +91,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "Fuel monitoring and fleet telemetry by Team BKUIT, with vehicle context carried from sensing to review.",
+          "SmartT brings fuel monitoring, fleet telemetry and vehicle context together from sensing through review.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -102,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "twitter:description",
         content:
-          "Fuel monitoring and fleet telemetry by Team BKUIT, with vehicle context carried from sensing to review.",
+          "SmartT brings fuel monitoring, fleet telemetry and vehicle context together from sensing through review.",
       },
     ],
     links: [

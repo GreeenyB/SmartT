@@ -1,27 +1,29 @@
 import { Item, MediaReveal, Reveal, Rule, Sequence } from "@/components/shared/Reveal";
+import { SurfaceFade } from "@/components/shared/SurfaceFade";
 import { SectionMark } from "@/components/shared/SectionMark";
 
 const problems = [
   {
     key: "Motion",
     title: "Signals move",
-    body: "Fuel readings shift with vehicle motion, tank geometry and sensor behaviour. A changing value is not automatically a meaningful event.",
+    body: "Fuel readings shift with vehicle motion, tank geometry and probe behaviour. A changing value does not necessarily indicate a meaningful fuel event.",
   },
   {
     key: "Fragmentation",
     title: "Context is scattered",
-    body: "Fuel level, ignition state, location and event history often sit in separate records, making review slower and less consistent.",
+    body: "Fuel level, ignition state, location and event history often sit in separate records, slowing review and making it less consistent.",
   },
   {
     key: "Latency",
     title: "Evidence arrives late",
-    body: "Without a structured event trail, operations teams have to reconstruct what happened long after the moment has passed.",
+    body: "Without a structured event trail, operations teams may have to reconstruct what happened long after the event.",
   },
 ];
 
 export function ProblemSection() {
   return (
-    <section id="problem" className="section-cool scroll-mt-24 border-t border-border">
+    <section id="problem" className="section-cool surface-blend scroll-mt-24">
+      <SurfaceFade side="top" from="var(--background)" />
       <div className="mx-auto max-w-[1600px] px-8 py-24 md:px-14 md:py-32">
         <Reveal>
           <SectionMark label="Problem" />
@@ -37,7 +39,7 @@ export function ProblemSection() {
           <Reveal delay={0.16}>
             <p className="lead max-w-[44ch]">
               Fuel data alone rarely explains what happened around a reading. Operations teams also
-              need the vehicle context around when, where and how it changed.
+              need to know when, where and under what vehicle conditions it changed.
             </p>
           </Reveal>
         </div>
@@ -71,9 +73,8 @@ export function ProblemSection() {
             </Item>
             <Item as="h3">A refuelling stop is more than a transaction.</Item>
             <Item as="p">
-              A vehicle can refuel, idle, move or show a sudden level change inside the same short
-              window. SmartT keeps fuel events linked to ignition, motion and location context for
-              later review.
+              Within a short window, a vehicle may refuel, idle, move or show a sudden level change.
+              SmartT links fuel events with ignition, motion and location context for later review.
             </Item>
           </Sequence>
         </div>

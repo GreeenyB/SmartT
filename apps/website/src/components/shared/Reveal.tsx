@@ -24,23 +24,6 @@ const grammars = {
 
 export type Grammar = keyof typeof grammars;
 
-/**
- * `motion.create()` returns a NEW component type on every call. Calling it
- * during render remounts the subtree on each parent render, which resets
- * in-flight animations and made images blink out. Cache per tag instead.
- */
-const cache = new Map<ElementType, ElementType>();
-
-function motionTag(as?: ElementType): ElementType {
-  const tag = (as ?? "div") as ElementType;
-  let made = cache.get(tag);
-  if (!made) {
-    made = motion.create(tag) as ElementType;
-    cache.set(tag, made);
-  }
-  return made;
-}
-
 type RevealProps = {
   children: ReactNode;
   /** Which motion grammar this block belongs to. */
@@ -57,7 +40,7 @@ type RevealProps = {
  */
 export function Reveal({ children, variant = "rise", delay = 0, className, as }: RevealProps) {
   const reduced = useReducedMotion();
-  const Tag = motionTag(as);
+  const Tag = motion.create((as ?? "div") as ElementType);
 
   return (
     <Tag
@@ -85,7 +68,7 @@ type SequenceProps = {
 /** Container that releases its children one beat at a time. */
 export function Sequence({ children, step = 0.09, delay = 0, className, as }: SequenceProps) {
   const reduced = useReducedMotion();
-  const Tag = motionTag(as);
+  const Tag = motion.create((as ?? "div") as ElementType);
 
   return (
     <Tag
@@ -110,7 +93,7 @@ type ItemProps = {
 /** A single beat inside a `Sequence`. */
 export function Item({ children, variant = "tight", className, as }: ItemProps) {
   const reduced = useReducedMotion();
-  const Tag = motionTag(as);
+  const Tag = motion.create((as ?? "div") as ElementType);
 
   return (
     <Tag variants={reduced ? plainFade : grammars[variant]} className={className}>
@@ -140,7 +123,7 @@ export function MediaReveal({
   as,
 }: MediaRevealProps) {
   const reduced = useReducedMotion();
-  const Tag = motionTag(as);
+  const Tag = motion.create((as ?? "div") as ElementType);
 
   if (reduced) {
     return (

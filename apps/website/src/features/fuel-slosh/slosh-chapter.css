@@ -14,8 +14,8 @@
   margin-top: clamp(4rem, 8vw, 7rem);
 }
 
-/* The sequence plays itself while in view, so the chapter is an ordinary
-   block: no sticky stage, no scroll hijack, no 320vh of empty scroll. */
+/* The chapter plays itself; it no longer borrows the scroll position, so it
+   occupies exactly the height of its own panel. */
 .slosh-stage__sticky {
   display: block;
 }
@@ -314,59 +314,49 @@
   color: oklch(1 0 0 / 0.32);
 }
 
-/* ---- foot: caption + subtle replay -------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .slosh-beats__fill,
+  .slosh-trace__event {
+    transition: none;
+  }
+}
+
+/* ---- foot: one quiet replay --------------------------------------------- */
 
 .slosh-foot {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.slosh-replay {
-  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: clamp(1.5rem, 3vw, 2.25rem);
-  padding: 0;
-  background: none;
-  border: 0;
+  justify-content: flex-end;
+  margin-top: 1.75rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--slosh-line);
   font-family: var(--font-mono);
   font-size: 0.62rem;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: oklch(1 0 0 / 0.3);
+}
+
+
+.slosh-foot__replay {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--slosh-accent);
+  background: none;
+  border: 0;
+  padding: 0;
   cursor: pointer;
-  opacity: 0.45;
   transition:
-    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.slosh-replay.is-ready {
-  opacity: 1;
-  color: var(--slosh-accent);
+.slosh-foot__replay:disabled {
+  cursor: default;
+  opacity: 0.22;
+  color: oklch(1 0 0 / 0.55);
 }
 
-.slosh-replay:hover,
-.slosh-replay:focus-visible {
-  opacity: 1;
-  color: var(--slosh-accent);
-  outline: none;
-}
-
-.slosh-replay__dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slosh-beats__fill,
-  .slosh-trace__event,
-  .slosh-replay {
-    transition: none;
-  }
+.slosh-foot__replay:not(:disabled):hover {
+  color: oklch(0.92 0.09 195);
 }

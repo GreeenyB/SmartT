@@ -1,29 +1,22 @@
-import { useReducedMotion } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useInView, useReducedMotion } from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { BEATS, SAMPLES, beatAt, buildSeries, motionState, slosh } from "./slosh-signal";
+import { BEATS, SAMPLES, beatAt, buildSeries, motionState } from "./slosh-signal";
 import "./slosh-chapter.css";
 
 /* --------------------------------------------------------------------------
  * Geometry
  * ----------------------------------------------------------------------- */
 
-type Plot = { x0: number; x1: number; y0: number; y1: number; lo: number; hi: number };
+const PLOT = { x0: 58, x1: 962, y0: 36, y1: 248, lo: 62, hi: 92 };
 
-/* Wide instrument for desktop; a narrower viewBox on small screens so the
-   hairlines and tick labels keep their real size instead of being scaled down
-   with the svg. */
-const PLOT_WIDE: Plot = { x0: 58, x1: 962, y0: 36, y1: 248, lo: 62, hi: 92 };
-const PLOT_COMPACT: Plot = { x0: 46, x1: 476, y0: 44, y1: 236, lo: 62, hi: 92 };
+const px = (i: number) => PLOT.x0 + ((PLOT.x1 - PLOT.x0) * i) / (SAMPLES - 1);
+const py = (v: number) => PLOT.y1 - ((v - PLOT.lo) / (PLOT.hi - PLOT.lo)) * (PLOT.y1 - PLOT.y0);
 
-const pxIn = (plot: Plot, i: number) => plot.x0 + ((plot.x1 - plot.x0) * i) / (SAMPLES - 1);
-const pyIn = (plot: Plot, v: number) =>
-  plot.y1 - ((v - plot.lo) / (plot.hi - plot.lo)) * (plot.y1 - plot.y0);
-
-function line(plot: Plot, values: number[], upto: number) {
+function line(values: number[], upto: number) {
   let d = "";
   for (let i = 0; i <= upto; i += 1) {
-    d += `${i === 0 ? "M" : "L"}${pxIn(plot, i).toFixed(1)} ${pyIn(plot, values[i]!).toFixed(2)}`;
+    d += `${i === 0 ? "M" : "L"}${px(i).toFixed(1)} ${py(values[i]!).toFixed(2)}`;
   }
   return d;
 }
@@ -63,101 +56,67 @@ function surfaceYAt(levelPct: number, tilt: number, phase: number, x: number) {
  * Component
  * ----------------------------------------------------------------------- */
 
-/** One full pass of the illustrative 100 s window, in ms. */
-const RUN_MS = 4000;
+/** Wall-clock length of one pass through the 100 s window. */
+const PLAY_MS = 5200;
 
 export function SloshChapter() {
   const reduced = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const [p, setP] = useState(0);
-  const pRef = useRef(0);
-  const [inView, setInView] = useState(false);
-  const [run, setRun] = useState(0); // bumping this restarts the pass
-  const [compact, setCompact] = useState(false);
+  const [done, setDone] = useState(false);
+  const [runId, setRunId] = useState(0);
+  const inView = useInView(stageRef, { margin: "-15% 0px -15% 0px" });
 
-  /* Narrower plot geometry on small screens (SSR-safe: wide until measured). */
+  /* The story plays itself while it is on screen and freezes the moment it
+     leaves, so nothing animates off-screen and nothing demands scrubbing. */
   useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(max-width: 899px)");
-    const sync = () => setCompact(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  const commit = useCallback((value: number) => {
-    // Quantised so we only re-render at the resolution the plot can show.
-    const q = Math.round(Math.min(1, Math.max(0, value)) * 400) / 400;
-    pRef.current = q;
-    setP(q);
-  }, []);
-
-  /* Play only while the instrument is actually on screen. */
-  useEffect(() => {
-    const node = stageRef.current;
-    if (!node || typeof IntersectionObserver === "undefined") return;
-
-    const io = new IntersectionObserver(([entry]) => setInView(Boolean(entry?.isIntersecting)), {
-      threshold: 0.35,
-    });
-    io.observe(node);
-    return () => io.disconnect();
-  }, []);
-
-  /* Autoplay: a single rAF pass, paused (not reset) when off-screen. */
-  useEffect(() => {
-    if (reduced || !inView) return;
+    if (reduced || !inView || done) return;
 
     let raf = 0;
-    let start: number | null = null;
-    const from = pRef.current >= 1 ? 0 : pRef.current;
+    let last = performance.now();
 
     const tick = (now: number) => {
-      if (start === null) start = now;
-      const next = Math.min(1, from + (now - start) / RUN_MS);
-      commit(next);
-      if (next < 1) raf = requestAnimationFrame(tick);
+      const dt = now - last;
+      last = now;
+      setP((prev) => {
+        const next = prev + dt / PLAY_MS;
+        if (next >= 1) {
+          setDone(true);
+          return 1;
+        }
+        return next;
+      });
+      raf = requestAnimationFrame(tick);
     };
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [reduced, inView, run, commit]);
-  const replay = useCallback(() => {
-    commit(0);
-    setRun((n) => n + 1);
-  }, [commit]);
+  }, [reduced, inView, done, runId]);
+
+  const replay = () => {
+    setP(0);
+    setDone(false);
+    setRunId((n) => n + 1);
+  };
 
   const series = useMemo(() => buildSeries(), []);
   const raws = useMemo(() => series.map((f) => f.raw), [series]);
   const stables = useMemo(() => series.map((f) => f.stable), [series]);
 
-  const PLOT = compact ? PLOT_COMPACT : PLOT_WIDE;
-  const traceW = compact ? 522 : 1000;
-  const traceH = compact ? 268 : 280;
-  const px = (i: number) => pxIn(PLOT, i);
-  const py = (v: number) => pyIn(PLOT, v);
-  const keyGap = compact ? 124 : 150;
-
-  const progress = reduced ? 1 : p;
+  const progress = reduced ? 1 : Math.min(1, p);
   const idx = Math.min(SAMPLES - 1, Math.max(1, Math.round(progress * (SAMPLES - 1))));
   const frame = series[idx]!;
   const beat = beatAt(progress);
 
   const tilt = Math.max(-16, Math.min(16, motionState(frame.t) * 46));
-  const wobble = slosh(frame.t);
   const surface = tankSurface(frame.stable, tilt, frame.t * 0.9);
   const probeY = surfaceYAt(frame.stable, tilt, frame.t * 0.9, PROBE_X);
   const meanY = tankSurface(frame.stable, 0, 0).base;
 
   const dropConfirmed = progress > 0.9;
-  const complete = progress >= 1;
 
   return (
-    <div
-      ref={stageRef}
-      className={`slosh-stage ${reduced ? "slosh-stage--static" : ""}`}
-      id="fuel-slosh"
-    >
+    <div ref={stageRef} className="slosh-stage" id="fuel-slosh">
       <div className="slosh-stage__sticky">
         <div className="slosh-panel">
           {/* ---- header ------------------------------------------------- */}
@@ -168,13 +127,6 @@ export function SloshChapter() {
             </div>
 
             <dl className="slosh-readout">
-              <div>
-                <dt>Motion</dt>
-                <dd className="tabular-nums">
-                  {frame.a >= 0 ? "+" : "−"}
-                  {Math.abs(frame.a).toFixed(2)} g
-                </dd>
-              </div>
               <div>
                 <dt>Raw reading</dt>
                 <dd className="tabular-nums slosh-readout__raw">{frame.raw.toFixed(1)} %</dd>
@@ -263,18 +215,14 @@ export function SloshChapter() {
                 <text x={TANK.x1} y={meanY - 7} textAnchor="end" className="slosh-tank__tag">
                   h
                 </text>
-                <text x={TANK.x0} y={TANK.bottom + 24} className="slosh-tank__tag">
-                  Δ SURFACE {wobble >= 0 ? "+" : "−"}
-                  {Math.abs(wobble).toFixed(1)} %
-                </text>
               </svg>
             </figure>
 
             <figure className="slosh-trace">
               <svg
-                viewBox={`0 0 ${traceW} ${traceH}`}
+                viewBox="0 0 1000 280"
                 role="img"
-                aria-label="Two traces over an illustrative 100-second window: the raw probe reading moves during manoeuvres while the motion-aware level stays steady until a modelled sustained drop."
+                aria-label="Two traces over one hundred seconds: the raw probe reading moves during manoeuvres while the motion-aware level stays steady, then follows a sustained modelled level change."
               >
                 {[92, 82, 72, 62].map((v) => (
                   <g key={v}>
@@ -296,8 +244,8 @@ export function SloshChapter() {
                   </g>
                 ))}
 
-                <path d={line(PLOT, raws, idx)} className="slosh-trace__raw" />
-                <path d={line(PLOT, stables, idx)} className="slosh-trace__stable" />
+                <path d={line(raws, idx)} className="slosh-trace__raw" />
+                <path d={line(stables, idx)} className="slosh-trace__stable" />
 
                 <line
                   x1={px(idx)}
@@ -350,13 +298,13 @@ export function SloshChapter() {
                     RAW READING
                   </text>
                   <line
-                    x1={PLOT.x0 + keyGap}
+                    x1={PLOT.x0 + 150}
                     y1={PLOT.y0 - 18}
-                    x2={PLOT.x0 + keyGap + 22}
+                    x2={PLOT.x0 + 172}
                     y2={PLOT.y0 - 18}
                     className="slosh-trace__stable"
                   />
-                  <text x={PLOT.x0 + keyGap + 30} y={PLOT.y0 - 14.5}>
+                  <text x={PLOT.x0 + 180} y={PLOT.y0 - 14.5}>
                     MOTION-AWARE LEVEL
                   </text>
                 </g>
@@ -384,29 +332,25 @@ export function SloshChapter() {
                   />
                 </span>
                 <span className="slosh-beats__label">
-                  {String(i + 1).padStart(2, "0")} · {b.label}
+                  {String(i + 1).padStart(2, "0")} {b.label}
                 </span>
                 <p>{b.text}</p>
               </li>
             ))}
           </ol>
 
-          <footer className="slosh-foot">
-            <p className="slosh-note">
-              Illustrative signal model · synthetic values · 100 s window
-            </p>
-            {!reduced && (
+          {!reduced && (
+            <div className="slosh-foot">
               <button
                 type="button"
+                className="slosh-foot__replay"
                 onClick={replay}
-                className={`slosh-replay ${complete ? "is-ready" : ""}`}
-                aria-label="Replay the signal integrity sequence"
+                disabled={!done}
               >
-                <span className="slosh-replay__dot" aria-hidden="true" />
-                Replay
+                Replay sequence
               </button>
-            )}
-          </footer>
+            </div>
+          )}
         </div>
       </div>
     </div>

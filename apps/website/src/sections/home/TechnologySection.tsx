@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 
 import { Item, MediaReveal, Reveal, Sequence } from "@/components/shared/Reveal";
+import { SurfaceFade } from "@/components/shared/SurfaceFade";
 import { SectionMark } from "@/components/shared/SectionMark";
 import { SloshChapter } from "@/features/fuel-slosh/SloshChapter";
 import { ease, viewport } from "@/lib/motion";
@@ -9,12 +10,12 @@ const pipeline = [
   {
     number: "01",
     title: "Read",
-    body: "Fuel-level input is read alongside ignition state and available motion and positioning context.",
+    body: "Fuel level is read alongside ignition state, motion and position.",
   },
   {
     number: "02",
     title: "Stabilize",
-    body: "A motion-aware filtering stage is designed to separate short-lived slosh from sustained level change.",
+    body: "Motion-aware filtering is designed to separate short-lived slosh from sustained level change.",
   },
   {
     number: "03",
@@ -24,7 +25,7 @@ const pipeline = [
   {
     number: "04",
     title: "Review",
-    body: "Telemetry and candidate events are presented as a timeline with supporting context.",
+    body: "Telemetry and candidate events are presented on a timeline with supporting context.",
   },
 ];
 
@@ -32,7 +33,12 @@ export function TechnologySection() {
   const reduced = useReducedMotion();
 
   return (
-    <section id="technology" className="tech-surface scroll-mt-24 border-y border-white/10">
+    <section
+      id="technology"
+      className="tech-surface surface-blend surface-blend--deep scroll-mt-24"
+    >
+      <SurfaceFade side="top" from="var(--background)" />
+      <SurfaceFade side="bottom" from="var(--surface-slate)" />
       <div className="mx-auto max-w-[1600px] px-8 py-24 md:px-14 md:py-32">
         <Reveal>
           <SectionMark label="Technology" inverse />
@@ -47,7 +53,7 @@ export function TechnologySection() {
           </Reveal>
           <Reveal delay={0.16}>
             <p className="max-w-[42ch] text-base leading-[1.75] text-white/60 md:text-lg">
-              Raw level data is only one input; motion and operating context shape how a change is
+              Raw level data is only one input. Motion and operating context shape how a change is
               interpreted.
             </p>
           </Reveal>
@@ -140,7 +146,9 @@ export function TechnologySection() {
 
         <SloshChapter />
 
-        <p className="slosh-note">Algorithm under active development and validation.</p>
+        <p className="slosh-note">
+          Illustrative signal model with synthetic values; algorithm under validation.
+        </p>
 
         <div className="deployment">
           <MediaReveal as="figure" direction="in" className="deployment__media media-frame">

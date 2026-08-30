@@ -2547,61 +2547,84 @@
   color: oklch(1 0 0 / 0.6);
 }
 
-/* ---- Problem: a premise sequence, not a stack of plates ----------------- */
+/* ---- Problem: three observations read as one measured row --------------- */
 
 .premise {
-  margin-top: clamp(3rem, 5vw, 5rem);
+  margin-top: clamp(3.5rem, 6vw, 5.5rem);
   display: grid;
-  gap: clamp(2.5rem, 3.5vw, 3.25rem);
-  max-width: 78rem;
+  gap: clamp(2.5rem, 4vw, 3.25rem);
+  counter-reset: premise;
 }
 
-/* Asymmetric but measured: three observations step down and to the right on
-   a 12-column field, so the reading path is a diagonal rather than a stack
-   with a hole in it. */
 @media (min-width: 900px) {
   .premise {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: clamp(1.5rem, 2.5vw, 2.5rem);
-    row-gap: clamp(2.5rem, 3.5vw, 3.5rem);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(2.5rem, 4vw, 4.5rem);
+    align-items: start;
+  }
+}
+
+/* Each column is measured from the same baseline: rule, index, title, body.
+   Equal weight, equal start — the asymmetry lives in the content, not the grid. */
+.premise__item {
+  position: relative;
+  padding-top: 0.25rem;
+}
+
+@media (min-width: 900px) {
+  .premise__item + .premise__item {
+    padding-left: clamp(2.5rem, 4vw, 4.5rem);
+    margin-left: calc(-1 * clamp(2.5rem, 4vw, 4.5rem) / 2);
   }
 
-  .premise__item:nth-child(1) {
-    grid-column: 1 / span 5;
-  }
-
-  .premise__item:nth-child(2) {
-    grid-column: 7 / span 5;
-    margin-top: 2.25rem;
-  }
-
-  .premise__item:nth-child(3) {
-    grid-column: 4 / span 6;
-    margin-top: 0.5rem;
+  .premise__item + .premise__item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-foreground) 14%, transparent),
+      transparent 82%
+    );
   }
 }
 
 .premise__key {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
   font-family: var(--font-mono);
+
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--brand-teal);
 }
 
+.premise__key::before {
+  counter-increment: premise;
+  content: counter(premise, decimal-leading-zero);
+  color: color-mix(in oklab, var(--color-foreground) 38%, transparent);
+  letter-spacing: 0.12em;
+}
+
 .premise__item h3 {
   margin-top: 0.9rem;
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  font-size: clamp(1.35rem, 1.6vw, 1.7rem);
   font-weight: 400;
-  line-height: 1.12;
+  line-height: 1.15;
   letter-spacing: -0.025em;
+  text-wrap: balance;
 }
+
 
 .premise__item p {
   margin-top: 0.95rem;
-  max-width: 46ch;
+  max-width: 36ch;
   color: var(--color-muted-foreground);
   font-size: 0.98rem;
   line-height: 1.8;
@@ -2625,8 +2648,16 @@
 }
 
 .evidence__media {
+  width: 100%;
   border-radius: 3px;
   min-height: 22rem;
+}
+
+/* An aspect-ratio box must have a definite width, or the min-height wins and
+   the figure grows sideways out of its column on narrow screens. */
+.deployment__media,
+.fuel-context__media {
+  width: 100%;
 }
 
 .evidence__copy {
@@ -2958,26 +2989,40 @@
   margin-top: 1.75rem;
 }
 
-/* Roadmap: replace full-bleed row rules with a short index rule at the stamp */
+/* Roadmap: the index rule is drawn by <motion.span class="horizon__rule">, so
+   it must span the whole row instead of eating the first grid cell — otherwise
+   the date stamp and the body get pushed onto separate rows. */
 .horizon {
   border-top: 0;
   position: relative;
   padding-top: 3.25rem;
 }
 
-.horizon::before {
-  content: "";
+.horizon__rule {
+  grid-column: 1 / -1;
   position: absolute;
   top: 0;
   left: 0;
-  width: 4.5rem;
+  width: min(100%, 22rem);
   height: 1px;
-  background: var(--hairline-strong);
+  transform-origin: left center;
+  background: linear-gradient(
+    to right,
+    var(--brand-teal) 0%,
+    color-mix(in oklab, var(--hairline-strong) 90%, transparent) 26%,
+    transparent 100%
+  );
 }
 
-.horizon:first-child::before {
+
+.horizon:first-child .horizon__rule {
   display: none;
 }
+
+.horizon:first-child {
+  padding-top: 0;
+}
+
 
 /* Team roster: tighter measure so rows read as a list, not a table */
 @media (min-width: 700px) {
@@ -3324,122 +3369,44 @@
   initial-value: 1;
 }
 
-/* The frame only contributes the mask + compositing hints. Layout, radius,
-   object-fit and object-position stay owned by each figure's own rules so the
-   intended crop of every photograph survives the reveal. */
+/* The frame only masks and isolates. It must not impose sizing, radius or
+   object-fit — each section already defines its own framing. */
 .media-frame {
   isolation: isolate;
+  overflow: hidden;
   will-change: clip-path, opacity;
 }
 
-/* :where() keeps this at zero specificity: it adds the overscale without ever
-   overriding a figure's own sizing or fit. */
-.media-frame :where(img, video) {
-  transform: scale(var(--media-scale, 1));
+/* Scale is the only thing MediaReveal contributes to the picture itself.
+   Hover adds a second, independent factor so the two never fight. */
+.media-frame > img,
+.media-frame > video {
+  transform: scale(calc(var(--media-scale, 1) * var(--media-hover, 1)));
   transform-origin: center;
-  will-change: transform;
   backface-visibility: hidden;
+  transition:
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Hairline that measures itself out (shared `Rule` component). */
-.premise__rule,
-.rule-line {
-  display: block;
-  height: 1px;
-  margin-top: 1.35rem;
-  background: color-mix(in oklab, var(--brand-teal) 55%, transparent);
-  transform-origin: left center;
+.media-frame:hover > img,
+.media-frame:hover > video {
+  --media-hover: 1.035;
+  filter: saturate(1.05) contrast(1.02);
 }
 
-/* Inside the premise the hairline is a tick, not a divider: short, quiet and
-   sitting above the key rather than cutting the column in half. */
-.premise__rule {
-  width: 2.5rem;
-  margin: 0 0 1.15rem;
-  background: color-mix(in oklab, var(--brand-teal) 70%, transparent);
-}
+@media (prefers-reduced-motion: reduce) {
+  .media-frame > img,
+  .media-frame > video {
+    transition: none;
+  }
 
-/* ---- Finished motion integration: traced rail, flow ticks, horizon rules -- */
-
-/* Architecture rail: the animated trace replaces the static hairline. */
-.rail--traced::before {
-  content: none;
-}
-
-.rail--traced .rail__trace {
-  position: absolute;
-  top: 0.6rem;
-  bottom: 0.6rem;
-  left: 5px;
-  width: 1px;
-  display: block;
-  transform-origin: top center;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in oklab, var(--brand-teal) 45%, transparent) 0%,
-    var(--hairline-strong) 22%,
-    var(--hairline) 92%,
-    transparent 100%
-  );
-}
-
-/* Technology pipeline: the accent tick animates in place of the static one. */
-.flow--signal .flow__step::before {
-  content: none;
-}
-
-.flow--signal .flow__tick {
-  position: absolute;
-  top: -1px;
-  left: 0;
-  display: block;
-  width: 2.5rem;
-  height: 1px;
-  background: var(--brand-teal);
-  transform-origin: left center;
-}
-
-@media (min-width: 900px) {
-  .flow--signal .flow__step:not(:first-child) .flow__tick {
-    left: 1.9rem;
+  .media-frame:hover > img,
+  .media-frame:hover > video {
+    --media-hover: 1;
+    filter: none;
   }
 }
-
-/* Roadmap: each horizon draws its own rule instead of a static border. */
-/* The animated rule replaces the static index hairline: one short line per
-   horizon, drawn as the row arrives. */
-.horizons--timed .horizon {
-  border-top: 0;
-  padding-top: 2.6rem;
-}
-
-.horizons--timed .horizon::before {
-  display: none;
-}
-
-.horizons--timed .horizon__rule {
-  display: block;
-  height: 1px;
-  width: 4.5rem;
-  margin-bottom: 1.6rem;
-  background: var(--hairline-strong);
-  transform-origin: left center;
-}
-
-@media (min-width: 900px) {
-  .horizons--timed .horizon__rule {
-    grid-column: 1 / -1;
-  }
-}
-
-.horizons--timed .horizon:first-child {
-  padding-top: 0;
-}
-
-.horizons--timed .horizon:first-child .horizon__rule {
-  display: none;
-}
-
 
 
 /* Hero cue: the underline retracts and the arrow steps out on hover. */
@@ -3465,8 +3432,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .media-frame img,
-  .media-frame video {
+  .media-frame > img,
+  .media-frame > video {
+
     transform: none;
   }
 
@@ -3481,5 +3449,755 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================================================== */
+/*  Animated rails, rules and ticks                                            */
+/*  Static hairlines above are the fallback; these variants hand the drawing   */
+/*  over to the motion layer (Reveal / Rule / section-level variants).         */
+/* ========================================================================== */
+
+/* Problem: each observation measures itself out with a short accent rule. */
+.premise__rule {
+  width: 100%;
+  height: 1px;
+  margin-bottom: 1.35rem;
+  background: linear-gradient(
+    to right,
+    var(--brand-teal) 0%,
+    color-mix(in oklab, var(--brand-teal) 35%, transparent) 42%,
+    color-mix(in oklab, var(--color-foreground) 10%, transparent) 100%
+  );
+}
+
+
+/* Architecture: the vertical rail is drawn by <motion.span class="rail__trace">,
+   so the static pseudo-element steps aside. */
+.rail--traced::before {
+  content: none;
+}
+
+.rail--traced .rail__trace {
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  left: 5px;
+  width: 1px;
+  transform-origin: top center;
+  background: linear-gradient(
+    to bottom,
+    var(--hairline-strong) 0%,
+    var(--hairline) 92%,
+    transparent 100%
+  );
+}
+
+/* Pipeline: the accent tick is animated per step, so it replaces the static
+   rule on top of each column. */
+.flow--signal .flow__step::before {
+  content: none;
+}
+
+.flow--signal .flow__tick {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  display: block;
+  width: 2.5rem;
+  height: 1px;
+  transform-origin: left center;
+  background: var(--brand-teal);
+}
+
+@media (min-width: 900px) {
+  .flow--signal .flow__step:not(:first-child) .flow__tick {
+    left: 1.9rem;
+  }
+}
+
+/* Caveat under the signal-integrity chapter. */
+.slosh-note {
+  margin-top: clamp(1.75rem, 3vw, 2.5rem);
+  max-width: 62ch;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+  color: oklch(1 0 0 / 0.42);
+}
+
+/* ========================================================================== */
+/*  Surface handover — seamless transitions between section values            */
+/*                                                                            */
+/*  Consecutive sections deliberately change tone (paper, stone, slate, deep   */
+/*  navy). Instead of butting those values against each other, each boundary   */
+/*  gets an eased alpha ramp of the neighbouring colour painted over the       */
+/*  section's own background, plus a slow drifting wash inside the deep        */
+/*  surfaces so the dark chapters feel lit rather than flat.                   */
+/* ========================================================================== */
+
+.surface-blend {
+  position: relative;
+  isolation: isolate;
+}
+
+/*
+ * Edge, not smear.
+ *
+ * Two techniques stacked, which is what well-made editorial sites do instead
+ * of a tall gradient: (1) a crisp hairline exactly on the seam, (2) a very
+ * short, heavily front-loaded ramp underneath it. The eye reads the hairline
+ * as the boundary, so the ramp only has to kill the value step — it never has
+ * to do the job of "hiding" the join.
+ */
+.surface-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--fade-h, clamp(18px, 2vh, 34px));
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    var(--fade-dir, to bottom),
+    var(--fade-from) 0%,
+    color-mix(in oklab, var(--fade-from) 62%, transparent) 22%,
+    color-mix(in oklab, var(--fade-from) 30%, transparent) 44%,
+    color-mix(in oklab, var(--fade-from) 12%, transparent) 66%,
+    color-mix(in oklab, var(--fade-from) 3%, transparent) 85%,
+    transparent 100%
+  );
+}
+
+/* Hairline at the exact seam: the defined edge that lets the ramp stay short. */
+.surface-fade::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in oklab, var(--fade-seam, currentColor) 26%, transparent) 10%,
+    color-mix(in oklab, var(--fade-seam, currentColor) 42%, transparent) 50%,
+    color-mix(in oklab, var(--fade-seam, currentColor) 26%, transparent) 90%,
+    transparent 100%
+  );
+  opacity: 0.55;
+}
+
+.surface-fade--top {
+  top: 0;
+  --fade-dir: to bottom;
+}
+
+.surface-fade--top::after {
+  top: 0;
+}
+
+.surface-fade--bottom {
+  bottom: 0;
+  --fade-dir: to top;
+}
+
+.surface-fade--bottom::after {
+  bottom: 0;
+}
+
+/* Deep surfaces cross a bigger value step, so they get a few extra pixels —
+   still a hairline with a shoulder, never a gradient chapter. */
+.surface-blend--deep .surface-fade {
+  --fade-h: clamp(26px, 3vh, 52px);
+}
+
+
+
+/* ---- Drifting wash inside the deep chapters ------------------------------ */
+
+.tech-surface::before,
+.contact-surface::before,
+.site-footer::before {
+  will-change: transform;
+  animation: surface-drift 28s ease-in-out infinite alternate;
+}
+
+.contact-surface::before {
+  animation-duration: 34s;
+}
+
+.site-footer::before {
+  animation-duration: 40s;
+}
+
+@keyframes surface-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.85;
+  }
+  to {
+    transform: translate3d(-3.5%, 2.5%, 0) scale(1.14);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-surface::before,
+  .contact-surface::before,
+  .site-footer::before {
+    animation: none;
+  }
+}
+
+/* ========================================================================== */
+/*  Cinematic hero stage                                                       */
+/*  One dark, full-bleed opening band. The photograph is held under a veil     */
+/*  and a fine engineering mesh so display type carries at any size.           */
+/* ========================================================================== */
+
+.hero-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* One full screen, never more: the opening frame must not leak the next band. */
+  /* Sticky header sits in flow above; subtract it so the frame is exact. */
+  height: calc(100svh - 77px);
+  min-height: 560px;
+  max-height: 1100px;
+  background: var(--surface-deep);
+  color: oklch(0.99 0 0);
+}
+
+.hero-stage__media {
+  position: absolute;
+  inset: -8% 0 -8% 0;
+  z-index: -3;
+}
+
+.hero-stage__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  will-change: transform;
+}
+
+/* Slow ken-burns drift so the photograph is alive without ever distracting. */
+.hero-stage__drift {
+  animation: hero-drift 34s ease-in-out infinite alternate;
+}
+
+@keyframes hero-drift {
+  from {
+    transform: scale(1.02) translate3d(1%, 0.6%, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-2%, -1.4%, 0);
+  }
+}
+
+/* A single light pass across the frame — the "signal" motif, very faint. */
+.hero-stage__sweep {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 38%,
+    oklch(0.85 0.11 200 / 0.12) 50%,
+    transparent 62%
+  );
+  background-size: 260% 100%;
+  animation: hero-sweep 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes hero-sweep {
+  0% {
+    background-position: 130% 0;
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0;
+  }
+  100% {
+    background-position: -30% 0;
+    opacity: 0;
+  }
+}
+
+/* Soft aurora that follows the pointer: gives the frame depth as you move. */
+.hero-stage__glow {
+  position: absolute;
+  inset: -20%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 42% at 26% 40%, oklch(0.72 0.13 200 / 0.28) 0%, transparent 70%),
+    radial-gradient(34% 38% at 74% 66%, oklch(0.62 0.15 262 / 0.24) 0%, transparent 72%);
+  filter: blur(10px);
+  animation: hero-glow-breathe 14s ease-in-out infinite alternate;
+}
+
+@keyframes hero-glow-breathe {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+}
+
+/* Telemetry scan line: one thin band travelling down the frame. */
+.hero-stage__scan {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-stage__scan::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 160px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    oklch(0.85 0.11 200 / 0.09) 50%,
+    transparent 100%
+  );
+  animation: hero-scan 7.5s linear infinite;
+}
+
+@keyframes hero-scan {
+  0% {
+    transform: translateY(-180px);
+    opacity: 0;
+  }
+  15%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh);
+    opacity: 0;
+  }
+}
+
+/* Opening curtain — the frame is revealed once on load. */
+.hero-stage__curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  transform-origin: top center;
+  background: var(--surface-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage__drift,
+  .hero-stage__sweep,
+  .hero-stage__glow,
+  .hero-stage__scan::before {
+    animation: none;
+  }
+}
+
+
+.hero-stage__veil {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      100deg,
+      oklch(0.17 0.045 258 / 0.94) 0%,
+      oklch(0.19 0.05 250 / 0.82) 42%,
+      oklch(0.22 0.05 232 / 0.68) 78%,
+      oklch(0.24 0.05 220 / 0.6) 100%
+    ),
+    linear-gradient(to top, oklch(0.15 0.04 258 / 0.97) 0%, oklch(0.16 0.04 254 / 0.82) 26%, transparent 58%);
+}
+
+/* The mesh is the site's one decorative motif: a measured grid, the way a
+   depot or a PCB is measured. Kept faint so it reads as texture, not pattern. */
+.hero-stage__mesh {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(to right, oklch(1 0 0 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(1 0 0 / 0.05) 1px, transparent 1px);
+  background-size: 84px 84px;
+  mask-image: radial-gradient(120% 90% at 20% 30%, oklch(0 0 0) 10%, transparent 72%);
+}
+
+.hero-stage__inner {
+  position: relative;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 5rem 2rem 6rem;
+}
+
+@media (min-width: 768px) {
+  .hero-stage__inner {
+    padding: 6rem 3.5rem 6rem;
+  }
+}
+
+.hero-eyebrow--onstage {
+  color: oklch(1 0 0 / 0.6);
+}
+
+.hero-title--stage {
+  margin-top: 1.6rem;
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 10.5vw, 9.5rem);
+  font-weight: 300;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  color: oklch(0.99 0 0);
+}
+
+.hero-title__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+
+.hero-title__char {
+  display: inline-block;
+  will-change: transform, filter;
+}
+
+.hero-title__accent {
+  color: oklch(1 0 0 / 0.42);
+}
+
+
+.hero-stage__rule {
+  display: block;
+  transform-origin: left;
+  width: min(520px, 60%);
+  height: 2px;
+  margin-top: 2rem;
+  background: var(--gradient-brand);
+}
+
+.hero-stage__lead {
+  max-width: 46ch;
+  margin-top: 1.8rem;
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  line-height: 1.7;
+  color: oklch(1 0 0 / 0.72);
+}
+
+.hero-stage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 2.4rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 999px;
+  background: var(--gradient-brand);
+  color: oklch(0.13 0.02 258);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease,
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -18px oklch(0.72 0.13 200 / 0.9);
+}
+
+.hero-cta__icon {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-cta:hover .hero-cta__icon {
+  transform: translate(3px, 3px);
+}
+
+.hero-cta--ghost {
+  background: transparent;
+  color: oklch(1 0 0 / 0.85);
+  border: 1px solid oklch(1 0 0 / 0.28);
+}
+
+.hero-cta--ghost:hover {
+  background: oklch(1 0 0 / 0.08);
+  color: oklch(0.99 0 0);
+  box-shadow: none;
+}
+
+.hero-readout {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 3rem;
+  gap: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .hero-readout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    padding: 0 3.5rem 3.5rem;
+  }
+}
+
+.hero-readout::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    oklch(1 0 0 / 0.18) 0%,
+    oklch(1 0 0 / 0.06) 55%,
+    transparent 100%
+  );
+}
+
+.hero-readout::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, oklch(0.15 0.04 256 / 1), oklch(0.14 0.035 258 / 1));
+}
+
+.hero-readout__cell {
+  position: relative;
+  padding-top: 1.6rem;
+}
+
+@media (min-width: 768px) {
+  .hero-readout__cell {
+    padding: 1.9rem 2.2rem 0 0;
+  }
+
+  .hero-readout__cell + .hero-readout__cell {
+    padding-left: 2.2rem;
+    border-left: 1px solid oklch(1 0 0 / 0.12);
+  }
+}
+
+.hero-readout__index {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  color: oklch(0.78 0.11 200 / 0.9);
+}
+
+.hero-readout__cell dt {
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.55);
+}
+
+.hero-readout__cell dd {
+  max-width: 34ch;
+  margin: 0.7rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: oklch(1 0 0 / 0.78);
+}
+
+/* ========================================================================== */
+/*  Metrics band — one moment of scale between chapters                        */
+/* ========================================================================== */
+
+.metrics-band {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background: var(--surface-deep);
+  background-image: var(--gradient-deep);
+  color: oklch(0.99 0 0);
+}
+
+.metrics-band__mesh {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(oklch(1 0 0 / 0.14) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(105deg, oklch(0 0 0 / 0.9), transparent 65%);
+}
+
+.metrics-band__inner {
+  display: grid;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 4.5rem 2rem;
+  gap: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  .metrics-band__inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .metrics-band__inner {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    padding: 5.5rem 3.5rem;
+  }
+
+  .metric + .metric {
+    padding-left: 2.5rem;
+    border-left: 1px solid oklch(1 0 0 / 0.12);
+  }
+
+  .metric {
+    padding-right: 2.5rem;
+  }
+}
+
+.metric__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 5.2vw, 4.75rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric__label {
+  margin-top: 1.1rem;
+  max-width: 22ch;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: oklch(1 0 0 / 0.86);
+}
+
+.metric__note {
+  margin-top: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(1 0 0 / 0.42);
+}
+
+/* ========================================================================== */
+/*  Header — condenses on scroll, reflects position                            */
+/* ========================================================================== */
+
+.site-header {
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.site-header__bar {
+  transition: min-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-header.is-condensed .site-header__bar {
+  min-height: 62px;
+}
+
+.site-header.is-condensed {
+  box-shadow: 0 14px 34px -30px oklch(0.2 0.03 258 / 0.9);
+}
+
+.site-brand img {
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-header.is-condensed .site-brand img {
+  width: 2.7rem;
+  height: 2.55rem;
+}
+
+.nav-link--tracked {
+  position: relative;
+  padding-bottom: 0.35rem;
+  opacity: 0.62;
+  transition: opacity 0.3s ease;
+}
+
+.nav-link--tracked::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--gradient-brand);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link--tracked:hover,
+.nav-link--tracked.is-active {
+  opacity: 1;
+}
+
+.nav-link--tracked:hover::after,
+.nav-link--tracked.is-active::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta,
+  .hero-cta__icon,
+  .nav-link--tracked::after,
+  .site-brand img,
+  .site-header__bar {
+    transition: none;
   }
 }
