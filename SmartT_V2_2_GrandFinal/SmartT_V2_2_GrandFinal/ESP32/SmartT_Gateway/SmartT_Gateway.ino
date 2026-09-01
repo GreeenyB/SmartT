@@ -14,7 +14,7 @@
 
 static const char *WIFI_SSID = "Xiaomi";
 static const char *WIFI_PASSWORD = "sinhvien";
-static const char *INGEST_URL = "http://192.168.1.4:8000/api/v2/ingest";
+static const char *INGEST_URL = "https://smartt-backend.onrender.com/api/v2/ingest";
 /* Basic Auth credentials must match SMARTT_AUTH_USER:SMARTT_AUTH_PASS in
  * backend/app.py (defaults smartt:smartt-bkuit-2026). Regenerate with:
  * base64("user:password") */
