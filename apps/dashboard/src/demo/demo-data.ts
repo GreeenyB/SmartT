@@ -4,10 +4,13 @@ import * as base from "@/lib/fleet-data";
 
 import { CONTROLLED_SCENARIO } from "./showcase-scenario";
 import { useDemoScenario } from "./demo-context";
+import { useLiveData, type LiveState, type LiveTelemetry } from "@/live/live";
 import type { DemoStage } from "./demo-types";
 import type {
+  AlertSeverity,
   DailyRecord,
   DailySeriesPoint,
+  EventKind,
   FleetEvent,
   FleetKpis,
   RefuelEvent,
@@ -355,7 +358,221 @@ export function buildDemoDatasetForStage(stage: DemoStage): DemoFleetData {
   return buildDataset(stage);
 }
 
+/* ---------------------------------------------------------------------------
+ * Live device overlay.
+ * Maps the SmartT V2 backend schema (/api/v2/latest, /api/v2/incidents) onto
+ * the FleetView model so the prototype (TRUCK_01) appears as a real vehicle
+ * with current fuel level, context status and confirmed incidents.
+ * ------------------------------------------------------------------------- */
+
+const clampPct = (value: number) => Math.max(4, Math.min(99, value));
+
+export const LIVE_VEHICLE_ID = "V-LIVE";
+
+/* The route loader for /vehicles/$vehicleId runs during SSR, where the
+ * backend cannot be reached. Cache the last built live vehicle here so the
+ * loader can resolve the live id without throwing a 404, and fall back to a
+ * static placeholder before the first successful fetch. */
+let cachedLiveVehicle: Vehicle | null = null;
+
+export function liveVehicleForRoute(id: string): Vehicle | undefined {
+  if (id !== LIVE_VEHICLE_ID) return undefined;
+  if (cachedLiveVehicle) return cachedLiveVehicle;
+  const placeholder = buildLiveVehicle({ vehicle_id: "TRUCK_01" });
+  return { ...placeholder, online: false };
+}
+
+function liveStatusFrom(mode?: string): VehicleStatus {
+  const m = (mode ?? "").toUpperCase();
+  if (m.includes("MOVING")) return "moving";
+  if (m.includes("PARKED") || m.includes("TILT")) return "parked";
+  return "idling";
+}
+
+function liveEventKind(event?: string): EventKind {
+  const e = (event ?? "NORMAL").toUpperCase();
+  if (e.includes("THEFT") || e.includes("LOSS") || e.includes("DROP")) return "fuel_drop";
+  if (e.includes("REFUEL")) return "refueling";
+  if (e.includes("SLOSH")) return "overconsumption";
+  if (e.includes("FAULT") || e.includes("SENSOR")) return "sensor_error";
+  return "overconsumption";
+}
+
+function liveSeverity(kind: EventKind, event: string): AlertSeverity {
+  const e = event.toUpperCase();
+  if (e.includes("THEFT")) return "critical";
+  if (e.includes("SLOSH")) return "info";
+  if (kind === "fuel_drop" || kind === "sensor_error") return "warning";
+  return "warning";
+}
+
+function buildLiveVehicle(latest: LiveTelemetry): Vehicle {
+  const fuel = latest.fuel ?? {};
+  const context = latest.context ?? {};
+  const gps = latest.gps ?? {};
+  const tankL = 400;
+  const pct = clampPct(fuel.percent ?? 0);
+  const speed = context.speed_kmh ?? 0;
+  const ignition = Boolean(context.ignition_on);
+  return {
+    id: "V-LIVE",
+    plate: latest.vehicle_id ?? "TRUCK_01",
+    model: "SmartT V2.2",
+    type: "Box Truck",
+    driver: "Live Prototype",
+    phone: "",
+    depotId: base.depots[0]!.id,
+    routeId: base.routes[0]!.id,
+    status: liveStatusFrom(context.mode),
+    online: true,
+    fuelPct: pct,
+    tankL,
+    baseline: 30,
+    odometer: 0,
+    engineHours: 0,
+    speedKph: speed,
+    ignition,
+    lastSeenMin: 0,
+    lat: gps.fix ? (gps.lat ?? 10.78) : 10.78,
+    lng: gps.fix ? (gps.lon ?? 106.7) : 106.7,
+    heading: 0,
+    location: gps.fix ? "Live device (GPS fix)" : "Live device (GPS pending)",
+    progress: 0,
+    trail: [],
+    telemetry: Array.from({ length: 24 }, (_, hour): TelemetrySample => ({
+      hour,
+      fuelPct: pct,
+      speedKph: speed,
+      ignition,
+    })),
+    daily: base.dayKeys.map((date, index): DailyRecord => ({
+      date,
+      km: 0,
+      fuelL: index === base.dayKeys.length - 1 ? round(fuel.volume_l ?? 0, 1) : 0,
+      idleMinutes: 0,
+      idleFuelL: 0,
+      anomalyL: 0,
+    })),
+    sensorHealthy: (fuel.quality ?? 1) > 0.15,
+  };
+}
+
+function liveEventFrom(record: LiveTelemetry, index: number, vehicle: Vehicle): FleetEvent {
+  const fuel = record.fuel ?? {};
+  const context = record.context ?? {};
+  const gps = record.gps ?? {};
+  const intel = record.intelligence ?? {};
+  const event = record.event ?? "NORMAL";
+  const kind = liveEventKind(event);
+  const before = intel.baseline_l != null && vehicle.tankL > 0
+    ? round((intel.baseline_l / vehicle.tankL) * 100, 1)
+    : (fuel.percent ?? 0);
+  const after = fuel.percent ?? 0;
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const litersLost = kind === "fuel_drop"
+    ? Math.abs(intel.unexplained_loss_l ?? ((before - after) / 100) * vehicle.tankL)
+    : null;
+  const litersAdded = kind === "refueling"
+    ? Math.max(0, ((after - before) / 100) * vehicle.tankL)
+    : null;
+
+  const metric: FleetEvent["metric"] = {};
+  if (litersLost !== null) metric.litersLost = litersLost;
+  if (litersAdded !== null) metric.litersAdded = litersAdded;
+
+  return {
+    id: `LIVE-${record.event_seq ?? "rec"}-${index}`,
+    vehicleId: vehicle.id,
+    plate: vehicle.plate,
+    kind,
+    severity: liveSeverity(kind, event),
+    title: `${kind === "fuel_drop" ? "Suspected Fuel Loss" : kind === "refueling" ? "Detected Refueling" : kind === "sensor_error" ? "Sensor Warning" : "Fuel Anomaly"} — Live Device`,
+    detail: Array.isArray(record.reasons) && record.reasons.length
+      ? record.reasons.map((reason) => reason.replace(/_/g, " ")).join(", ")
+      : `Edge confidence ${record.confidence?.toFixed(0) ?? "?"}%`,
+    metric,
+    lat: gps.fix ? (gps.lat ?? 10.78) : 10.78,
+    lng: gps.fix ? (gps.lon ?? 106.7) : 106.7,
+    location: gps.fix ? "Live device (GPS fix)" : "Live device (GPS pending)",
+    date: base.dayKeys[base.dayKeys.length - 1]!,
+    time,
+    workflow: "New",
+    evidence: {
+      fuelPctBefore: before,
+      fuelPctAfter: after,
+      ignition: Boolean(context.ignition_on),
+      speedKph: context.speed_kmh ?? 0,
+      fuelTrend: Array.from({ length: 24 }, (_, hour): TelemetrySample => ({
+        hour,
+        fuelPct: after,
+        speedKph: context.speed_kmh ?? 0,
+        ignition: Boolean(context.ignition_on),
+      })),
+    },
+  };
+}
+
+function liveVehicleStat(vehicle: Vehicle): base.VehicleStat {
+  return {
+    vehicle,
+    km: 0,
+    fuelL: round(vehicle.tankL * (vehicle.fuelPct / 100), 1),
+    idleMinutes: 0,
+    idleFuelL: 0,
+    efficiency: 0,
+    deltaVsBaseline: 0,
+    suspectedLossL: 0,
+  };
+}
+
+function withLiveOverlay(data: DemoFleetData, live: LiveState): DemoFleetData {
+  const hasLive = Boolean(live.latest);
+  const liveVehicle = hasLive
+    ? buildLiveVehicle(live.latest!)
+    : (liveVehicleForRoute(LIVE_VEHICLE_ID) as Vehicle);
+  cachedLiveVehicle = liveVehicle;
+
+  let liveEvents: FleetEvent[] = [];
+  if (hasLive && live.latest) {
+    const latest = live.latest;
+    const currentEvent = latest.event ?? "NORMAL";
+    const currentIsEvent =
+      currentEvent !== "NORMAL" || (latest.record_type ?? "") === "event";
+
+    liveEvents = [
+      ...live.incidents
+        .filter((record) => (record.event_seq ?? 0) !== (latest.event_seq ?? 0))
+        .map((record, index) => liveEventFrom(record, index + 1, liveVehicle)),
+    ];
+    if (currentIsEvent) {
+      liveEvents.push(liveEventFrom(latest, 0, liveVehicle));
+    }
+  }
+
+  return {
+    ...data,
+    vehicles: [...data.vehicles, liveVehicle],
+    fleetEvents: [...liveEvents, ...data.fleetEvents],
+    vehicleById: (id) => (id === liveVehicle.id ? liveVehicle : data.vehicleById(id)),
+    eventsForVehicle: (id) =>
+      id === liveVehicle.id ? liveEvents : data.eventsForVehicle(id),
+    eventsForRange: (range) => [...liveEvents, ...data.eventsForRange(range)],
+    vehicleStats: (range) => [...data.vehicleStats(range), liveVehicleStat(liveVehicle)],
+    fleetStatusCounts: () => {
+      const counts = data.fleetStatusCounts();
+      counts[liveVehicle.status] += 1;
+      return counts;
+    },
+  };
+}
+
 export function useDemoData(): DemoFleetData {
   const { active, stage } = useDemoScenario();
-  return useMemo(() => (active ? buildDataset(stage) : productionData), [active, stage]);
+  const live = useLiveData();
+  const data = useMemo(
+    () => (active ? buildDataset(stage) : productionData),
+    [active, stage],
+  );
+  return useMemo(() => withLiveOverlay(data, live), [data, live]);
 }

@@ -4,22 +4,29 @@
 /* ================================================================
  * SmartT V2.2 STM32 -> ESP32 -> Backend gateway
  *
- * STM32 USART2 460800 -> ESP32 UART2 (RX=16, TX=17)
+ * STM32 USART2 460800 -> ESP32 UART2 (RX=23, TX=22)
+ * GPIO16/17 were unusable on this DevKit (loopback test failed),
+ * so the link moved to GPIO23/22.
  * Each STM32 record is one JSON line. The gateway keeps a bounded queue,
  * retries HTTP delivery, and preferentially drops telemetry rather than a
  * confirmed event when the queue is full.
  * ================================================================ */
 
-static const char *WIFI_SSID = "YOUR_WIFI_SSID";
-static const char *WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-static const char *INGEST_URL = "http://192.168.1.10:8000/api/v2/ingest";
+static const char *WIFI_SSID = "Xiaomi";
+static const char *WIFI_PASSWORD = "sinhvien";
+static const char *INGEST_URL = "http://192.168.1.4:8000/api/v2/ingest";
+/* Basic Auth credentials must match SMARTT_AUTH_USER:SMARTT_AUTH_PASS in
+ * backend/app.py (defaults smartt:smartt-bkuit-2026). Regenerate with:
+ * base64("user:password") */
+static const char *AUTH_BASIC = "Basic c21hcnR0OnNtYXJ0dC1ia3VpdC0yMDI2";
 
 HardwareSerial STM32Serial(2);
 
 static const uint32_t WIFI_RETRY_MS = 10000;
-static const uint32_t HTTP_RETRY_MS = 1000;
+static const uint32_t HTTP_RETRY_MS = 100;
 static const size_t MAX_LINE = 2400;
 static const uint8_t QUEUE_SIZE = 24;
+static const size_t RX_BUFFER_SIZE = 8192;
 
 struct QueueItem
 {
@@ -115,11 +122,12 @@ static bool deliverFront()
     return false;
 
   HTTPClient http;
-  http.setTimeout(1500);
+  http.setTimeout(800);
   if (!http.begin(INGEST_URL))
     return false;
 
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", AUTH_BASIC);
   const int status = http.POST(
       (uint8_t *)queueBuf[0].line.c_str(), queueBuf[0].line.length());
   http.end();
@@ -137,7 +145,12 @@ static bool deliverFront()
 void setup()
 {
   Serial.begin(115200);
-  STM32Serial.begin(460800, SERIAL_8N1, 16, 17);
+  /* At 460800 baud the STM32 emits ~57 KB/s. HTTP POST blocks the loop for
+   * up to 800 ms, so the default 256-byte RX FIFO would overflow and drop
+   * telemetry. Grow the software ring buffer before begin(). Requires the
+   * ESP32 Arduino core >= 2.0.2 (setRxBufferSize). */
+  STM32Serial.setRxBufferSize(RX_BUFFER_SIZE);
+  STM32Serial.begin(460800, SERIAL_8N1, 23, 22);
   rxLine.reserve(MAX_LINE);
 
   WiFi.mode(WIFI_STA);

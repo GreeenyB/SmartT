@@ -12,6 +12,12 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      // Allow the cloudflared quick-tunnel hostname to reach the dev server.
+      allowedHosts: [".trycloudflare.com", "localhost", "127.0.0.1"],
+    },
+  },
   nitro: {
     preset: "vercel",
   },

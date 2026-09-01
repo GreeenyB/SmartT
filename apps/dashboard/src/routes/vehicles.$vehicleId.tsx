@@ -13,7 +13,7 @@ import {
   StatusPill,
   WorkflowBadge,
 } from "@/components/dashboard-kit";
-import { useDemoData } from "@/demo/demo-data";
+import { useDemoData, liveVehicleForRoute } from "@/demo/demo-data";
 import { FleetMap, MapLegend, type MapMarker } from "@/components/fleet-map";
 import { statusTone } from "@/routes/live-map";
 import {
@@ -33,7 +33,7 @@ import {
 
 export const Route = createFileRoute("/vehicles/$vehicleId")({
   loader: ({ params }) => {
-    const vehicle = vehicleById(params.vehicleId);
+    const vehicle = vehicleById(params.vehicleId) ?? liveVehicleForRoute(params.vehicleId);
     if (!vehicle) throw notFound();
     return { plate: vehicle.plate };
   },

@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Buffers are file-scope because the combined ~2.7 KB payload far exceeds
+ * the 1 KB stack configured in SmartT.ioc. Stack-local arrays here caused
+ * an overflow (hard fault / reset) on the first telemetry send. */
+static char reasons[440];
+static char json[2300];
+
 static void append_reason(char *buffer,
                           size_t buffer_size,
                           size_t *used,
@@ -88,8 +94,6 @@ HAL_StatusTypeDef SmartT_TelemetrySend(UART_HandleTypeDef *uart,
         return HAL_ERROR;
     }
 
-    char reasons[440];
-    char json[2300];
     reasons_to_json(engine->reason_mask, reasons, sizeof(reasons));
 
     const uint32_t uid0 = HAL_GetUIDw0();

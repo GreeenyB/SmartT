@@ -21,16 +21,15 @@
  * connectivity is unavailable.
  * ================================================================ */
 
-/* EXAMPLE LUT. Replace with measured points before setting
- * SMARTT_TANK_CALIBRATION_READY=1. */
+/* Demo cylinder r=5cm, h=25cm: volume = pi * 50^2 * 250 mm^3 = 1.9635 L.
+ * Cylinder profile is linear in height. */
 static const SmartT_TankCalPoint_t tank_calibration[] =
 {
     {   0.0f,   0.0f },
-    {  80.0f,  12.0f },
-    { 160.0f,  29.0f },
-    { 240.0f,  49.0f },
-    { 320.0f,  72.0f },
-    { 400.0f, 100.0f }
+    {  62.5f,   0.49f },
+    { 125.0f,   0.98f },
+    { 187.5f,   1.47f },
+    { 250.0f,   1.96f }
 };
 
 #define TANK_CAL_COUNT ((uint32_t)(sizeof(tank_calibration) / sizeof(tank_calibration[0])))
@@ -153,7 +152,10 @@ static float median_push(float value)
             sorted[(uint8_t)j + 1U] = sorted[(uint8_t)j];
             j--;
         }
-        sorted[(uint8_t)j + 1U] = key;
+        /* Cast AFTER the +1: with j == -1, (uint8_t)j + 1U would index 256
+         * and smash the stack. This only runs once tank calibration is
+         * enabled AND the ultrasonic delivers a valid frame. */
+        sorted[(uint8_t)(j + 1)] = key;
     }
 
     if ((e.median_count & 1U) != 0U)

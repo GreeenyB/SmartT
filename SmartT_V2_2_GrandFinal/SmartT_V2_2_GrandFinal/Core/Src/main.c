@@ -346,8 +346,12 @@ memset(&gps_snapshot, 0, sizeof(gps_snapshot));
         (ultrasonic_snapshot.frame_seq != 0U) &&
         (ultrasonic_snapshot.frame_seq != last_ultrasonic_frame_seq))
     {
-      last_ultrasonic_frame_seq = ultrasonic_snapshot.frame_seq;
-      SmartT_EngineProcessUltrasonic(&ultrasonic_snapshot, now);
+        last_ultrasonic_frame_seq = ultrasonic_snapshot.frame_seq;
+#if SMARTT_DEBUG_SKIP_ENGINE_US
+        /* debug: driver + display only, engine disabled */
+#else
+        SmartT_EngineProcessUltrasonic(&ultrasonic_snapshot, now);
+#endif
     }
 
     /* Freshness, baseline timers and candidate confirmation continue even

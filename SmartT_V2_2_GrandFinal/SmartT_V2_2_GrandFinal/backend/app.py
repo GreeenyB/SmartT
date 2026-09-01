@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import base64
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import os
 from pathlib import Path
+import secrets
 import sqlite3
 from threading import Lock
 from typing import Any, Dict
@@ -20,6 +23,13 @@ JSONL_PATH.parent.mkdir(parents=True, exist_ok=True)
 ml = SmartTML(ROOT / "models")
 residual_tracker = ResidualTracker()
 jsonl_lock = Lock()
+
+# Basic Auth. Change these before exposing publicly (env vars override).
+AUTH_USER = os.environ.get("SMARTT_AUTH_USER", "smartt")
+AUTH_PASS = os.environ.get("SMARTT_AUTH_PASS", "smartt-bkuit-2026")
+AUTH_EXPECTED = "Basic " + base64.b64encode(
+    f"{AUTH_USER}:{AUTH_PASS}".encode("utf-8")
+).decode("ascii")
 
 
 def db() -> sqlite3.Connection:
@@ -82,6 +92,75 @@ def init_db() -> None:
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+DASHBOARD_PAGE = """<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartT Live Dashboard</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#0b0f14;color:#e6edf3;margin:0;padding:16px}
+  h1{font-size:20px;margin:0 0 12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+  .card{background:#151b23;border:1px solid #2a3441;border-radius:10px;padding:12px}
+  .card .label{font-size:11px;color:#8b98a5;text-transform:uppercase;letter-spacing:.5px}
+  .card .value{font-size:24px;font-weight:600;margin-top:4px}
+  .card .sub{font-size:12px;color:#8b98a5;margin-top:2px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .ok{background:#123c2c;color:#4ade80}.warn{background:#3c2f12;color:#facc15}
+  .alert{background:#3c1212;color:#f87171}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #222c37}
+  th{color:#8b98a5;font-size:11px;text-transform:uppercase}
+  #stamp{color:#5d6b7a;font-size:12px;margin-top:10px}
+</style>
+</head>
+<body>
+<h1>SmartT — Live Telemetry</h1>
+<div class="grid" id="grid"></div>
+<h2 style="font-size:15px;margin-top:18px">Sự kiện gần nhất</h2>
+<table id="incidents"><thead><tr><th>Thời gian</th><th>Sự kiện</th><th>Độ tin cậy</th><th>Lý do</th></tr></thead><tbody></tbody></table>
+<div id="stamp"></div>
+<script>
+async function json(url){const r=await fetch(url);if(!r.ok)throw new Error(r.status);return r.json()}
+function card(label,value,sub,badge){return `<div class="card"><div class="label">${label}</div><div class="value">${value}</div>${sub?`<div class="sub">${sub}</div>`:""}${badge?`<div style="margin-top:6px">${badge}</div>`:""}</div>`}
+function badge(text,kind){return `<span class="badge ${kind}">${text}</span>`}
+async function tick(){
+  try{
+    const t=await json("/api/v2/latest");
+    const inc=await json("/api/v2/incidents?limit=8");
+    const g=t.grid=document.getElementById("grid");
+    const ev=(t.event||"NORMAL");const evc=(t.record_type==="event"?"alert":"ok");
+    const fuel=t.fuel||{};const ctx=t.context||{};const gps=t.gps||{};const intel=t.intelligence||{};
+    g.innerHTML=
+      card("Event",ev,badge(ev.toUpperCase().replace(/_/g," "),evc))+
+      card("Nhiên liệu",(fuel.percent==null?"--":fuel.percent.toFixed(1)+"%"),"lọc "+ (fuel.volume_l==null?"--":fuel.volume_l.toFixed(1))+" L")+
+      card("Độ tin cậy",t.confidence==null?"--":t.confidence.toFixed(0)+"%")+
+      card("Trạng thái",ctx.mode||"--")+
+      card("Tốc độ",ctx.speed_kmh==null?"--":ctx.speed_kmh.toFixed(1)+" km/h")+
+      card("GPS",gps.fix?"CÓ":"KHÔNG",gps.fix?gps.lat.toFixed(5)+", "+gps.lon.toFixed(5):"chưa có fix")+
+      card("Slosh",intel.slosh_score==null?"--":intel.slosh_score.toFixed(2))+
+      card("CUSUM",intel.change_point_score==null?"--":intel.change_point_score.toFixed(2))+
+      card("Uptime",t.uptime_ms==null?"--":(t.uptime_ms/1000|0)+"s","device "+t.device_id);
+    const rows=inc.map(x=>{
+      const k=x.event||x.edge_event||x.final_event||"NORMAL";
+      const kind=(k==="NORMAL"?"ok":(k.includes("REFUEL")?"warn":"alert"));
+      const reasons=Array.isArray(x.reasons)?x.reasons.map(r=>r.replace(/_/g," ")).join(", "):"-";
+      return `<tr><td>${x.received_at?x.received_at.replace("T"," ").slice(0,19):"-"}</td><td>${badge(k.toUpperCase().replace(/_/g," "),kind)}</td><td>${x.confidence==null?"-":x.confidence.toFixed(0)+"%"}</td><td>${reasons}</td></tr>`;
+    }).join("");
+    document.querySelector("#incidents tbody").innerHTML=rows||'<tr><td colspan="4">Chưa có sự kiện</td></tr>';
+    document.getElementById("stamp").textContent="Cập nhật: "+new Date().toLocaleTimeString()+" — "+t.device_id+" · uptime "+(t.uptime_ms/1000|0)+"s";
+  }catch(e){
+    document.getElementById("stamp").textContent="Lỗi kết nối: "+e.message;
+  }
+}
+setInterval(tick,2000);tick();
+</script>
+</body>
+</html>
+"""
 
 
 def nested(payload: Dict[str, Any], group: str, key: str, default: Any = None) -> Any:
@@ -212,16 +291,47 @@ class SmartTHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
         self.end_headers()
         if body:
             self.wfile.write(body)
 
+    def _send_unauthorized(self) -> None:
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", 'Basic realm="SmartT", charset="UTF-8"')
+        self.send_header("Content-Length", "0")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+
+    def _send_page(self, html: str) -> None:
+        body = html.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _authorized(self) -> bool:
+        auth = self.headers.get("Authorization", "")
+        return secrets.compare_digest(auth, AUTH_EXPECTED)
+
     def do_OPTIONS(self) -> None:
         self._send(204, {})
 
+    def do_GET(self) -> None:
+        if not self._authorized():
+            self._send_unauthorized()
+            return
+        self._do_get()
+
     def do_POST(self) -> None:
+        if not self._authorized():
+            self._send_unauthorized()
+            return
+        self._do_post()
+
+    def _do_post(self) -> None:
         path = urlparse(self.path).path
 
         if path == "/api/v2/model/reload":
@@ -266,13 +376,17 @@ class SmartTHandler(BaseHTTPRequestHandler):
         except Exception as exc:
             self._send(400, {"ok": False, "error": str(exc)})
 
-    def do_GET(self) -> None:
+    def _do_get(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path
         query = parse_qs(parsed.query)
 
         if path == "/api/v2/health":
             self._send(200, {"ok": True, "time": utc_now(), "ml": ml.status()})
+            return
+
+        if path == "/" or path == "/dashboard":
+            self._send_page(DASHBOARD_PAGE)
             return
 
         if path == "/api/v2/latest":
@@ -317,8 +431,10 @@ class SmartTHandler(BaseHTTPRequestHandler):
 
 def main() -> None:
     init_db()
-    server = ThreadingHTTPServer(("0.0.0.0", 8000), SmartTHandler)
-    print("SmartT V2.2 backend listening on http://0.0.0.0:8000")
+    # Render (and most hosts) assign the port via the PORT env var.
+    port = int(os.environ.get("PORT", "8000"))
+    server = ThreadingHTTPServer(("0.0.0.0", port), SmartTHandler)
+    print(f"SmartT V2.2 backend listening on http://0.0.0.0:{port}")
     print("ML status:", ml.status())
     try:
         server.serve_forever()

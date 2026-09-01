@@ -12,14 +12,14 @@
 #define SMARTT_VEHICLE_ID                      "TRUCK_01"
 
 /* ---------------- Fuel tank / ultrasonic ---------------- */
-/* Keep at 0 until the actual demo tank is measured and the LUT in
- * smartt_engine.c is replaced with measured height->volume points. */
-#define SMARTT_TANK_CALIBRATION_READY          0U
+/* Demo tank: cylinder r=5cm, h=25cm -> V = pi*25*25 ~= 1.96 L.
+ * Ultrasonic mounted at the top of the cylinder looking down. */
+#define SMARTT_TANK_CALIBRATION_READY          1U
 
 /* Acoustic reference distance from the ultrasonic face to the tank bottom
  * along the measurement axis.  Replace after measuring the real rig. */
-#define SMARTT_SENSOR_TO_TANK_BOTTOM_MM        400.0f
-#define SMARTT_TANK_MAX_FUEL_HEIGHT_MM         400.0f
+#define SMARTT_SENSOR_TO_TANK_BOTTOM_MM        250.0f
+#define SMARTT_TANK_MAX_FUEL_HEIGHT_MM         250.0f
 
 #define SMARTT_US_MIN_MM                       30U
 #define SMARTT_US_MAX_MM                       4500U
@@ -91,4 +91,10 @@
 #define SMARTT_SCHEMA_VERSION                  2U
 #define SMARTT_TELEMETRY_UART_TIMEOUT_MS       80U
 
+/* ---------------- Debug bisect ----------------
+ * 1 = skip the fuel engine pipeline entirely (US frames are still received
+ *     and counted, but SmartT_EngineProcessUltrasonic is not called).
+ * Use this to isolate a freeze between the US driver/display and the
+ * engine (Kalman/baseline/event) path. */
+#define SMARTT_DEBUG_SKIP_ENGINE_US            0U
 #endif /* INC_SMARTT_CONFIG_H_ */
