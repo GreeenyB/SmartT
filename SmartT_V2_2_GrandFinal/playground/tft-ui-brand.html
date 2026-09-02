@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartT TFT — Signature Palette</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --muted:#6b7f99; --text:#eef4f8; }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,system-ui,sans-serif;background:#060a12;color:var(--text);padding:32px}
+    h1{margin:0 0 6px;font-size:24px;font-weight:600}
+    .sub{color:var(--muted);font-size:14px;margin-bottom:20px;max-width:720px;line-height:1.65}
+    .layout{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+    .bezel{background:#0a0a0a;border:3px solid #1a2840;border-radius:12px;padding:16px;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+    canvas{display:block;image-rendering:pixelated}
+    .legend{display:grid;gap:10px;max-width:320px}
+    .chip{display:flex;align-items:center;gap:10px;font-size:13px}
+    .dot{width:28px;height:20px;border-radius:4px;border:1px solid #333}
+    .panel{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap}
+    select,button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #2a3a55;background:#0f1828;color:var(--text)}
+    button{background:#152238;border-color:#087e91;color:#2ec4cf;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h1>SmartT Signature Palette</h1>
+  <p class="sub">
+    Tổ hợp được chọn: <strong>Navy</strong> (nền) + <strong>Amber Gold</strong> (dữ liệu chính) +
+    <strong>Signal Teal</strong> (tin cậy / trạng thái). Vàng thuần dễ chói trên TFT;
+    teal một mình thiếu nổi bật cho fuel. Kết hợp này khớp website, dễ đọc, và trông premium.
+  </p>
+
+  <div class="layout">
+    <div>
+      <div class="bezel"><canvas id="tft" width="320" height="240" style="width:640px;height:480px"></canvas></div>
+      <div class="panel">
+        <select id="scene">
+          <option value="drive">Đang chạy</option>
+          <option value="parked">Đỗ xe</option>
+          <option value="theft">Cảnh báo</option>
+          <option value="low">Xăng thấp 12%</option>
+      <option value="mid">Xăng trung bình 45%</option>
+      <option value="full">Bình đầy 92%</option>
+        </select>
+        <button id="animate">▶ Animate</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="chip"><span class="dot" style="background:#112238"></span><span><strong>Navy</strong> — nền, panel, bezel</span></div>
+      <div class="chip"><span class="dot" style="background:#e8a020"></span><span><strong>Amber Gold</strong> — logo, fuel %, thanh nhiên liệu</span></div>
+      <div class="chip"><span class="dot" style="background:#087e91"></span><span><strong>Signal Teal</strong> — VERIFIED, accent lines</span></div>
+      <div class="chip"><span class="dot" style="background:#eef4f8"></span><span><strong>White</strong> — RPM, speed, tilt, GPS</span></div>
+      <div class="chip"><span class="dot" style="background:#e03030"></span><span><strong>Đỏ → Cam → Vàng → Xanh</strong> — fuel % + thanh gradient</span></div>
+    </div>
+  </div>
+
+  <script>
+    const W=320,H=240,C={
+      INK:0x0841,NAVY:0x1084,PANEL:0x18C6,ELEV:0x1A0C,SURF:0x2108,
+      GOLD:0xFEA0,GOLD_L:0xFF79,GOLD_D:0xC640,
+      SIG:0x07F1,SIG_D:0x0470,TRACK:0x1A2C,
+      MUTED:0x4A69,LINE:0x3186,BORD:0x2965,ALERT_E:0xF800,
+      WHITE:0xFFFF,RED:0xF800,GREEN:0x07E0,YELLOW:0xFFE0
+    };
+    const SC={drive:{fuel:67.3,rpm:1850,speed:62,tilt:3.2,state:'MOVING ROUGH',event:'NORMAL',sensor:'US 842 Q92',gps:true,lat:'10.7723N',lon:'106.6598E'},
+      parked:{fuel:54.2,rpm:0,speed:0,tilt:0.4,state:'PARKED STABLE',event:'NORMAL',sensor:'US 812 Q96',gps:true,lat:'10.7723N',lon:'106.6598E'},
+      theft:{fuel:41.8,rpm:-1,speed:0,tilt:1.1,state:'PARKED STABLE',event:'THEFT ANOMALY',sensor:'US 620 Q88',gps:true,lat:'10.7723N',lon:'106.6598E'},
+      calib:{fuel:-1,rpm:-1,speed:0,tilt:2,state:'UNKNOWN',event:'CALIBRATE TANK',sensor:'US NO DATA',gps:false,lat:'',lon:''},
+      low:{fuel:12,rpm:0,speed:0,tilt:0.5,state:'PARKED STABLE',event:'NORMAL',sensor:'US 520 Q85',gps:true,lat:'10.7723N',lon:'106.6598E'},
+      mid:{fuel:45,rpm:1200,speed:35,tilt:2.1,state:'MOVING SMOOTH',event:'NORMAL',sensor:'US 710 Q90',gps:true,lat:'10.7723N',lon:'106.6598E'},
+      full:{fuel:92,rpm:0,speed:0,tilt:0.3,state:'PARKED STABLE',event:'NORMAL',sensor:'US 950 Q96',gps:true,lat:'10.7723N',lon:'106.6598E'}};
+    const cv=document.getElementById('tft'),ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;
+    const rgb=c=>{const r=((c>>11)&31)*255/31|0,g=((c>>5)&63)*255/63|0,b=(c&31)*255/31|0;return`rgb(${r},${g},${b})`};
+    const fr=(x,y,w,h,c)=>{ctx.fillStyle=rgb(c);ctx.fillRect(x,y,w,h)};
+    const tx=(x,y,s,fg,bg,sc=1)=>{ctx.font=`${sc===3?26:sc===2?18:10}px JetBrains Mono,monospace`;ctx.textBaseline='top';if(bg!=null){ctx.fillStyle=rgb(bg);ctx.fillRect(x-1,y-1,s.length*6*sc+4,7*sc+2)}ctx.fillStyle=rgb(fg);ctx.fillText(s,x,y)};
+    const inset=(x,y,w,h,f,b)=>{fr(x,y,w,h,f);fr(x,y,w,1,b);fr(x,y+h-1,w,1,b);fr(x,y,1,h,b);fr(x+w-1,y,1,h,b)};
+    const hbar=(x,y,w,h,p,fg,bg)=>{fr(x,y,w,h,bg);const fw=w*p/100|0;if(fw)fr(x,y,fw,h,fg)};
+    const alert=e=>/THEFT|SUSPICIOUS|FAULT|QUALITY|DROP/.test(e);
+    const q=s=>{const m=s.match(/ Q(\d+)/);return m?+m[1]:0};
+    const verified=d=>d.fuel>=0&&!alert(d.event)&&q(d.sensor)>=70;
+    const evCol=e=>/THEFT|SUSPICIOUS|FAULT/.test(e)?C.RED:/REFUEL/.test(e)?C.GREEN:/SLOSH|DROP|QUALITY|CALIB/.test(e)?C.YELLOW:C.SIG;
+    const fCol=f=>{
+      if(f<0)return C.YELLOW;
+      const stops=[0xF800,0xFB80,0xFEA0,0xFFE0,0x07E0];
+      const p=Math.max(0,Math.min(100,f));
+      const seg=Math.min(4,Math.floor(p*4/100));
+      if(seg>=4)return stops[4];
+      const segStart=seg*25;
+      const t=((p-segStart)*255/25)|0;
+      const lerp=(a,b,t)=>{const r0=(a>>11)&31,g0=(a>>5)&63,b0=a&31,r1=(b>>11)&31,g1=(b>>5)&63,b1=b&31;
+        const r=(r0+((r1-r0)*t/255))|0,g=(g0+((g1-g0)*t/255))|0,bv=(b0+((b1-b0)*t/255))|0;return(r<<11)|(g<<5)|bv};
+      return lerp(stops[seg],stops[seg+1],t);
+    };
+    const fuelBar=(x,y,w,h,fuel)=>{
+      fr(x,y,w,h,C.TRACK);
+      if(fuel<=0)return;
+      const pct=Math.min(100,Math.round(fuel)),fw=w*pct/100|0,bands=16;
+      for(let b=0;b<bands;b++){
+        const bx0=x+fw*b/bands|0,bx1=Math.min(x+fw,x+fw*(b+1)/bands|0);
+        if(bx0>=x+fw)break; if(bx1<=bx0)continue;
+        const level=(bx1-x)*100/w;
+        fr(bx0,y,bx1-bx0,h,fCol(level));
+      }
+      if(fw<w)fr(x+fw-1,y-1,2,h+2,fCol(fuel));
+    };
+    function badge(v,a){fr(206,7,108,17,C.PANEL);if(a){fr(212,13,5,5,C.ALERT_E);tx(220,10,'ALERT',C.RED,C.PANEL)}else if(v){fr(212,13,5,5,C.SIG);tx(220,10,'VERIFIED',C.SIG,C.PANEL)}else{fr(212,13,5,5,C.GOLD_D);tx(220,10,'PENDING',C.MUTED,C.PANEL)}}
+    function draw(d){
+      fr(0,0,W,H,C.INK);fr(3,3,314,234,C.NAVY);fr(3,3,314,1,C.BORD);fr(3,236,314,1,C.BORD);fr(3,3,1,234,C.BORD);fr(316,3,1,234,C.BORD);
+      fr(8,8,304,20,C.PANEL);tx(14,9,'SMARTT',C.GOLD,C.PANEL,2);tx(86,14,'FLEET INTEL',C.GOLD_L,C.PANEL);
+      fr(8,30,304,1,C.LINE);fr(8,30,96,1,C.SIG);
+      inset(10,36,300,72,C.ELEV,C.BORD);tx(18,42,'FUEL LEVEL',C.GOLD_L,C.ELEV);tx(196,42,'TRUST SIGNAL',C.WHITE,C.ELEV);
+      [[10,'RPM'],[112,'SPEED'],[214,'TILT']].forEach(([x,l])=>{inset(x,114,96,42,C.SURF,C.BORD);tx(x+28,120,l,C.GOLD_L,C.SURF)});
+      inset(10,162,300,46,C.ELEV,C.BORD);tx(18,168,'CONTEXT',C.WHITE,C.ELEV);tx(18,182,'EVENT',C.MUTED,C.ELEV);tx(18,196,'SENSOR',C.WHITE,C.ELEV);
+      fr(8,212,304,24,C.PANEL);fr(8,212,304,1,C.SIG);tx(14,218,'POSITION',C.GOLD_L,C.PANEL);
+      badge(verified(d),alert(d.event));
+      fr(18,54,284,38,C.ELEV);
+      const fc=fCol(d.fuel);
+      if(d.fuel<0)tx(18,56,'CALIB',C.YELLOW,C.ELEV,3);
+      else tx(18,56,`${d.fuel.toFixed(1)}%`,fc,C.ELEV,3);
+      fuelBar(18,98,284,3,d.fuel<0?0:d.fuel);
+      fr(18,132,80,18,C.SURF);tx(30,132,d.rpm<0?'---':String(d.rpm),d.rpm<0?C.MUTED:C.WHITE,C.SURF,2);
+      fr(120,132,80,18,C.SURF);tx(138,132,String(d.speed),C.WHITE,C.SURF,2);
+      fr(222,132,80,18,C.SURF);tx(236,132,d.tilt.toFixed(1),C.WHITE,C.SURF,2);
+      fr(88,166,214,12,C.ELEV);tx(88,168,d.state,d.state.includes('IMU')?C.RED:C.WHITE,C.ELEV);
+      fr(10,180,300,12,C.ELEV);if(alert(d.event))fr(10,180,3,12,C.ALERT_E);
+      fr(88,180,214,12,C.ELEV);tx(88,182,d.event,alert(d.event)?C.WHITE:evCol(d.event),C.ELEV);
+      fr(88,194,214,12,C.ELEV);tx(88,196,d.sensor,C.WHITE,C.ELEV);
+      fr(72,212,236,24,C.PANEL);
+      if(d.gps){tx(72,218,d.lat,C.WHITE,C.PANEL);tx(188,218,d.lon,C.WHITE,C.PANEL)}else tx(72,218,'AWAITING FIX',C.MUTED,C.PANEL);
+    }
+    let t=null,tt=0;const render=()=>{let d={...SC[scene.value]};if(t){d.fuel=Math.max(-1,Math.min(100,d.fuel+Math.sin(tt)*3));tt+=.15}draw(d)};
+    const scene=document.getElementById('scene');scene.onchange=render;
+    animate.onclick=function(){if(t){clearInterval(t);t=null;this.textContent='▶ Animate'}else{t=setInterval(render,120);this.textContent='⏹ Stop'}render()};
+    render();
+  </script>
+</body>
+</html>

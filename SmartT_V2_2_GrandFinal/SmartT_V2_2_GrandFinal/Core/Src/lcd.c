@@ -1,5 +1,6 @@
 #include "lcd.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -300,111 +301,285 @@ void LCD_DrawString(uint16_t x,
             break;
     }
 }
+
+static void LCD_DrawInset(uint16_t x,
+                          uint16_t y,
+                          uint16_t w,
+                          uint16_t h,
+                          uint16_t fill,
+                          uint16_t border)
+{
+    LCD_FillRect(x, y, w, h, fill);
+    LCD_FillRect(x, y, w, 1, border);
+    LCD_FillRect(x, y + h - 1, w, 1, border);
+    LCD_FillRect(x, y, 1, h, border);
+    LCD_FillRect(x + w - 1, y, 1, h, border);
+}
+
+static void LCD_DrawHBar(uint16_t x,
+                         uint16_t y,
+                         uint16_t w,
+                         uint16_t h,
+                         uint8_t pct,
+                         uint16_t fg,
+                         uint16_t bg)
+{
+    if (pct > 100U)
+        pct = 100U;
+
+    LCD_FillRect(x, y, w, h, bg);
+
+    if (pct > 0U)
+    {
+        const uint16_t fw = (uint16_t)(((uint32_t)w * pct) / 100U);
+
+        if (fw > 0U)
+            LCD_FillRect(x, y, fw, h, fg);
+    }
+}
+
+static uint16_t LCD_Lerp565(uint16_t c0, uint16_t c1, uint8_t t)
+{
+    const uint8_t r0 = (uint8_t)((c0 >> 11) & 0x1FU);
+    const uint8_t g0 = (uint8_t)((c0 >> 5) & 0x3FU);
+    const uint8_t b0 = (uint8_t)(c0 & 0x1FU);
+    const uint8_t r1 = (uint8_t)((c1 >> 11) & 0x1FU);
+    const uint8_t g1 = (uint8_t)((c1 >> 5) & 0x3FU);
+    const uint8_t b1 = (uint8_t)(c1 & 0x1FU);
+    const uint8_t r = (uint8_t)((int16_t)r0 +
+                               (((int16_t)r1 - (int16_t)r0) * (int16_t)t) / 255);
+    const uint8_t g = (uint8_t)((int16_t)g0 +
+                               (((int16_t)g1 - (int16_t)g0) * (int16_t)t) / 255);
+    const uint8_t b = (uint8_t)((int16_t)b0 +
+                               (((int16_t)b1 - (int16_t)b0) * (int16_t)t) / 255);
+
+    return (uint16_t)(((uint16_t)r << 11) | ((uint16_t)g << 5) | (uint16_t)b);
+}
+
+static uint16_t SmartT_FuelColor(float fuel_pct)
+{
+    static const uint16_t stops[5] =
+    {
+        LCD_FUEL_CRIT,
+        LCD_FUEL_LOW,
+        LCD_FUEL_MID,
+        LCD_FUEL_HIGH,
+        LCD_FUEL_FULL,
+    };
+
+    uint8_t pct;
+    uint8_t seg;
+    uint8_t seg_start;
+    uint8_t local;
+
+    if (fuel_pct < 0.0f)
+        return LCD_YELLOW;
+
+    if (fuel_pct > 100.0f)
+        fuel_pct = 100.0f;
+
+    pct = (uint8_t)(fuel_pct + 0.5f);
+    seg = (uint8_t)((pct * 4U) / 100U);
+
+    if (seg >= 4U)
+        return stops[4];
+
+    seg_start = (uint8_t)(seg * 25U);
+    local = (uint8_t)(((uint16_t)(pct - seg_start) * 255U) / 25U);
+
+    return LCD_Lerp565(stops[seg], stops[seg + 1U], local);
+}
+
+static void LCD_DrawFuelGradientBar(uint16_t x,
+                                    uint16_t y,
+                                    uint16_t w,
+                                    uint16_t h,
+                                    float fuel)
+{
+    const uint8_t bands = 16U;
+    uint8_t pct = 0U;
+    uint16_t fw;
+    uint8_t b;
+
+    if (fuel > 0.0f)
+        pct = (uint8_t)(fuel + 0.5f);
+
+    fw = (uint16_t)(((uint32_t)w * pct) / 100U);
+
+    LCD_FillRect(x, y, w, h, LCD_BRAND_TRACK);
+
+    if (pct == 0U || fw == 0U)
+        return;
+
+    for (b = 0U; b < bands; b++)
+    {
+        const uint16_t bx0 = (uint16_t)(x + ((uint32_t)fw * b) / bands);
+        uint16_t bx1 = (uint16_t)(x + ((uint32_t)fw * (b + 1U)) / bands);
+        const uint8_t level = (uint8_t)(((uint32_t)(bx1 - x) * 100U) / w);
+        uint16_t bw;
+
+        if (bx0 >= x + fw)
+            break;
+
+        if (bx1 > x + fw)
+            bx1 = (uint16_t)(x + fw);
+
+        bw = (uint16_t)(bx1 - bx0);
+        if (bw == 0U)
+            continue;
+
+        LCD_FillRect(bx0, y, bw, h, SmartT_FuelColor((float)level));
+    }
+
+    if (fw < w)
+    {
+        LCD_FillRect((uint16_t)(x + fw - 1U), (uint16_t)(y - 1U),
+                     2U, (uint16_t)(h + 2U),
+                     SmartT_FuelColor(fuel));
+    }
+}
+
+static uint8_t SmartT_IsAlertEvent(const char *event)
+{
+    if (event == NULL)
+        return 0U;
+
+    if (strstr(event, "THEFT") != NULL)
+        return 1U;
+    if (strstr(event, "SUSPICIOUS") != NULL)
+        return 1U;
+    if (strstr(event, "FAULT") != NULL)
+        return 1U;
+    if (strstr(event, "QUALITY") != NULL)
+        return 1U;
+    if (strstr(event, "DROP") != NULL)
+        return 1U;
+
+    return 0U;
+}
+
+static uint8_t SmartT_ParseSensorQuality(const char *sensor)
+{
+    const char *qmark;
+
+    if (sensor == NULL)
+        return 0U;
+
+    qmark = strstr(sensor, " Q");
+    if (qmark == NULL)
+        return 0U;
+
+    return (uint8_t)atoi(qmark + 2);
+}
+
+static uint8_t SmartT_IsVerified(float fuel,
+                                 const char *event,
+                                 const char *sensor)
+{
+    const uint8_t quality = SmartT_ParseSensorQuality(sensor);
+
+    if (fuel < 0.0f)
+        return 0U;
+
+    if (SmartT_IsAlertEvent(event))
+        return 0U;
+
+    if (quality < 70U)
+        return 0U;
+
+    return 1U;
+}
+
+static void SmartT_DrawTrustBadge(uint8_t verified, uint8_t alert)
+{
+    LCD_FillRect(206, 7, 108, 17, LCD_BRAND_PANEL);
+
+    if (alert)
+    {
+        LCD_FillRect(212, 13, 5, 5, LCD_BRAND_ALERT_EDGE);
+        LCD_DrawString(220, 10, "ALERT", LCD_RED, LCD_BRAND_PANEL, 1);
+        return;
+    }
+
+    if (verified)
+    {
+        LCD_FillRect(212, 13, 5, 5, LCD_BRAND_SIGNAL);
+        LCD_DrawString(220, 10, "VERIFIED", LCD_BRAND_SIGNAL, LCD_BRAND_PANEL, 1);
+        return;
+    }
+
+    LCD_FillRect(212, 13, 5, 5, LCD_BRAND_GOLD_DIM);
+    LCD_DrawString(220, 10, "PENDING", LCD_BRAND_MUTED, LCD_BRAND_PANEL, 1);
+}
+
+static uint16_t SmartT_EventColor(const char *event)
+{
+    if (event == NULL)
+        return LCD_BRAND_SIGNAL;
+
+    if (strstr(event, "THEFT") != NULL ||
+        strstr(event, "SUSPICIOUS") != NULL ||
+        strstr(event, "FAULT") != NULL)
+        return LCD_RED;
+
+    if (strstr(event, "REFUEL") != NULL)
+        return LCD_GREEN;
+
+    if (strstr(event, "SLOSH") != NULL ||
+        strstr(event, "DROP") != NULL ||
+        strstr(event, "QUALITY") != NULL ||
+        strstr(event, "CALIB") != NULL)
+        return LCD_YELLOW;
+
+    return LCD_BRAND_SIGNAL;
+}
+
 void SmartT_DrawDashboard(void)
 {
-    LCD_Fill(LCD_BLACK);
+    LCD_Fill(LCD_BRAND_INK);
 
-    // Header
-    LCD_FillRect(0, 0, 320, 30, LCD_BLUE);
+    /* Premium bezel frame */
+    LCD_FillRect(3, 3, 314, 234, LCD_BRAND_NAVY);
+    LCD_FillRect(3, 3, 314, 1, LCD_BRAND_BORDER);
+    LCD_FillRect(3, 236, 314, 1, LCD_BRAND_BORDER);
+    LCD_FillRect(3, 3, 1, 234, LCD_BRAND_BORDER);
+    LCD_FillRect(316, 3, 1, 234, LCD_BRAND_BORDER);
 
-    LCD_DrawString(
-        8,
-        7,
-        "SMARTT",
-        LCD_WHITE,
-        LCD_BLUE,
-        2
-    );
+    /* Header */
+    LCD_FillRect(8, 8, 304, 20, LCD_BRAND_PANEL);
+    LCD_DrawString(14, 9, "SMARTT", LCD_BRAND_GOLD, LCD_BRAND_PANEL, 2);
+    LCD_DrawString(86, 14, "FLEET INTEL", LCD_BRAND_GOLD_LIGHT, LCD_BRAND_PANEL, 1);
 
-    LCD_DrawString(
-        220,
-        10,
-        "CAN",
-        LCD_WHITE,
-        LCD_BLUE,
-        1
-    );
+    LCD_FillRect(8, 30, 304, 1, LCD_BRAND_LINE);
+    LCD_FillRect(8, 30, 96, 1, LCD_BRAND_SIGNAL);
 
-    // Divider
-    LCD_FillRect(
-        0,
-        31,
-        320,
-        2,
-        LCD_GRAY
-    );
+    /* Fuel hero card */
+    LCD_DrawInset(10, 36, 300, 72, LCD_BRAND_ELEVATED, LCD_BRAND_BORDER);
+    LCD_DrawString(18, 42, "FUEL LEVEL", LCD_BRAND_GOLD_LIGHT, LCD_BRAND_ELEVATED, 1);
+    LCD_DrawString(196, 42, "TRUST SIGNAL", LCD_WHITE, LCD_BRAND_ELEVATED, 1);
 
-    LCD_DrawString(
-        10,
-        45,
-        "FUEL",
-        LCD_CYAN,
-        LCD_BLACK,
-        2
-    );
+    /* Metric tiles */
+    LCD_DrawInset(10, 114, 96, 42, LCD_BRAND_SURFACE, LCD_BRAND_BORDER);
+    LCD_DrawString(38, 120, "RPM", LCD_BRAND_GOLD_LIGHT, LCD_BRAND_SURFACE, 1);
 
-    LCD_DrawString(
-        10,
-        85,
-        "RPM",
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
+    LCD_DrawInset(112, 114, 96, 42, LCD_BRAND_SURFACE, LCD_BRAND_BORDER);
+    LCD_DrawString(132, 120, "SPEED", LCD_BRAND_GOLD_LIGHT, LCD_BRAND_SURFACE, 1);
 
-    LCD_DrawString(
-        10,
-        105,
-        "SPEED",
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
+    LCD_DrawInset(214, 114, 96, 42, LCD_BRAND_SURFACE, LCD_BRAND_BORDER);
+    LCD_DrawString(242, 120, "TILT", LCD_BRAND_GOLD_LIGHT, LCD_BRAND_SURFACE, 1);
 
-    LCD_DrawString(
-        10,
-        125,
-        "TILT",
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
+    /* Integrity panel */
+    LCD_DrawInset(10, 162, 300, 46, LCD_BRAND_ELEVATED, LCD_BRAND_BORDER);
+    LCD_DrawString(18, 168, "CONTEXT", LCD_WHITE, LCD_BRAND_ELEVATED, 1);
+    LCD_DrawString(18, 182, "EVENT", LCD_BRAND_MUTED, LCD_BRAND_ELEVATED, 1);
+    LCD_DrawString(18, 196, "SENSOR", LCD_WHITE, LCD_BRAND_ELEVATED, 1);
 
-    LCD_FillRect(
-        0,
-        150,
-        320,
-        2,
-        LCD_GRAY
-    );
-
-    LCD_DrawString(
-        10,
-        165,
-        "STATE",
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
-
-    LCD_DrawString(
-        10,
-        185,
-        "EVENT",
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
-
-    LCD_DrawString(
-        10,
-        205,
-        "CLOUD",
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
+    /* Footer */
+    LCD_FillRect(8, 212, 304, 24, LCD_BRAND_PANEL);
+    LCD_FillRect(8, 212, 304, 1, LCD_BRAND_SIGNAL);
+    LCD_DrawString(14, 218, "POSITION", LCD_BRAND_GOLD_LIGHT, LCD_BRAND_PANEL, 1);
 }
+
 void SmartT_UpdateDashboard(float fuel,
                             int rpm,
                             int speed,
@@ -414,177 +589,88 @@ void SmartT_UpdateDashboard(float fuel,
                             const char *cloud)
 {
     char buffer[32];
+    const uint16_t fuel_color = SmartT_FuelColor(fuel);
+    const uint8_t alert = SmartT_IsAlertEvent(event);
+    const uint8_t verified = SmartT_IsVerified(fuel, event, cloud);
 
-    /*
-     * CAN status is owned by main.c.
-     * Do not redraw it here, otherwise WAIT/ONLINE alternates visibly.
-     */
+    SmartT_DrawTrustBadge(verified, alert);
 
-    /*
-     * Fuel
-     */
-    LCD_FillRect(
-        120,
-        40,
-        190,
-        35,
-        LCD_BLACK
-    );
+    /* Hero fuel value — same color as bar tip */
+    LCD_FillRect(18, 54, 284, 38, LCD_BRAND_ELEVATED);
 
     if (fuel < 0.0f)
     {
-        LCD_DrawString(
-            120,
-            45,
-            "CALIB",
-            LCD_YELLOW,
-            LCD_BLACK,
-            2
-        );
+        LCD_DrawString(18, 56, "CALIB", fuel_color, LCD_BRAND_ELEVATED, 3);
     }
     else
     {
-        snprintf(
-            buffer,
-            sizeof(buffer),
-            "%.1f%%",
-            fuel
-        );
-
-        LCD_DrawString(
-            120,
-            45,
-            buffer,
-            LCD_YELLOW,
-            LCD_BLACK,
-            2
-        );
+        snprintf(buffer, sizeof(buffer), "%.1f%%", fuel);
+        LCD_DrawString(18, 56, buffer, fuel_color, LCD_BRAND_ELEVATED, 3);
     }
 
-    /*
-     * RPM
-     */
-    LCD_FillRect(110, 82, 200, 14, LCD_BLACK);
+    LCD_DrawFuelGradientBar(18, 98, 284, 3, fuel);
 
+    /* Metric values */
+    LCD_FillRect(18, 132, 80, 18, LCD_BRAND_SURFACE);
     if (rpm < 0)
+        LCD_DrawString(42, 132, "---", LCD_BRAND_MUTED, LCD_BRAND_SURFACE, 2);
+    else
     {
-        LCD_DrawString(
-            110,
-            85,
-            "N/A",
-            LCD_GRAY,
-            LCD_BLACK,
-            1
-        );
+        snprintf(buffer, sizeof(buffer), "%d", rpm);
+        LCD_DrawString(30, 132, buffer, LCD_WHITE, LCD_BRAND_SURFACE, 2);
+    }
+
+    LCD_FillRect(120, 132, 80, 18, LCD_BRAND_SURFACE);
+    snprintf(buffer, sizeof(buffer), "%d", speed);
+    LCD_DrawString(138, 132, buffer, LCD_WHITE, LCD_BRAND_SURFACE, 2);
+
+    LCD_FillRect(222, 132, 80, 18, LCD_BRAND_SURFACE);
+    {
+        const int tilt_x10 = (int)(tilt * 10.0f + 0.5f);
+        const int tilt_whole = tilt_x10 / 10;
+        const int tilt_decimal = tilt_x10 % 10;
+
+        snprintf(buffer, sizeof(buffer), "%d.%d", tilt_whole, tilt_decimal);
+        LCD_DrawString(236, 132, buffer, LCD_WHITE, LCD_BRAND_SURFACE, 2);
+    }
+
+    /* Integrity rows */
+    LCD_FillRect(88, 166, 214, 12, LCD_BRAND_ELEVATED);
+    {
+        const uint16_t state_color =
+            (state != NULL && strstr(state, "IMU FAIL") != NULL)
+            ? LCD_RED
+            : LCD_WHITE;
+
+        LCD_DrawString(88, 168, state, state_color, LCD_BRAND_ELEVATED, 1);
+    }
+
+    LCD_FillRect(10, 180, 300, 12, LCD_BRAND_ELEVATED);
+    if (alert)
+        LCD_FillRect(10, 180, 3, 12, LCD_BRAND_ALERT_EDGE);
+
+    LCD_FillRect(88, 180, 214, 12, LCD_BRAND_ELEVATED);
+    LCD_DrawString(88, 182, event,
+                   alert ? LCD_WHITE : SmartT_EventColor(event),
+                   LCD_BRAND_ELEVATED, 1);
+
+    LCD_FillRect(88, 194, 214, 12, LCD_BRAND_ELEVATED);
+    LCD_DrawString(88, 196, cloud, LCD_WHITE, LCD_BRAND_ELEVATED, 1);
+}
+
+void SmartT_UpdateGpsBar(uint8_t fix,
+                         const char *lat,
+                         const char *lon)
+{
+    LCD_FillRect(72, 212, 236, 24, LCD_BRAND_PANEL);
+
+    if (fix && lat != NULL && lon != NULL)
+    {
+        LCD_DrawString(72, 218, lat, LCD_WHITE, LCD_BRAND_PANEL, 1);
+        LCD_DrawString(188, 218, lon, LCD_WHITE, LCD_BRAND_PANEL, 1);
     }
     else
     {
-        snprintf(
-            buffer,
-            sizeof(buffer),
-            "%d",
-            rpm
-        );
-
-        LCD_DrawString(
-            110,
-            85,
-            buffer,
-            LCD_WHITE,
-            LCD_BLACK,
-            1
-        );
+        LCD_DrawString(72, 218, "AWAITING FIX", LCD_BRAND_MUTED, LCD_BRAND_PANEL, 1);
     }
-
-    /*
-     * Speed
-     */
-    LCD_FillRect(110, 102, 200, 14, LCD_BLACK);
-
-    snprintf(
-        buffer,
-        sizeof(buffer),
-        "%d KMH",
-        speed
-    );
-
-    LCD_DrawString(
-        110,
-        105,
-        buffer,
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
-
-    /*
-     * Tilt
-     */
-    LCD_FillRect(110, 122, 200, 14, LCD_BLACK);
-
-    /* Avoid floating-point printf dependency in newlib-nano.
-     * main.c passes a non-negative tilt magnitude.
-     */
-    int tilt_x10 = (int)(tilt * 10.0f + 0.5f);
-    int tilt_whole = tilt_x10 / 10;
-    int tilt_decimal = tilt_x10 % 10;
-
-    snprintf(
-        buffer,
-        sizeof(buffer),
-        "%d.%d DEG",
-        tilt_whole,
-        tilt_decimal
-    );
-
-    LCD_DrawString(
-        110,
-        125,
-        buffer,
-        LCD_WHITE,
-        LCD_BLACK,
-        1
-    );
-
-    /*
-     * State
-     */
-    LCD_FillRect(110, 162, 200, 14, LCD_BLACK);
-
-    LCD_DrawString(
-        110,
-        165,
-        state,
-        LCD_CYAN,
-        LCD_BLACK,
-        1
-    );
-
-    /*
-     * Event
-     */
-    LCD_FillRect(110, 182, 200, 14, LCD_BLACK);
-
-    LCD_DrawString(
-        110,
-        185,
-        event,
-        LCD_GREEN,
-        LCD_BLACK,
-        1
-    );
-
-    /*
-     * Cloud
-     */
-    LCD_FillRect(110, 202, 200, 14, LCD_BLACK);
-
-    LCD_DrawString(
-        110,
-        205,
-        cloud,
-        LCD_GREEN,
-        LCD_BLACK,
-        1
-    );
 }

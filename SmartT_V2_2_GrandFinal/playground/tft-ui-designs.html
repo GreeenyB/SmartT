@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartT TFT — UI Design Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080c10;
+      --surface: #111820;
+      --card: #161f2b;
+      --border: #243044;
+      --text: #e8eef4;
+      --muted: #7d8da0;
+      --accent: #00d4aa;
+      --warn: #f5a623;
+      --danger: #ff4d4d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .hero {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #0d1520 0%, var(--bg) 100%);
+    }
+    .hero h1 { margin: 0 0 6px; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    .hero p { margin: 0; color: var(--muted); font-size: 14px; max-width: 720px; line-height: 1.55; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      align-items: center;
+    }
+    .toolbar label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .toolbar select, .toolbar button {
+      font-family: inherit;
+      font-size: 13px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .toolbar button.primary { background: #0d3d34; border-color: var(--accent); color: var(--accent); }
+    .toolbar button:hover { filter: brightness(1.08); }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 24px 32px 40px;
+    }
+    .design-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .design-card:hover { border-color: #3a5068; transform: translateY(-2px); }
+    .design-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 12px 40px rgba(0,212,170,.12);
+    }
+    .design-card .preview-wrap {
+      background: #0a0a0a;
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+    }
+    .design-card canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 1px #222;
+    }
+    .design-card .meta { padding: 14px 16px 16px; }
+    .design-card .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    .tag.easy { background: #0d3328; color: var(--accent); }
+    .tag.mid { background: #2d2608; color: var(--warn); }
+    .tag.ref { background: #1a2433; color: #8ab4f8; }
+    .design-card h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+    .design-card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .detail {
+      margin: 0 32px 40px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: auto 1fr;
+    }
+    .detail-preview {
+      padding: 28px;
+      background: #06080c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      border-right: 1px solid var(--border);
+    }
+    #detailCanvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+    .detail-body { padding: 28px 32px; }
+    .detail-body h2 { margin: 0 0 8px; font-size: 22px; }
+    .detail-body .lead { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .pros-cons h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    .pros-cons ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.65; color: #c5d0dc; }
+    .impl-note {
+      font-size: 13px;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .impl-note strong { color: var(--text); }
+    @media (max-width: 900px) {
+      .detail { grid-template-columns: 1fr; }
+      .detail-preview { border-right: none; border-bottom: 1px solid var(--border); }
+      .pros-cons { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>SmartT TFT UI Design Gallery</h1>
+    <p>
+      6 concept cho màn ILI9341 320×240. Mỗi design dùng cùng dữ liệu (fuel, RPM, speed, tilt, state, event, sensor, GPS)
+      và chỉ dùng primitive khả thi trên STM32: <code>FillRect</code>, <code>DrawString</code>, cung/ thanh tiến trình.
+      Click card để xem chi tiết và chọn design triển khai.
+    </p>
+  </header>
+
+  <div class="toolbar">
+    <label>Cảnh demo
+      <select id="scene">
+        <option value="drive">Đang chạy — 67% fuel</option>
+        <option value="parked">Đỗ xe — ổn định</option>
+        <option value="theft">Cảnh báo trộm xăng</option>
+        <option value="refuel">Đang đổ xăng</option>
+        <option value="calib">Cần hiệu chuẩn</option>
+      </select>
+    </label>
+    <button class="primary" id="btnAnimate">▶ Animate tất cả</button>
+    <button id="btnStop">⏹ Dừng</button>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+
+  <section class="detail" id="detailPanel">
+    <div class="detail-preview">
+      <canvas id="detailCanvas" width="320" height="240"></canvas>
+      <span style="font-size:12px;color:var(--muted)">320 × 240 · scale 3.5×</span>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </section>
+
+  <script>
+    const W = 320, H = 240;
+
+    /* RGB565 */
+    const C = {
+      BLACK:0x0000, WHITE:0xFFFF, RED:0xF800, GREEN:0x07E0, BLUE:0x001F,
+      YELLOW:0xFFE0, CYAN:0x07FF, GRAY:0x8410,
+      DARK:0x0841, PANEL:0x18C3, NAVY:0x0010, SLATE:0x39E7,
+      AMBER:0xFD20, ORANGE:0xFB80, TEAL:0x07DF, MUTED:0x4A69,
+      CARD:0x2104, LINE:0x3186, ALERT:0xF986, OK:0x2D07,
+    };
+
+    const SCENES = {
+      drive:  { fuel:67.3, rpm:1850, speed:62, tilt:3.2, state:'MOVING ROUGH', event:'NORMAL', sensor:'US 842 Q92', gpsFix:true, lat:'10.7723N', lon:'106.6598E', imuOk:true },
+      parked: { fuel:54.2, rpm:0, speed:0, tilt:0.4, state:'PARKED STABLE', event:'NORMAL', sensor:'US 812 Q96', gpsFix:true, lat:'10.7723N', lon:'106.6598E', imuOk:true },
+      theft:  { fuel:41.8, rpm:-1, speed:0, tilt:1.1, state:'PARKED STABLE', event:'THEFT ANOMALY', sensor:'US 620 Q88', gpsFix:true, lat:'10.7723N', lon:'106.6598E', imuOk:true },
+      refuel: { fuel:78.5, rpm:0, speed:0, tilt:0.8, state:'PARKED STABLE', event:'REFUEL', sensor:'US 910 Q94', gpsFix:true, lat:'10.7723N', lon:'106.6598E', imuOk:true },
+      calib:  { fuel:-1, rpm:-1, speed:0, tilt:2.0, state:'UNKNOWN', event:'CALIBRATE TANK', sensor:'US NO DATA', gpsFix:false, lat:'', lon:'', imuOk:true },
+    };
+
+    const DESIGNS = [
+      {
+        id: 'current',
+        name: '01 · Current (Firmware)',
+        tag: 'ref', tagLabel: 'Hiện tại',
+        blurb: 'Layout gốc trong lcd.c — nhãn trái, giá trị phải, header xanh.',
+        difficulty: 'Đã có sẵn',
+        pros: ['Không cần code mới', 'Đã test trên board', 'Dễ debug'],
+        cons: ['Thông tin rải rác', 'Fuel không nổi bật', 'Cảm giác prototype'],
+        impl: 'Giữ nguyên <code>SmartT_DrawDashboard()</code> / <code>SmartT_UpdateDashboard()</code>.',
+        draw: drawCurrent,
+      },
+      {
+        id: 'aurora',
+        name: '02 · Aurora',
+        tag: 'easy', tagLabel: 'Dễ triển khai',
+        blurb: 'Dark theme hiện đại — fuel hero lớn + thanh ngang gradient-feel.',
+        difficulty: '~80 dòng lcd.c',
+        pros: ['Fuel là trung tâm', 'Dark theme dễ nhìn ban đêm', 'Chỉ cần FillRect + text'],
+        cons: ['Không có gauge tròn', 'Header mỏng hơn current'],
+        impl: 'Thêm <code>LCD_DrawHBar()</code> helper. Fuel bar 4px cao, màu amber→red khi &lt;20%.',
+        draw: drawAurora,
+      },
+      {
+        id: 'tank',
+        name: '03 · Tank Vision',
+        tag: 'easy', tagLabel: 'Dễ triển khai',
+        blurb: 'Bình xăng dọc bên trái — trực quan nhất cho người dùng phổ thông.',
+        difficulty: '~100 dòng lcd.c',
+        pros: ['Ai cũng hiểu ngay', 'Phù hợp demo BK Innovation', 'Alert đổi màu bình'],
+        cons: ['Ít chỗ cho GPS dài', 'Cần vẽ outline bình'],
+        impl: 'Vẽ outline bằng <code>FillRect</code> viền 2px, fill level từ đáy lên. Event đổi viền đỏ.',
+        draw: drawTank,
+      },
+      {
+        id: 'cockpit',
+        name: '04 · Cockpit',
+        tag: 'mid', tagLabel: 'Trung bình',
+        blurb: 'Phong cách bảng đồng hồ xe — số lớn, tối giản, accent cam.',
+        difficulty: '~120 dòng lcd.c',
+        pros: ['Cảm giác automotive', 'Số fuel cực lớn (scale 3)', 'Rất ít clutter'],
+        cons: ['State/event nhỏ ở dưới', 'Cần font scale 3 cho số'],
+        impl: 'Fuel % scale 3 ở giữa. RPM/SPEED dạng pill ngang. Dùng lại <code>LCD_DrawChar</code> scale 3.',
+        draw: drawCockpit,
+      },
+      {
+        id: 'sentinel',
+        name: '05 · Sentinel',
+        tag: 'mid', tagLabel: 'Trung bình',
+        blurb: 'Ưu tiên cảnh báo — banner đỏ khi theft, arc gauge fuel ở giữa.',
+        difficulty: '~150 dòng lcd.c',
+        pros: ['Theft anomaly nổi bật ngay', 'Arc gauge đẹp', 'Phù hợp anti-theft story'],
+        cons: ['Arc cần vòng pixel (~60 dòng)', 'GPS chỉ 1 dòng ngắn'],
+        impl: 'Thêm <code>LCD_DrawArc()</code> bằng Bresenham/pixel loop. Banner 22px khi event ≠ NORMAL.',
+        draw: drawSentinel,
+      },
+      {
+        id: 'horizon',
+        name: '06 · Horizon',
+        tag: 'mid', tagLabel: 'Trung bình',
+        blurb: 'Dashboard chuyên nghiệp — ring fuel + 3 card metric + footer GPS.',
+        difficulty: '~160 dòng lcd.c',
+        pros: ['Cân bằng đẹp & thông tin', 'Cards tách rõ từng metric', 'Trông như sản phẩm thật'],
+        cons: ['Ring + 3 card = nhiều vẽ nhất', 'Cần tối ưu refresh partial'],
+        impl: 'Ring fuel bán nguyệt trên. 3 card 90×36px. Partial update từng vùng để giữ 10Hz.',
+        draw: drawHorizon,
+      },
+    ];
+
+    let selectedId = 'aurora';
+    let sceneKey = 'drive';
+    let animTimer = null;
+    let animT = 0;
+
+    function rgb565(c) {
+      const r = Math.round(((c >> 11) & 0x1f) * 255 / 31);
+      const g = Math.round(((c >> 5) & 0x3f) * 255 / 63);
+      const b = Math.round((c & 0x1f) * 255 / 31);
+      return `rgb(${r},${g},${b})`;
+    }
+
+    function makeCtx(canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      return ctx;
+    }
+
+    function fillRect(ctx, x, y, w, h, color) {
+      if (x >= W || y >= H) return;
+      if (x + w > W) w = W - x;
+      if (y + h > H) h = H - y;
+      ctx.fillStyle = rgb565(color);
+      ctx.fillRect(x, y, w, h);
+    }
+
+    function drawString(ctx, x, y, str, fg, bg, scale = 1) {
+      ctx.font = `${scale === 1 ? 10 : scale === 2 ? 18 : 26}px "JetBrains Mono", monospace`;
+      ctx.textBaseline = 'top';
+      const pad = scale > 1 ? 1 : 0;
+      if (bg !== null) {
+        const mw = str.length * (6 * scale - 1) + 4;
+        fillRect(ctx, x - 1, y - pad, mw, 7 * scale + pad * 2, bg);
+      }
+      ctx.fillStyle = rgb565(fg);
+      ctx.fillText(str, x, y);
+    }
+
+    function drawHBar(ctx, x, y, w, h, pct, fg, bg) {
+      fillRect(ctx, x, y, w, h, bg);
+      const fw = Math.max(0, Math.min(w, Math.round(w * pct / 100)));
+      if (fw > 0) fillRect(ctx, x, y, fw, h, fg);
+    }
+
+    function drawVBar(ctx, x, y, w, h, pct, fg, bg) {
+      fillRect(ctx, x, y, w, h, bg);
+      const fh = Math.max(0, Math.min(h, Math.round(h * pct / 100)));
+      if (fh > 0) fillRect(ctx, x, y + h - fh, w, fh, fg);
+    }
+
+    function drawRing(ctx, cx, cy, r, thickness, pct, fg, bg) {
+      for (let a = 180; a <= 360; a += 1) {
+        const rad = (a * Math.PI) / 180;
+        const px = Math.round(cx + Math.cos(rad) * r);
+        const py = Math.round(cy + Math.sin(rad) * r);
+        const filled = ((a - 180) / 180) * 100 <= pct;
+        for (let t = 0; t < thickness; t++) {
+          const rad2 = (a * Math.PI) / 180;
+          const px2 = Math.round(cx + Math.cos(rad2) * (r - t));
+          const py2 = Math.round(cy + Math.sin(rad2) * (r - t));
+          fillRect(ctx, px2, py2, 1, 1, filled ? fg : bg);
+        }
+      }
+    }
+
+    function drawFullRing(ctx, cx, cy, r, thickness, pct, fg, bg) {
+      for (let a = 0; a < 360; a += 2) {
+        const filled = (a / 360) * 100 <= pct;
+        for (let t = 0; t < thickness; t++) {
+          const rad = ((a - 90) * Math.PI) / 180;
+          const px = Math.round(cx + Math.cos(rad) * (r - t));
+          const py = Math.round(cy + Math.sin(rad) * (r - t));
+          fillRect(ctx, px, py, 2, 2, filled ? fg : bg);
+        }
+      }
+    }
+
+    function isAlert(d) {
+      return d.event !== 'NORMAL' && d.event !== 'REFUEL CAND';
+    }
+
+    function fuelColor(pct) {
+      if (pct < 0) return C.YELLOW;
+      if (pct < 15) return C.RED;
+      if (pct < 30) return C.ORANGE;
+      return C.AMBER;
+    }
+
+    function eventColor(ev) {
+      if (ev.includes('THEFT') || ev.includes('SUSPICIOUS') || ev.includes('FAULT')) return C.RED;
+      if (ev.includes('REFUEL')) return C.GREEN;
+      if (ev.includes('SLOSH') || ev.includes('DROP') || ev.includes('QUALITY')) return C.YELLOW;
+      return C.TEAL;
+    }
+
+  /* ─── DESIGN 01: CURRENT ─── */
+    function drawCurrent(ctx, d) {
+      fillRect(ctx, 0, 0, W, H, C.BLACK);
+      fillRect(ctx, 0, 0, 320, 30, C.BLUE);
+      drawString(ctx, 8, 7, 'SMARTT', C.WHITE, C.BLUE, 2);
+      drawString(ctx, 250, 10, 'EDGE', C.GREEN, C.BLUE, 1);
+      fillRect(ctx, 0, 31, 320, 2, C.GRAY);
+      drawString(ctx, 10, 45, 'FUEL', C.CYAN, C.BLACK, 2);
+      drawString(ctx, 10, 85, 'RPM', C.WHITE, C.BLACK, 1);
+      drawString(ctx, 10, 105, 'SPEED', C.WHITE, C.BLACK, 1);
+      drawString(ctx, 10, 125, 'TILT', C.WHITE, C.BLACK, 1);
+      fillRect(ctx, 0, 150, 320, 2, C.GRAY);
+      drawString(ctx, 10, 165, 'STATE', C.WHITE, C.BLACK, 1);
+      drawString(ctx, 10, 185, 'EVENT', C.WHITE, C.BLACK, 1);
+      drawString(ctx, 10, 205, 'SENSOR', C.WHITE, C.BLACK, 1);
+
+      const fuelTxt = d.fuel < 0 ? 'CALIB' : `${d.fuel.toFixed(1)}%`;
+      drawString(ctx, 120, 45, fuelTxt, C.YELLOW, C.BLACK, 2);
+      drawString(ctx, 110, 85, d.rpm < 0 ? 'N/A' : String(d.rpm), d.rpm < 0 ? C.GRAY : C.WHITE, C.BLACK, 1);
+      drawString(ctx, 110, 105, `${d.speed} KMH`, C.WHITE, C.BLACK, 1);
+      drawString(ctx, 110, 125, `${d.tilt.toFixed(1)} DEG`, C.WHITE, C.BLACK, 1);
+      drawString(ctx, 110, 165, d.imuOk ? d.state : 'IMU FAIL', d.imuOk ? C.CYAN : C.RED, C.BLACK, 1);
+      drawString(ctx, 110, 185, d.event, C.GREEN, C.BLACK, 1);
+      drawString(ctx, 110, 205, d.sensor, C.GREEN, C.BLACK, 1);
+      fillRect(ctx, 0, 220, 320, 20, C.BLACK);
+      drawString(ctx, 10, 225, 'GPS', C.CYAN, C.BLACK, 1);
+      drawString(ctx, 105, 225, d.gpsFix ? d.lat : 'NO FRESH FIX', d.gpsFix ? C.WHITE : C.RED, C.BLACK, 1);
+      if (d.gpsFix) drawString(ctx, 190, 225, d.lon, C.WHITE, C.BLACK, 1);
+    }
+
+  /* ─── DESIGN 02: AURORA ─── */
+    function drawAurora(ctx, d) {
+      fillRect(ctx, 0, 0, W, H, C.DARK);
+      fillRect(ctx, 0, 0, W, 24, C.NAVY);
+      fillRect(ctx, 0, 23, W, 1, C.TEAL);
+      drawString(ctx, 10, 6, 'SMARTT', C.WHITE, null, 1);
+      drawString(ctx, 248, 7, 'EDGE', C.TEAL, null, 1);
+
+      const fc = d.fuel < 0 ? C.YELLOW : fuelColor(d.fuel);
+      const fp = d.fuel < 0 ? 0 : d.fuel;
+      drawString(ctx, 16, 38, 'FUEL LEVEL', C.MUTED, null, 1);
+      drawString(ctx, 16, 52, d.fuel < 0 ? 'CALIB' : `${d.fuel.toFixed(1)}%`, fc, null, 2);
+      drawHBar(ctx, 16, 82, 288, 8, fp, fc, C.PANEL);
+
+      fillRect(ctx, 16, 102, 140, 56, C.CARD);
+      fillRect(ctx, 16, 102, 140, 1, C.LINE);
+      drawString(ctx, 24, 110, 'RPM', C.MUTED, C.CARD, 1);
+      drawString(ctx, 24, 126, d.rpm < 0 ? '---' : String(d.rpm), C.WHITE, C.CARD, 2);
+
+      fillRect(ctx, 164, 102, 140, 56, C.CARD);
+      fillRect(ctx, 164, 102, 140, 1, C.LINE);
+      drawString(ctx, 172, 110, 'SPEED', C.MUTED, C.CARD, 1);
+      drawString(ctx, 172, 126, `${d.speed}`, C.WHITE, C.CARD, 2);
+      drawString(ctx, 172, 144, 'km/h', C.MUTED, C.CARD, 1);
+
+      fillRect(ctx, 16, 168, 92, 40, C.CARD);
+      drawString(ctx, 24, 176, 'TILT', C.MUTED, C.CARD, 1);
+      drawString(ctx, 24, 190, `${d.tilt.toFixed(1)}°`, C.WHITE, C.CARD, 1);
+
+      fillRect(ctx, 114, 168, 190, 40, isAlert(d) ? C.ALERT : C.CARD);
+      drawString(ctx, 122, 176, 'EVENT', C.MUTED, isAlert(d) ? C.ALERT : C.CARD, 1);
+      drawString(ctx, 122, 190, d.event, isAlert(d) ? C.WHITE : eventColor(d.event), isAlert(d) ? C.ALERT : C.CARD, 1);
+
+      fillRect(ctx, 0, 214, W, 26, C.NAVY);
+      drawString(ctx, 10, 220, d.imuOk ? d.state : 'IMU FAIL', C.CYAN, null, 1);
+      drawString(ctx, 160, 220, d.sensor, C.MUTED, null, 1);
+      drawString(ctx, 10, 232, d.gpsFix ? `${d.lat} ${d.lon}` : 'GPS: NO FIX', d.gpsFix ? C.SLATE : C.RED, null, 1);
+    }
+
+  /* ─── DESIGN 03: TANK VISION ─── */
+    function drawTank(ctx, d) {
+      fillRect(ctx, 0, 0, W, H, C.BLACK);
+      fillRect(ctx, 0, 0, W, 22, C.PANEL);
+      drawString(ctx, 8, 5, 'SMARTT', C.WHITE, null, 1);
+      const ec = eventColor(d.event);
+      fillRect(ctx, 200, 4, 112, 14, isAlert(d) ? C.RED : C.OK);
+      drawString(ctx, 206, 6, d.event.slice(0, 14), C.WHITE, null, 1);
+
+      const tx = 20, ty = 36, tw = 56, th = 140;
+      const border = isAlert(d) ? C.RED : C.SLATE;
+      fillRect(ctx, tx - 2, ty - 2, tw + 4, th + 4, border);
+      fillRect(ctx, tx, ty, tw, th, C.PANEL);
+      const fp = d.fuel < 0 ? 0 : d.fuel;
+      const fc = d.fuel < 0 ? C.YELLOW : fuelColor(d.fuel);
+      drawVBar(ctx, tx + 4, ty + 4, tw - 8, th - 8, fp, fc, C.DARK);
+      drawString(ctx, tx + 6, ty + th + 8, d.fuel < 0 ? 'CAL' : `${Math.round(d.fuel)}%`, fc, null, 2);
+
+      const rx = 96;
+      fillRect(ctx, rx, 36, 210, 1, C.LINE);
+      drawString(ctx, rx, 44, 'VEHICLE', C.MUTED, null, 1);
+      drawString(ctx, rx, 58, d.imuOk ? d.state : 'IMU FAIL', C.CYAN, null, 1);
+
+      const metrics = [
+        ['RPM', d.rpm < 0 ? 'N/A' : String(d.rpm)],
+        ['SPEED', `${d.speed} km/h`],
+        ['TILT', `${d.tilt.toFixed(1)}°`],
+      ];
+      metrics.forEach((m, i) => {
+        const my = 82 + i * 34;
+        fillRect(ctx, rx, my, 210, 28, C.CARD);
+        drawString(ctx, rx + 8, my + 4, m[0], C.MUTED, C.CARD, 1);
+        drawString(ctx, rx + 80, my + 8, m[1], C.WHITE, C.CARD, 1);
+      });
+
+      fillRect(ctx, 0, 188, W, 1, C.LINE);
+      drawString(ctx, 10, 196, d.sensor, C.TEAL, null, 1);
+      fillRect(ctx, 0, 214, W, 26, C.PANEL);
+      drawString(ctx, 10, 220, 'GPS', C.MUTED, null, 1);
+      drawString(ctx, 48, 220, d.gpsFix ? `${d.lat}  ${d.lon}` : 'NO FRESH FIX', d.gpsFix ? C.WHITE : C.RED, null, 1);
+    }
+
+  /* ─── DESIGN 04: COCKPIT ─── */
+    function drawCockpit(ctx, d) {
+      fillRect(ctx, 0, 0, W, H, 0x0000);
+      fillRect(ctx, 0, 0, W, 3, C.ORANGE);
+      drawString(ctx, 12, 10, 'SMARTT', C.MUTED, null, 1);
+      drawString(ctx, 268, 10, 'EDGE', C.ORANGE, null, 1);
+
+      const fc = d.fuel < 0 ? C.YELLOW : fuelColor(d.fuel);
+      const fuelStr = d.fuel < 0 ? 'CAL' : `${d.fuel.toFixed(0)}`;
+      drawString(ctx, 100, 48, fuelStr, fc, null, 3);
+      drawString(ctx, d.fuel < 0 ? 175 : 210, 72, d.fuel < 0 ? 'IBRATE' : '%', fc, null, 2);
+      drawHBar(ctx, 40, 118, 240, 4, d.fuel < 0 ? 0 : d.fuel, fc, C.PANEL);
+
+      const pillY = 136;
+      fillRect(ctx, 16, pillY, 90, 32, C.CARD);
+      fillRect(ctx, 114, pillY, 90, 32, C.CARD);
+      fillRect(ctx, 212, pillY, 92, 32, C.CARD);
+      drawString(ctx, 24, pillY + 4, 'RPM', C.MUTED, C.CARD, 1);
+      drawString(ctx, 24, pillY + 16, d.rpm < 0 ? '---' : String(d.rpm), C.WHITE, C.CARD, 1);
+      drawString(ctx, 122, pillY + 4, 'SPD', C.MUTED, C.CARD, 1);
+      drawString(ctx, 122, pillY + 16, String(d.speed), C.WHITE, C.CARD, 1);
+      drawString(ctx, 220, pillY + 4, 'TILT', C.MUTED, C.CARD, 1);
+      drawString(ctx, 220, pillY + 16, `${d.tilt.toFixed(1)}`, C.WHITE, C.CARD, 1);
+
+      fillRect(ctx, 0, 180, W, 1, C.ORANGE);
+      const st = d.imuOk ? d.state : 'IMU FAIL';
+      drawString(ctx, 16, 190, st, C.CYAN, null, 1);
+      drawString(ctx, 16, 206, d.event, eventColor(d.event), null, 1);
+
+      fillRect(ctx, 0, 222, W, 18, C.CARD);
+      drawString(ctx, 10, 226, d.gpsFix ? `GPS ${d.lat}` : 'GPS ---', C.MUTED, null, 1);
+      if (d.gpsFix) drawString(ctx, 160, 226, d.lon, C.MUTED, null, 1);
+      drawString(ctx, 250, 226, d.sensor.slice(0, 10), C.SLATE, null, 1);
+    }
+
+  /* ─── DESIGN 05: SENTINEL ─── */
+    function drawSentinel(ctx, d) {
+      const alert = isAlert(d);
+      fillRect(ctx, 0, 0, W, H, C.DARK);
+      if (alert) {
+        fillRect(ctx, 0, 0, W, 26, C.RED);
+        drawString(ctx, 10, 7, d.event, C.WHITE, C.RED, 1);
+      } else {
+        fillRect(ctx, 0, 0, W, 26, C.NAVY);
+        drawString(ctx, 10, 7, 'SMARTT SENTINEL', C.WHITE, C.NAVY, 1);
+        drawString(ctx, 250, 8, 'OK', C.TEAL, C.NAVY, 1);
+      }
+
+      const fp = d.fuel < 0 ? 0 : d.fuel;
+      const fc = d.fuel < 0 ? C.YELLOW : fuelColor(d.fuel);
+      drawRing(ctx, 160, 118, 52, 3, fp, fc, C.PANEL);
+      drawString(ctx, d.fuel < 0 ? 118 : 128, 108, d.fuel < 0 ? 'CALIB' : `${d.fuel.toFixed(1)}%`, fc, null, 2);
+
+      fillRect(ctx, 16, 168, 88, 36, C.CARD);
+      fillRect(ctx, 112, 168, 88, 36, C.CARD);
+      fillRect(ctx, 208, 168, 96, 36, C.CARD);
+      drawString(ctx, 24, 174, 'RPM', C.MUTED, C.CARD, 1);
+      drawString(ctx, 24, 188, d.rpm < 0 ? '--' : String(d.rpm), C.WHITE, C.CARD, 1);
+      drawString(ctx, 120, 174, 'SPD', C.MUTED, C.CARD, 1);
+      drawString(ctx, 120, 188, `${d.speed}`, C.WHITE, C.CARD, 1);
+      drawString(ctx, 216, 174, 'TILT', C.MUTED, C.CARD, 1);
+      drawString(ctx, 216, 188, `${d.tilt.toFixed(1)}`, C.WHITE, C.CARD, 1);
+
+      fillRect(ctx, 0, 210, W, 30, C.NAVY);
+      drawString(ctx, 10, 216, d.imuOk ? d.state : 'IMU FAIL', C.CYAN, null, 1);
+      drawString(ctx, 10, 228, d.sensor, C.MUTED, null, 1);
+      drawString(ctx, 200, 222, d.gpsFix ? 'GPS OK' : 'NO GPS', d.gpsFix ? C.OK : C.RED, null, 1);
+    }
+
+  /* ─── DESIGN 06: HORIZON ─── */
+    function drawHorizon(ctx, d) {
+      fillRect(ctx, 0, 0, W, H, 0x1082);
+      fillRect(ctx, 0, 0, W, 20, 0x0008);
+      drawString(ctx, 8, 4, 'SMARTT', C.WHITE, null, 1);
+      drawString(ctx, 260, 5, 'EDGE', C.TEAL, null, 1);
+
+      const fp = d.fuel < 0 ? 0 : d.fuel;
+      const fc = d.fuel < 0 ? C.YELLOW : fuelColor(d.fuel);
+      drawFullRing(ctx, 72, 88, 40, 3, fp, fc, C.PANEL);
+      drawString(ctx, d.fuel < 0 ? 48 : 54, 78, d.fuel < 0 ? 'CAL' : `${Math.round(d.fuel)}`, fc, null, 2);
+      drawString(ctx, 58, 96, d.fuel < 0 ? '' : '%', C.MUTED, null, 1);
+
+      const cards = [
+        { x: 148, y: 28, label: 'RPM', val: d.rpm < 0 ? 'N/A' : String(d.rpm) },
+        { x: 148, y: 72, label: 'SPEED', val: `${d.speed} km/h` },
+        { x: 148, y: 116, label: 'TILT', val: `${d.tilt.toFixed(1)}°` },
+      ];
+      cards.forEach(c => {
+        fillRect(ctx, c.x, c.y, 160, 38, C.CARD);
+        fillRect(ctx, c.x, c.y, 3, 38, C.TEAL);
+        drawString(ctx, c.x + 10, c.y + 6, c.label, C.MUTED, C.CARD, 1);
+        drawString(ctx, c.x + 10, c.y + 20, c.val, C.WHITE, C.CARD, 1);
+      });
+
+      fillRect(ctx, 8, 158, 304, 28, isAlert(d) ? C.RED : C.CARD);
+      drawString(ctx, 16, 164, 'STATUS', C.MUTED, isAlert(d) ? C.RED : C.CARD, 1);
+      drawString(ctx, 16, 176, d.event, isAlert(d) ? C.WHITE : eventColor(d.event), isAlert(d) ? C.RED : C.CARD, 1);
+      drawString(ctx, 180, 176, d.imuOk ? d.state : 'IMU FAIL', C.CYAN, isAlert(d) ? C.RED : C.CARD, 1);
+
+      fillRect(ctx, 0, 192, W, 1, C.LINE);
+      drawString(ctx, 10, 200, d.sensor, C.TEAL, null, 1);
+      fillRect(ctx, 0, 218, W, 22, 0x0008);
+      drawString(ctx, 10, 224, d.gpsFix ? `${d.lat}  ${d.lon}` : 'GPS: NO FRESH FIX', d.gpsFix ? C.SLATE : C.RED, null, 1);
+    }
+
+    /* ─── Gallery build ─── */
+    function getScene() {
+      if (animTimer) {
+        const keys = Object.keys(SCENES);
+        const k = keys[Math.floor(animT / 4) % keys.length];
+        const base = { ...SCENES[k] };
+        base.fuel = Math.max(-1, Math.min(100, base.fuel + Math.sin(animT) * 3));
+        base.tilt = Math.max(0, base.tilt + Math.sin(animT * 1.3) * 0.5);
+        return base;
+      }
+      return { ...SCENES[sceneKey] };
+    }
+
+    function renderAll() {
+      const data = getScene();
+      DESIGNS.forEach(design => {
+        const card = document.querySelector(`[data-id="${design.id}"]`);
+        if (!card) return;
+        const canvas = card.querySelector('canvas');
+        const ctx = makeCtx(canvas);
+        ctx.clearRect(0, 0, W, H);
+        design.draw(ctx, data);
+      });
+      const sel = DESIGNS.find(d => d.id === selectedId);
+      const dc = document.getElementById('detailCanvas');
+      const dctx = makeCtx(dc);
+      dctx.clearRect(0, 0, W, H);
+      if (sel) sel.draw(dctx, data);
+      dc.style.width = '1120px';
+      dc.style.height = '840px';
+    }
+
+    function buildGallery() {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      DESIGNS.forEach(design => {
+        const card = document.createElement('article');
+        card.className = 'design-card' + (design.id === selectedId ? ' selected' : '');
+        card.dataset.id = design.id;
+        card.innerHTML = `
+          <div class="preview-wrap">
+            <canvas width="320" height="240" style="width:288px;height:216px"></canvas>
+          </div>
+          <div class="meta">
+            <span class="tag ${design.tag}">${design.tagLabel}</span>
+            <h3>${design.name}</h3>
+            <p>${design.blurb}</p>
+          </div>`;
+        card.addEventListener('click', () => {
+          selectedId = design.id;
+          document.querySelectorAll('.design-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          updateDetail();
+          renderAll();
+        });
+        gallery.appendChild(card);
+      });
+      updateDetail();
+      renderAll();
+    }
+
+    function updateDetail() {
+      const d = DESIGNS.find(x => x.id === selectedId);
+      if (!d) return;
+      document.getElementById('detailBody').innerHTML = `
+        <h2>${d.name}</h2>
+        <p class="lead">${d.blurb}</p>
+        <div class="pros-cons">
+          <div><h4>Ưu điểm</h4><ul>${d.pros.map(p => `<li>${p}</li>`).join('')}</ul></div>
+          <div><h4>Nhược điểm</h4><ul>${d.cons.map(c => `<li>${c}</li>`).join('')}</ul></div>
+        </div>
+        <p class="impl-note"><strong>Triển khai firmware:</strong> ${d.impl}<br><strong>Độ phức tạp:</strong> ${d.difficulty}</p>`;
+    }
+
+    document.getElementById('scene').addEventListener('change', e => {
+      sceneKey = e.target.value;
+      if (animTimer) { clearInterval(animTimer); animTimer = null; }
+      renderAll();
+    });
+
+    document.getElementById('btnAnimate').addEventListener('click', () => {
+      if (animTimer) return;
+      animT = 0;
+      animTimer = setInterval(() => { animT += 0.12; renderAll(); }, 120);
+    });
+
+    document.getElementById('btnStop').addEventListener('click', () => {
+      if (animTimer) { clearInterval(animTimer); animTimer = null; renderAll(); }
+    });
+
+    buildGallery();
+  </script>
+</body>
+</html>

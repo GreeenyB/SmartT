@@ -230,21 +230,14 @@ memset(&gps_snapshot, 0, sizeof(gps_snapshot));
   LCD_Init();
   SmartT_DrawDashboard();
 
-  /* Local edge is functional independently of cloud connectivity. */
-  LCD_FillRect(250, 5, 65, 18, LCD_BLUE);
-  LCD_DrawString(250, 10, "EDGE", LCD_GREEN, LCD_BLUE, 1);
-
-  LCD_FillRect(0, 202, 105, 14, LCD_BLACK);
-  LCD_DrawString(10, 205, "SENSOR", LCD_WHITE, LCD_BLACK, 1);
-
-  LCD_DrawString(110, 185, "CALIBRATING", LCD_YELLOW, LCD_BLACK, 1);
+  LCD_DrawString(88, 182, "CALIBRATING", LCD_YELLOW, LCD_BRAND_ELEVATED, 1);
 
   imu_ok = SmartT_IMUStartWithCalibration();
   imu_reinit_tick = HAL_GetTick();
 
   if (!imu_ok)
   {
-    LCD_DrawString(110, 185, "IMU FAIL    ", LCD_RED, LCD_BLACK, 1);
+    LCD_DrawString(88, 168, "IMU FAIL    ", LCD_RED, LCD_BRAND_ELEVATED, 1);
   }
 
   GPS_Init();
@@ -436,22 +429,20 @@ memset(&gps_snapshot, 0, sizeof(gps_snapshot));
                              event_text,
                              sensor_text);
 
-      LCD_FillRect(0, 220, 320, 20, LCD_BLACK);
-      LCD_DrawString(10, 225, "GPS", LCD_CYAN, LCD_BLACK, 1);
-
       if (gps_snapshot.fix &&
           (gps_snapshot.last_update_ms != 0U) &&
           ((now - gps_snapshot.last_update_ms) <= SMARTT_GPS_FRESH_MS))
       {
         FormatCoordinate(gps_lat_text, sizeof(gps_lat_text), gps_snapshot.latitude);
         FormatCoordinate(gps_lon_text, sizeof(gps_lon_text), gps_snapshot.longitude);
-        LCD_DrawString(105, 225, gps_lat_text, LCD_WHITE, LCD_BLACK, 1);
-        LCD_DrawString(190, 225, gps_lon_text, LCD_WHITE, LCD_BLACK, 1);
       }
-      else
-      {
-        LCD_DrawString(105, 225, "NO FRESH FIX", LCD_RED, LCD_BLACK, 1);
-      }
+
+      SmartT_UpdateGpsBar(
+          (gps_snapshot.fix &&
+           (gps_snapshot.last_update_ms != 0U) &&
+           ((now - gps_snapshot.last_update_ms) <= SMARTT_GPS_FRESH_MS)) ? 1U : 0U,
+          gps_lat_text,
+          gps_lon_text);
     }
     /* USER CODE END WHILE */
 
